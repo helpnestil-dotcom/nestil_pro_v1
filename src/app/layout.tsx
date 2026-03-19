@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script'; // Import the Script component
 import './globals.css';
 import { Header } from '@/components/header';
@@ -19,9 +19,18 @@ export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in Andhra Pradesh',
   description:
     'Search, Buy, and Sell premium real estate with zero brokerage fees on Nestil, Andhra Pradesh\'s fastest growing direct-to-owner property marketplace.',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
+    apple: '/favicon.ico',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#3B82F6',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -31,9 +40,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-      </head>
       <body
         className={cn(
           poppins.variable
