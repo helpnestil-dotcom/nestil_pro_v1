@@ -40,9 +40,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+      </head>
       <body
         className={cn(
-          poppins.variable
+          poppins.variable,
+          "font-body antialiased"
         )}
       >
         <FirebaseClientProvider>
@@ -71,10 +75,10 @@ export default function RootLayout({
 
         {/* Google Analytics Scripts */}
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src="https://www.googletagmanager.com/gtag/js?id=G-MQPQTZGSDR"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

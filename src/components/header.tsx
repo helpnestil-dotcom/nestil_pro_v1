@@ -73,7 +73,13 @@ export function Header() {
             </Button>
             
             {/* Chat Icon for desktop */}
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex text-slate-600 hover:text-emerald-500 hover:bg-emerald-50 transition-colors" asChild>
+            <Button 
+                variant="ghost" 
+                size="icon" 
+                aria-label="Contact on WhatsApp"
+                className="hidden md:inline-flex text-slate-600 hover:text-emerald-500 hover:bg-emerald-50 transition-colors" 
+                asChild
+            >
                 <Link href="https://wa.me/919492060040" target="_blank" rel="noopener noreferrer" title="Contact on WhatsApp">
                     <WhatsappIcon />
                     <span className="sr-only">Contact on WhatsApp</span>
@@ -88,7 +94,7 @@ export function Header() {
             <UserNav />
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
+                    <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation menu">
                         <Menu className="h-6 w-6" />
                     </Button>
                 </SheetTrigger>

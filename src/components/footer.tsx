@@ -11,8 +11,8 @@ const NavLogo = () => (
     </Link>
 );
 
-const SocialIcon = ({ children, href }: { children: React.ReactNode; href: string; }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground cursor-pointer transition-colors hover:text-primary">
+const SocialIcon = ({ children, href, ariaLabel }: { children: React.ReactNode; href: string; ariaLabel: string }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel} className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 cursor-pointer transition-colors hover:text-primary transition-all duration-300 border border-slate-800 bg-slate-900/50 hover:border-primary/30">
         {children}
     </a>
 )
@@ -41,14 +41,14 @@ export function Footer() {
                         <Home className="h-7 w-7 text-primary" />
                         <span className="lowercase">nestil.in</span>
                     </Link>
-                    <p className="text-sm text-slate-400 leading-relaxed mt-2 max-w-xs">
+                    <p className="text-sm text-slate-300 leading-relaxed mt-2 max-w-xs">
                         Andhra Pradesh's most trusted property marketplace. We connect buyers, sellers, and renters directly with zero brokerage fees. 
                     </p>
                     <div className="flex items-center gap-3 mt-4">
-                        <SocialIcon href="https://wa.me/919492060040"><WhatsappIcon className="h-5 w-5" /></SocialIcon>
-                        <SocialIcon href="#"><Instagram className="h-5 w-5" /></SocialIcon>
-                        <SocialIcon href="#"><Facebook className="h-5 w-5" /></SocialIcon>
-                        <SocialIcon href="#"><Youtube className="h-5 w-5" /></SocialIcon>
+                        <SocialIcon href="https://wa.me/919492060040" ariaLabel="WhatsApp"><WhatsappIcon className="h-5 w-5" /></SocialIcon>
+                        <SocialIcon href="#" ariaLabel="Instagram"><Instagram className="h-5 w-5" /></SocialIcon>
+                        <SocialIcon href="#" ariaLabel="Facebook"><Facebook className="h-5 w-5" /></SocialIcon>
+                        <SocialIcon href="#" ariaLabel="Youtube"><Youtube className="h-5 w-5" /></SocialIcon>
                     </div>
                 </div>
 
@@ -56,10 +56,10 @@ export function Footer() {
                 <div className="flex flex-col gap-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Quick Links</h3>
                     <nav className="flex flex-col gap-3">
-                        <Link href="/properties" className="text-sm text-slate-400 hover:text-primary transition-colors">Search Properties</Link>
-                        <Link href="/post-property" className="text-sm text-slate-400 hover:text-primary transition-colors">List Your Property</Link>
-                        <Link href="/agents" className="text-sm text-slate-400 hover:text-primary transition-colors">Find Agents</Link>
-                        <Link href="/builders" className="text-sm text-slate-400 hover:text-primary transition-colors">Top Builders</Link>
+                        <Link href="/properties" className="text-sm text-slate-300 hover:text-primary transition-colors">Search Properties</Link>
+                        <Link href="/post-property" className="text-sm text-slate-300 hover:text-primary transition-colors">List Your Property</Link>
+                        <Link href="/agents" className="text-sm text-slate-300 hover:text-primary transition-colors">Find Agents</Link>
+                        <Link href="/builders" className="text-sm text-slate-300 hover:text-primary transition-colors">Top Builders</Link>
                     </nav>
                 </div>
 
@@ -67,17 +67,17 @@ export function Footer() {
                 <div className="flex flex-col gap-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Company</h3>
                     <nav className="flex flex-col gap-3">
-                        <Link href="/about" className="text-sm text-slate-400 hover:text-primary transition-colors">About Us</Link>
-                        <Link href="/contact" className="text-sm text-slate-400 hover:text-primary transition-colors">Contact Support</Link>
-                        <Link href="/privacy-policy" className="text-sm text-slate-400 hover:text-primary transition-colors">Privacy Policy</Link>
-                        <Link href="/terms-of-service" className="text-sm text-slate-400 hover:text-primary transition-colors">Terms of Service</Link>
+                        <Link href="/about" className="text-sm text-slate-300 hover:text-primary transition-colors">About Us</Link>
+                        <Link href="/contact" className="text-sm text-slate-300 hover:text-primary transition-colors">Contact Support</Link>
+                        <Link href="/privacy-policy" className="text-sm text-slate-300 hover:text-primary transition-colors">Privacy Policy</Link>
+                        <Link href="/terms-of-service" className="text-sm text-slate-300 hover:text-primary transition-colors">Terms of Service</Link>
                     </nav>
                 </div>
 
                 {/* Column 4: CTA */}
                 <div className="flex flex-col gap-4">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Ready to sell?</h3>
-                    <p className="text-sm text-slate-400 mb-2">
+                    <p className="text-sm text-slate-300 mb-2">
                         Get your property in front of thousands of buyers in Andhra Pradesh today.
                     </p>
                     <Link href="/post-property" className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white font-bold text-sm transition-all duration-300 border border-primary/20 w-max">

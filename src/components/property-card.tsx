@@ -119,10 +119,20 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           
           {/* Action Buttons */}
           <div className="absolute top-3 right-3 z-20 flex gap-2">
-            <button onClick={handleShareClick} title="Share property" className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 shadow-sm flex items-center justify-center hover:bg-white hover:text-indigo-500 hover:scale-110 transition-all duration-300">
+            <button 
+                onClick={handleShareClick} 
+                title="Share property" 
+                aria-label="Share property"
+                className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 shadow-sm flex items-center justify-center hover:bg-white hover:text-indigo-500 hover:scale-110 transition-all duration-300"
+            >
                 <Share2 className="h-4 w-4" />
             </button>
-            <button onClick={handleFavoriteClick} title="Favorite property" className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 shadow-sm flex items-center justify-center hover:bg-white hover:text-rose-500 hover:scale-110 transition-all duration-300">
+            <button 
+                onClick={handleFavoriteClick} 
+                title="Favorite property" 
+                aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 shadow-sm flex items-center justify-center hover:bg-white hover:text-rose-500 hover:scale-110 transition-all duration-300"
+            >
                 <Heart className={cn("h-4 w-4", isFavorited && "fill-rose-500 text-rose-500")} />
             </button>
           </div>

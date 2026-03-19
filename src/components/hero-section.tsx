@@ -228,16 +228,16 @@ const HeroStats = () => {
     }
     
     return (
-        <div className="flex flex-wrap gap-x-10 gap-y-5 mt-14">
-            <div className="flex flex-col">
-                <div className="text-3xl font-extrabold text-slate-800 h-9">
+        <div className="flex flex-wrap gap-x-10 gap-y-5 mt-14 min-h-[58px]">
+            <div className="flex flex-col min-w-[120px]">
+                <div className="text-3xl font-extrabold text-slate-800 leading-tight">
                     {activeListings === null ? (
-                        <Skeleton className="h-9 w-28" />
+                        <Skeleton className="h-8 w-24 bg-slate-200" />
                     ) : (
                         `${formatNumber(activeListings)}+`
                     )}
                 </div>
-                <div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Active Listings</div>
+                <div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1.5">Active Listings</div>
             </div>
             <div className="w-px bg-slate-300 self-stretch hidden sm:block"></div>
             <div className="flex flex-col"><div className="text-3xl font-extrabold text-slate-800">26<span>+</span></div><div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Districts</div></div>
