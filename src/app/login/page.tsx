@@ -1,6 +1,4 @@
-'use client';
-
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,15 +6,17 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth, useFirestore } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Home, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 48 48" {...props}>
-    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
-    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z" />
-    <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.223 0-9.651-3.358-11.303-8H6.306C9.656 39.663 16.318 44 24 44z" />
-    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.021 35.846 44 30.138 44 24c0-1.341-.138-2.65-.389-3.917z" />
+    <g>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </g>
   </svg>
 );
 
@@ -31,21 +31,16 @@ function LoginFormComponent() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     if (!auth || !firestore) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Firebase services are not available. Please try again later.',
-      });
+      toast({ variant: 'destructive', title: 'Error', description: 'Authentication service not ready.' });
       setIsLoading(false);
       return;
     }
 
-    const provider = new GoogleAuthProvider();
     try {
+      const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user exists in Firestore, if not, create a new document
       const userDocRef = doc(firestore, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
@@ -60,58 +55,86 @@ function LoginFormComponent() {
         });
       }
       
-      toast({ title: 'Login Successful', description: 'Welcome to Nestil!' });
-      const redirectUrl = searchParams.get('redirect') || '/dashboard';
-      router.push(redirectUrl);
-
+      toast({ title: 'Welcome to Nestil!', description: 'You have logged in successfully.' });
+      router.push(searchParams.get('redirect') || '/dashboard');
     } catch (error: any) {
-      console.error("Google Sign-In Error: ", error);
-      toast({
-        variant: 'destructive',
-        title: 'Sign-In Failed',
-        description: error.message || 'An unexpected error occurred. Please try again.',
-      });
+      toast({ variant: 'destructive', title: 'Login Failed', description: error.message });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader className="text-center">
-        <CardTitle>Welcome to Nestil</CardTitle>
-        <CardDescription>Sign in or create an account to continue.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Button onClick={handleGoogleSignIn} className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <GoogleIcon className="mr-2 h-5 w-5" />
-            )}
-            Continue with Google
-          </Button>
-           <div className="mt-4 text-center text-xs text-muted-foreground">
-             By continuing, you agree to Nestil's <Link href="/terms-of-service" className="underline">Terms of Service</Link> and <Link href="/privacy-policy" className="underline">Privacy Policy</Link>.
+    <div className="w-full max-w-[420px] animate-in-up">
+      <div className="text-center mb-8">
+        <Link href="/" className="inline-flex items-center gap-2 mb-6 group">
+          <div className="bg-primary rounded-xl p-2.5 transition-transform group-hover:rotate-12 duration-300 shadow-lg shadow-primary/20">
+            <Home className="h-6 w-6 text-white" />
+          </div>
+          <span className="text-3xl font-black text-slate-800 tracking-tight lowercase">nestil.in</span>
+        </Link>
+        <h1 className="text-2xl font-bold text-slate-800">Classic UI Access</h1>
+        <p className="text-slate-500 mt-2 font-medium">Step into Andhra's elite property marketplace</p>
+      </div>
+
+      <div className="glass-card p-8 rounded-[32px] border-white/50 backdrop-blur-2xl">
+        <div className="mb-8 space-y-4">
+          <div className="flex items-center gap-3 text-sm font-medium text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            <span>Direct contact with property owners</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm font-medium text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+             <ShieldCheck className="h-4 w-4 text-primary" />
+             <span>100% Verified premium listings</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm font-medium text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+             <Zap className="h-4 w-4 text-amber-500" />
+             <span>Zero brokerage, maximum savings</span>
           </div>
         </div>
-        <div className="mt-6 text-center text-sm">
-          <Link href="/admin/login" className="text-xs text-muted-foreground underline hover:text-primary">
-            Admin Portal Access
-          </Link>
+
+        <div className="space-y-4">
+          <Button 
+            onClick={handleGoogleSignIn} 
+            disabled={isLoading}
+            className="w-full h-14 bg-white hover:bg-slate-50 text-slate-800 font-bold rounded-2xl border border-slate-200 shadow-sm transition-all hover:shadow-md py-4 gap-3"
+          >
+            {isLoading ? (
+              <LoaderCircle className="h-5 w-5 animate-spin text-primary" />
+            ) : (
+              <GoogleIcon className="h-6 w-6" />
+            )}
+            {isLoading ? 'Processing...' : 'Continue with Google'}
+          </Button>
+
+          <p className="text-[11px] text-center text-slate-400 px-4 leading-relaxed mt-6">
+            By joining, you agree to our <Link href="/terms-of-service" className="text-primary hover:underline">Terms of Service</Link> and <Link href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>.
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <div className="mt-8 text-center flex flex-col gap-4 animate-in-up delay-200">
+          <Link href="/admin/login" className="text-xs font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">
+            — Staff Admin Portal —
+          </Link>
+      </div>
+    </div>
   );
 }
 
 export default function LoginPage() {
-    return (
-        <div className="flex min-h-[80vh] items-center justify-center bg-background px-4">
-            <Suspense fallback={<LoaderCircle className="h-12 w-12 animate-spin text-primary" />}>
-                <LoginFormComponent />
-            </Suspense>
-        </div>
-    );
+  return (
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-50 px-4 overflow-hidden py-20">
+      {/* Background elements to match Hero */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full filter blur-3xl animate-blob pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-sky-400/10 rounded-full filter blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none z-0 opacity-50"></div>
+
+      <div className="relative z-10 w-full flex justify-center">
+        <Suspense fallback={<LoaderCircle className="h-12 w-12 animate-spin text-primary" />}>
+          <LoginFormComponent />
+        </Suspense>
+      </div>
+    </div>
+  );
 }
