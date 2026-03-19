@@ -123,7 +123,7 @@ const SearchWidget = () => {
   };
 
   return (
-    <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-3 md:p-4 max-w-[850px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all hover:shadow-[0_12px_50px_-12px_rgba(0,0,0,0.15)] duration-500">
+    <div className="glass-card p-3 md:p-4 max-w-[850px] rounded-[32px] transition-all hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] duration-500">
         <Tabs defaultValue={searchTab} onValueChange={setSearchTab} className="w-full">
             <TabsList className="flex h-12 justify-start p-1.5 bg-slate-100/80 rounded-2xl mb-4 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
                 <TabsTrigger value="buy" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Buy</TabsTrigger>
@@ -262,7 +262,7 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none z-0"></div>
 
         <div className="container relative z-10 px-4 mb-2">
-            <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-slate-200/50 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-700 mb-8 shadow-sm">
+            <div className="animate-in-up inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-slate-200/50 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-700 mb-8 shadow-sm">
                 <span className="relative flex h-2 w-2 mr-1">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -270,17 +270,19 @@ export function HeroSection() {
                 Andhra Pradesh's #1 Property Platform
             </div>
 
-            <h1 className="font-extrabold text-5xl md:text-6xl lg:text-[72px] leading-[1.1] tracking-[-0.02em] max-w-4xl text-slate-800 mb-6 drop-shadow-sm">
+            <h1 className="animate-in-up delay-100 font-extrabold text-5xl md:text-6xl lg:text-[72px] leading-[1.1] tracking-[-0.02em] max-w-4xl text-slate-800 mb-6 drop-shadow-sm">
               Discover Your <span className="glow-text">Dream Property</span> Across AP
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed mb-12 font-medium">
+            <p className="animate-in-up delay-200 text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed mb-12 font-medium">
               List Free. Find Fast. Direct Owner Contact. The smartest way to buy, sell, and rent across all 26 districts of Andhra Pradesh.
             </p>
 
-            <SearchWidget />
+            <div className="animate-in-up delay-300">
+                <SearchWidget />
+            </div>
             
-            <div className="mt-8 border-t border-slate-200/60 pt-6 max-w-[850px]">
+            <div className="animate-in-up delay-400 mt-8 border-t border-slate-200/60 pt-6 max-w-[850px]">
                 <HeroStats />
             </div>
         </div>
