@@ -8,10 +8,16 @@ import Link from 'next/link';
 
 async function getFeaturedProperties(): Promise<Property[]> {
   const propertiesCol = collection(db, 'properties');
-  const q = query(propertiesCol, orderBy('updatedAt', 'desc'), limit(20));
+  // Fetch a larger pool of recent approved properties to shuffle from
+  const q = query(
+    propertiesCol, 
+    where('listingStatus', '==', 'approved'),
+    orderBy('updatedAt', 'desc'), 
+    limit(24)
+  );
   
   const snapshot = await getDocs(q);
-  const allRecent = snapshot.docs.map(doc => {
+  const pool = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
           id: doc.id,
@@ -21,14 +27,16 @@ async function getFeaturedProperties(): Promise<Property[]> {
       } as Property;
   });
 
-  // Filter for approved and featured properties on the server
-  const featured = allRecent.filter(p => p.listingStatus === 'approved' && p.featured).slice(0, 6);
-  if (featured.length < 6) {
-      const more = allRecent.filter(p => p.listingStatus === 'approved' && !p.featured);
-      return [...featured, ...more].slice(0, 6);
-  }
+  if (pool.length === 0) return [];
 
-  return featured;
+  // Shuffle the pool to provide a dynamic "First Impression" on every refresh
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  
+  // Prioritize "Featured" ones but keep it mixed
+  const featured = shuffled.filter(p => p.featured);
+  const nonFeatured = shuffled.filter(p => !p.featured);
+  
+  return [...featured, ...nonFeatured].slice(0, 6);
 }
 
 
