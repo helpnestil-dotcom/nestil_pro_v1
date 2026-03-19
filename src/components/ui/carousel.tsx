@@ -156,8 +156,11 @@ const CarouselContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { carouselRef, orientation } = useCarousel()
 
+  // Extract height and max-height classes to apply to the embla-viewport wrapper
+  const viewportClasses = className?.split(' ').filter(c => c.startsWith('h-') || c.startsWith('max-h-')).join(' ')
+
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div ref={carouselRef} className={cn("overflow-hidden", viewportClasses)}>
       <div
         ref={ref}
         className={cn(

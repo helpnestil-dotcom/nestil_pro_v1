@@ -26,7 +26,10 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
     toggleFavorite(property.id, isFavorited);
   };
   
-  const imageUrl = property.photos && property.photos.length > 0 ? property.photos[0] : 'https://picsum.photos/seed/property/600/400';
+  const rawPhotos = property.photos && property.photos.length > 0 ? property.photos : [];
+  const imageUrl = rawPhotos.length > 0 
+    ? (typeof rawPhotos[0] === 'string' ? rawPhotos[0] : (rawPhotos[0] as any).url) 
+    : 'https://picsum.photos/seed/property/600/400';
 
   const renderPrice = () => {
     if (property.priceOnRequest || !property.price || property.price <= 0) {

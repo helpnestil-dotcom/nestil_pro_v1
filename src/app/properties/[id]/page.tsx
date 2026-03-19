@@ -86,7 +86,13 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     ? property.googleMapsLink 
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.city}, ${property.pincode}`)}`;
 
-  const propertyPhotos = property.photos && property.photos.length > 0 ? property.photos : ['https://picsum.photos/seed/property/1200/800'];
+  const rawPhotos = property.photos && property.photos.length > 0 ? property.photos : [];
+  const propertyPhotos = rawPhotos.map((p: any) => typeof p === 'string' ? p : p.url).filter(Boolean);
+  
+  // Final fallback if no valid photos found
+  if (propertyPhotos.length === 0) {
+    propertyPhotos.push('https://picsum.photos/seed/property/1200/800');
+  }
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
@@ -114,11 +120,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
         </div>
 
         {/* Premium Image Gallery (Hero) */}
-        <div className="relative w-full rounded-3xl overflow-hidden bg-slate-900 shadow-xl mb-10 h-[300px] md:h-[500px]">
-            <Carousel className="w-full h-full">
-                <CarouselContent className="h-full">
+        <div className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden bg-slate-100 mb-10 shadow-sm border border-slate-200/60">
+            <Carousel className="w-full">
+                <CarouselContent>
                 {propertyPhotos.map((photo, index) => (
-                    <CarouselItem key={index} className="h-full relative">
+                    <CarouselItem key={index} className="relative aspect-video md:aspect-[21/9] w-full">
                         <Image
                             src={photo}
                             alt={`${property.title} photo ${index + 1}`}
@@ -127,15 +133,14 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                             sizes="(max-width: 1024px) 100vw, 1200px"
                             priority={index === 0}
                         />
-                         {/* Subtle dark gradient overlay to make buttons pop */}
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
                     </CarouselItem>
                 ))}
                 </CarouselContent>
                 {propertyPhotos.length > 1 && (
                     <>
-                        <CarouselPrevious className="left-4 bg-white/20 hover:bg-white text-white hover:text-slate-900 border-none backdrop-blur-md h-12 w-12 transition-all" />
-                        <CarouselNext className="right-4 bg-white/20 hover:bg-white text-white hover:text-slate-900 border-none backdrop-blur-md h-12 w-12 transition-all" />
+                        <CarouselPrevious className="left-4 bg-white/80 hover:bg-white text-slate-800 border-none backdrop-blur-md h-10 w-10 md:h-12 md:w-12" />
+                        <CarouselNext className="right-4 bg-white/80 hover:bg-white text-slate-800 border-none backdrop-blur-md h-10 w-10 md:h-12 md:w-12" />
                     </>
                 )}
             </Carousel>

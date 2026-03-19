@@ -54,6 +54,21 @@ export default function RootLayout({
           <Toaster />
         </FirebaseClientProvider>
 
+        {/* PWA Service Worker Registration */}
+        <Script id="register-sw">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  // Registration was successful
+                }, function(err) {
+                  // registration failed
+                });
+              });
+            }
+          `}
+        </Script>
+
         {/* Google Analytics Scripts */}
         <Script
           strategy="afterInteractive"
