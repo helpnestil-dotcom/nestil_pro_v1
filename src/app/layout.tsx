@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
-    apple: '/favicon.ico',
+    apple: '/web-app-manifest-192x192.png',
   },
 };
 
