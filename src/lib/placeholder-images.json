@@ -1,0 +1,82 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "A cozy and inviting home with a warm exterior.",
+      "imageUrl": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb3p5JTIwaG9tZSUyMGV4dGVyaW9yfGVufDB8fHx8MTc3MTMyMTMxOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cozy home"
+    },
+    {
+      "id": "property-1-exterior",
+      "description": "Exterior view of a modern family house.",
+      "imageUrl": "https://images.unsplash.com/photo-1628012209120-d9db7abf7eab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb2Rlcm4lMjBob3VzZXxlbnwwfHx8fDE3NzEwNjIxNjl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern house"
+    },
+    {
+      "id": "property-1-living",
+      "description": "Spacious and bright living room.",
+      "imageUrl": "https://images.unsplash.com/photo-1605774337664-7a846e9cdf17?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsaXZpbmclMjByb29tfGVufDB8fHx8MTc3MTA3Mjc3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "living room"
+    },
+    {
+      "id": "property-1-kitchen",
+      "description": "Modern kitchen with an island.",
+      "imageUrl": "https://images.unsplash.com/photo-1717429541792-5c59021d6ceb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtb2Rlcm4lMjBraXRjaGVufGVufDB8fHx8MTc3MTEzMDYzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern kitchen"
+    },
+    {
+      "id": "property-2-exterior",
+      "description": "A suburban house with a nice lawn.",
+      "imageUrl": "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzdWJ1cmJhbiUyMGhvdXNlfGVufDB8fHx8MTc3MTA0NTg1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "suburban house"
+    },
+    {
+      "id": "property-2-bedroom",
+      "description": "Cozy bedroom with a large window.",
+      "imageUrl": "https://images.unsplash.com/photo-1541004995602-b3e898709909?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb3p5JTIwYmVkcm9vbXxlbnwwfHx8fDE3NzExMjUxOTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cozy bedroom"
+    },
+    {
+      "id": "property-3-exterior",
+      "description": "Luxury villa with a swimming pool.",
+      "imageUrl": "https://images.unsplash.com/photo-1556630279-0ecfac70eaf2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsdXh1cnklMjB2aWxsYXxlbnwwfHx8fDE3NzEwNTYzNDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "luxury villa"
+    },
+    {
+      "id": "property-4-exterior",
+      "description": "Downtown apartment building.",
+      "imageUrl": "https://images.unsplash.com/photo-1515263487990-61b07816b324?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhcGFydG1lbnQlMjBidWlsZGluZ3xlbnwwfHx8fDE3NzEwNDU4NTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "apartment building"
+    },
+    {
+      "id": "property-5-exterior",
+      "description": "Commercial space with large windows.",
+      "imageUrl": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21tZXJjaWFsJTIwc3BhY2V8ZW58MHx8fHwxNzcxMDU5MTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "commercial space"
+    },
+    {
+      "id": "property-6-exterior",
+      "description": "Plot of land for sale.",
+      "imageUrl": "https://images.unsplash.com/photo-1698879398790-8c3bed75094a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxlbXB0eSUyMGxvdHxlbnwwfHx8fDE3NzExMzA2Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "empty lot"
+    },
+    {
+      "id": "map-placeholder",
+      "description": "A generic city map.",
+      "imageUrl": "https://images.unsplash.com/photo-1717700299581-c2fc3fad4ee8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjaXR5JTIwbWFwfGVufDB8fHx8MTc3MTEyNDg3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city map"
+    },
+    {
+      "id": "avatar-1",
+      "description": "User avatar.",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1595514191830-3e96a518989b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzcxMDQ4Nzk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "User avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzEwNDg3OTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
+}

@@ -1,0 +1,340 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user of the PropertyLink application, including their roles and saved preferences. Authentication details are managed externally.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address (from external authentication system).",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the application (Visitor, OwnerAgent, or Admin)."
+        },
+        "favoritePropertyIds": {
+          "type": "array",
+          "description": "References to properties marked as favorites by this user. (Relationship: UserProfile N:N Property)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "postedPropertyIds": {
+          "type": "array",
+          "description": "References to properties posted by this owner/agent. Only applicable to Owner/Agent roles. (Relationship: UserProfile 1:N Property)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "role"
+      ]
+    },
+    "Property": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Property",
+      "type": "object",
+      "description": "Represents a real estate property listing available for rent, sale, or lease.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Property entity."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who owns or manages this property listing. (Relationship: UserProfile 1:N Property)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The main title of the property listing, summarizing its key appeal."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the property, highlighting its features, layout, and other relevant information."
+        },
+        "listingType": {
+          "type": "string",
+          "description": "Indicates if the property is offered for 'rent', 'sale', or 'lease'."
+        },
+        "propertyType": {
+          "type": "string",
+          "description": "The specific type of property, e.g., 'house', 'flat', 'land', 'commercial'."
+        },
+        "price": {
+          "type": "number",
+          "description": "The asking price for sale or the monthly rent/lease amount."
+        },
+        "areaSqFt": {
+          "type": "number",
+          "description": "The total area of the property in square feet."
+        },
+        "address": {
+          "type": "string",
+          "description": "The full street address of the property, including street number and name."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the property is located."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state or province where the property is located."
+        },
+        "zipCode": {
+          "type": "string",
+          "description": "The postal code of the property's location."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Geographic latitude coordinate of the property for accurate map display."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Geographic longitude coordinate of the property for accurate map display."
+        },
+        "bhk": {
+          "type": "number",
+          "description": "Number of bedrooms, hall, and kitchen units. Primarily relevant for residential properties in certain regions."
+        },
+        "furnishingStatus": {
+          "type": "string",
+          "description": "Indicates the furnishing status of the property: 'Furnished', 'Semi-furnished', or 'Unfurnished'."
+        },
+        "photoUrls": {
+          "type": "array",
+          "description": "An array of URLs pointing to high-quality photos showcasing the property.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "videoUrls": {
+          "type": "array",
+          "description": "An array of URLs pointing to video tours or clips of the property.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "amenityIds": {
+          "type": "array",
+          "description": "References to amenities available at the property. (Relationship: Amenity N:N Property)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nearbyPlaces": {
+          "type": "array",
+          "description": "A list of notable nearby places (e.g., schools, hospitals, bus stops) relevant to the property's location.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Indicates if the property listing has been reviewed and approved by an administrator for public visibility."
+        },
+        "isFeatured": {
+          "type": "boolean",
+          "description": "Indicates if the property is promoted as a featured listing on the platform by an administrator."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the property listing was first created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the property listing was last updated.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current operational status of the property listing (e.g., 'active', 'pending_approval', 'rejected', 'sold', 'rented')."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "title",
+        "description",
+        "listingType",
+        "propertyType",
+        "price",
+        "areaSqFt",
+        "address",
+        "city",
+        "state",
+        "zipCode",
+        "latitude",
+        "longitude",
+        "photoUrls",
+        "isApproved",
+        "createdAt",
+        "status"
+      ]
+    },
+    "Amenity": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Amenity",
+      "type": "object",
+      "description": "Represents a specific amenity or facility that can be associated with properties.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Amenity entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The common name of the amenity, e.g., 'Swimming Pool', 'Gym', 'Parking'."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or additional details about the amenity."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profiles. Path-based ownership ensures that only the authenticated user can read/write their own profile. 'favoritePropertyIds' and 'postedPropertyIds' fields on the UserProfile entity are now references to subcollections or separate top-level collections, aligning with a more scalable and secure structure. Includes denormalized 'id' matching 'userId' for authorization independence."
+        }
+      },
+      {
+        "path": "/users/{userId}/favorite_properties/{propertyId}",
+        "definition": {
+          "entityName": "FavoriteProperty",
+          "schema": {
+            "$ref": "#/backend/entities/Property"
+          },
+          "description": "A subcollection for properties a user has marked as favorite. The document ID (`propertyId`) serves as the reference to the favorited property. This structure provides atomic add/remove operations and scales better than an array in the user profile, supporting Authorization Independence as ownership is implicit in the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who favorited the property."
+            },
+            {
+              "name": "propertyId",
+              "description": "The unique identifier of the favorited property."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for Admin role-based access control. The mere existence of a document at this path for a given `userId` grants administrative permissions. This is an example of DBAC (Database Access Control) and ensures Authorization Independence by not relying on the 'role' field in UserProfile for security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who holds the Admin role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_owner_agent/{userId}",
+        "definition": {
+          "entityName": "OwnerAgentRole",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for Owner/Agent role-based access control. The existence of a document at this path for a given `userId` grants Owner/Agent permissions, enabling them to post properties. This also supports DBAC and Authorization Independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who holds the Owner/Agent role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/user_properties/{ownerId}/{propertyId}",
+        "definition": {
+          "entityName": "Property",
+          "schema": {
+            "$ref": "#/backend/entities/Property"
+          },
+          "description": "Stores ALL properties (drafts, pending approval, rejected, active) owned by a specific `OwnerAgent`. This uses hierarchical paths for user-owned data and ensures that only the `ownerId` (from the path) or an `Admin` can access/modify these properties, supporting Authorization Independence. Includes denormalized 'ownerId' for consistent authorization checks.",
+          "params": [
+            {
+              "name": "ownerId",
+              "description": "The unique identifier of the user who owns or posted this property."
+            },
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the property listing."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/public_properties/{propertyId}",
+        "definition": {
+          "entityName": "Property",
+          "schema": {
+            "$ref": "#/backend/entities/Property"
+          },
+          "description": "Stores properties that have been approved by an Admin and are active. This collection is for public 'list' and 'read' operations, fully satisfying QAPs by ensuring all documents within are publicly visible. This is a denormalized view of approved properties from the user's private collection. Crucially, it includes a denormalized 'ownerId', 'isApproved: true', and 'status: active' as invariants enforced by Cloud Functions for synchronization and Authorization Independence.",
+          "params": [
+            {
+              "name": "propertyId",
+              "description": "The unique identifier for the publicly listed property."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/amenities/{amenityId}",
+        "definition": {
+          "entityName": "Amenity",
+          "schema": {
+            "$ref": "#/backend/entities/Amenity"
+          },
+          "description": "Stores a list of global amenities. These are generally static and intended to be publicly readable and listable by all users.",
+          "params": [
+            {
+              "name": "amenityId",
+              "description": "The unique identifier for the amenity."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This data structure recommendation is designed to resolve the `Missing or insufficient permissions` error, specifically for `list` operations on properties, by adhering strictly to the core design principles and strategy mandates. The primary goal is to create a secure, scalable, and debuggable Firestore structure.\n\n**Addressing Authorization Independence:**\n1.  **Denormalization:** For properties, the `ownerId` is explicitly stored within each `Property` document. This applies to both `/user_properties/{ownerId}/{propertyId}` and `/public_properties/{propertyId}`. This design eliminates the need for `get()` calls in security rules to infer ownership from parent documents, thus ensuring atomic operations and simplifying rule logic. All authorization checks for a document can be performed using only the `resource.data` of that document.\n2.  **Role-Based Access Control (DBAC):** User roles (Admin, Owner/Agent) are managed in dedicated top-level collections (`/roles_admin/{userId}`, `/roles_owner_agent/{userId}`). Security rules will use `exists()` checks on these collections to determine permissions, rather than relying on a `role` field within the `UserProfile` document. This pattern is highly performant, atomic, and makes authorization rules explicit and easy to debug, as `request.auth.uid` is directly checked against a known role collection.\n\n**Supporting QAPs (Queries Are Not Filters):**\n1.  **Structural Segregation (CRITICAL for QAPs):** The core of this design for enabling secure `list` operations lies in the segregation of properties based on their security posture. Instead of a single `/properties` collection attempting to serve both public and private needs with complex, error-prone filtering rules, we introduce two distinct collections for properties:\n    *   **`/public_properties/{propertyId}`:** This collection *only* contains properties that have been reviewed, approved (`isApproved: true`), and are marked as `active`. Because every document in this collection shares the same security requirement (publicly readable), a `list` query on this collection inherently returns only publicly available data. This allows for a simple and secure security rule like `allow read, list: if true;` (or `if request.auth != null;` if only authenticated users can browse). This directly resolves the original `list` permission error by providing a collection where broad public listing is explicitly safe and guaranteed to return only public data, without requiring complex query validation in rules.\n    *   **`/user_properties/{ownerId}/{propertyId}`:** This collection stores *all* properties belonging to a specific owner (including drafts, pending approval, rejected, or active properties). `list` and `read` operations on this collection are restricted to the `ownerId` or an authenticated Admin. This ensures that an owner can manage and list *their own* properties without exposing unapproved or private data to the public. The path itself enforces ownership (`{ownerId}` in the path). This separation makes security rules for each collection much simpler and robust.\n\n**Additional Design Considerations:**\n*   **Hierarchical Paths for User-Owned Data:** The structure `/users/{userId}/favorite_properties/{propertyId}` and `/user_properties/{ownerId}/{propertyId}` uses hierarchical paths to represent 1:N and N:N relationships (for favorites) where the ownership is clearly defined by the path parameter. This simplifies ownership-based security rules.\n*   **Data Consistency:** The synchronization of properties between `/user_properties` (where an owner updates their listing) and `/public_properties` (once approved and active) will be handled by secure Cloud Functions. These functions will be triggered by updates to fields like `isApproved` and `status` in `/user_properties`, ensuring data integrity and consistency across the segregated collections.\n*   **Explicit State Modeling:** The `status` and `isApproved` fields are used explicitly to manage the lifecycle and visibility of properties, making data state clear and predictable."
+  }
+}

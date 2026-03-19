@@ -1,0 +1,80 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "helpnestil@gmail.com";
+    }
+
+    // USER DATA (favorites etc)
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // PROPERTIES COLLECTION
+    match /properties/{propertyId} {
+
+      // READ SINGLE PROPERTY
+      allow get: if resource.data.listingStatus == "approved"
+                  || (resource.data.ownerId != null && isOwner(resource.data.ownerId))
+                  || isAdmin();
+
+      // LIST PROPERTIES
+      allow list: if true;
+
+      // CREATE PROPERTY
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.ownerId;
+
+      // UPDATE PROPERTY
+      allow update: if isAdmin()
+        || (
+          request.auth != null
+          && resource.data.ownerId == request.auth.uid
+          && resource.data.listingStatus != "approved"
+        );
+
+      // DELETE PROPERTY
+      allow delete: if isAdmin();
+    }
+
+    // PRIVATE PROPERTY DETAILS
+    match /propertyPrivateDetails/{propertyId} {
+
+      // logged in users can see contact info
+      allow read: if request.auth != null;
+
+      // owner or admin can write
+      allow write: if isAdmin()
+        || (
+          request.auth != null
+          && request.resource.data.ownerId == request.auth.uid
+        );
+
+      // only admin delete
+      allow delete: if isAdmin();
+    }
+
+    // CONTACT FORM MESSAGES
+    match /contactMessages/{messageId} {
+
+      // anyone can send message
+      allow create: if true;
+
+      // only admin read/delete
+      allow read, delete: if isAdmin();
+    }
+
+    // LIST CONTACT MESSAGES
+    match /contactMessages {
+      allow list: if isAdmin();
+    }
+
+  }
+}
