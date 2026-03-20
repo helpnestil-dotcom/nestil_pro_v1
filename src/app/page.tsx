@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const Ticker = () => (
     <div className="bg-white border-y border-slate-200">
         <div className="container flex items-center gap-6 py-3">

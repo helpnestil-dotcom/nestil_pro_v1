@@ -12,7 +12,7 @@ async function getFeaturedProperties(): Promise<Property[]> {
   const q = query(
     propertiesCol, 
     where('listingStatus', '==', 'approved'),
-    orderBy('updatedAt', 'desc'), 
+    orderBy('dateAdded', 'desc'), 
     limit(24)
   );
   
