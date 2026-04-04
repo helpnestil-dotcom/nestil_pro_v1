@@ -76,5 +76,17 @@ service cloud.firestore {
       allow list: if isAdmin();
     }
 
+    // AGENTS COLLECTION
+    match /agents/{agentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // BUILDERS COLLECTION
+    match /builders/{builderId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
   }
 }

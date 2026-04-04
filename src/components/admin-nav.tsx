@@ -23,6 +23,8 @@ export function AdminNav() {
   const links = [
     { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/admin/agents', label: 'Agents', icon: User },
+    { href: '/admin/builders', label: 'Builders', icon: Shield },
   ];
 
   return (

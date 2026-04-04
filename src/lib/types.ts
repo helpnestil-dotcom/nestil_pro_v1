@@ -78,4 +78,29 @@ export type User = {
   listings: number;
 };
 
-    
+export type AgentData = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company?: string;
+  experienceYears?: number;
+  imageUrl?: string;
+  description?: string;
+  isVerified: boolean;
+  createdAt: string;
+};
+
+export type BuilderData = {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  website?: string;
+  establishedYear?: number;
+  imageUrl?: string;
+  description?: string;
+  isVerified: boolean;
+  createdAt: string;
+};
