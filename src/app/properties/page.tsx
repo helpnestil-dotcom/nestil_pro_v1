@@ -56,6 +56,7 @@ function PropertySearchComponent() {
     ];
   };
 
+  const [stateParam, setStateParam] = useState(searchParams.get('state') || 'all');
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || 'all');
   const [locality, setLocality] = useState(searchParams.get('locality') || 'all');
   const [transaction, setTransaction] = useState(searchParams.get('transaction') || 'all');
@@ -133,6 +134,10 @@ function PropertySearchComponent() {
     
     let result = propertiesFromQuery;
 
+    if (stateParam !== 'all') {
+        result = result.filter(prop => prop.state === stateParam);
+    }
+
     if (locality !== 'all') {
         result = result.filter(prop => prop.address === locality);
     }
@@ -166,7 +171,7 @@ function PropertySearchComponent() {
     }
 
     return result;
-  }, [propertiesFromQuery, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
+  }, [propertiesFromQuery, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
 
   // Reset locality and page when district changes
   useEffect(() => {
@@ -176,7 +181,7 @@ function PropertySearchComponent() {
   // Reset page to 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [keyword, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
+  }, [keyword, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
 
   const currentProperties = useMemo(() => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -188,6 +193,7 @@ function PropertySearchComponent() {
 
 
   const handleReset = () => {
+    setStateParam('all');
     setKeyword('all');
     setLocality('all');
     setTransaction('all');
@@ -198,6 +204,7 @@ function PropertySearchComponent() {
   };
   
   useEffect(() => {
+    setStateParam(searchParams.get('state') || 'all');
     setKeyword(searchParams.get('keyword') || 'all');
     setLocality(searchParams.get('locality') || 'all');
     setTransaction(searchParams.get('transaction') || 'all');
@@ -221,14 +228,31 @@ function PropertySearchComponent() {
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="district-select">District</Label>
-              <Select value={keyword} onValueChange={setKeyword}>
-                <SelectTrigger id="district-select">
-                  <SelectValue placeholder="All Districts" />
+              <Label htmlFor="state-select">State</Label>
+              <Select value={stateParam} onValueChange={(val) => { setStateParam(val); setKeyword('all'); }}>
+                <SelectTrigger id="state-select">
+                  <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Districts</SelectItem>
-                  {staticLocationData[0].districts.map((d) => (
+                  <SelectItem value="all">All States</SelectItem>
+                  {staticLocationData.map((s) => (
+                    <SelectItem key={s.name} value={s.name}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="district-select">Sub Location</Label>
+              <Select value={keyword} onValueChange={setKeyword} disabled={stateParam === 'all'}>
+                <SelectTrigger id="district-select">
+                  <SelectValue placeholder="All Sub Locations" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sub Locations</SelectItem>
+                  {staticLocationData.find(s => s.name === stateParam)?.districts.map((d) => (
                     <SelectItem key={d.name} value={d.name}>
                       {d.name}
                     </SelectItem>

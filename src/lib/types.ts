@@ -20,6 +20,7 @@ export type Property = {
   areaSqFt: number;
   address: string;
   subLocality?: string;
+  state?: string;
   city: string;
   pincode: string;
   description: string;
@@ -87,6 +88,7 @@ export type AgentData = {
   experienceYears?: number;
   imageUrl?: string;
   description?: string;
+  location?: string;
   isVerified: boolean;
   createdAt: string;
 };
@@ -101,6 +103,7 @@ export type BuilderData = {
   establishedYear?: number;
   imageUrl?: string;
   description?: string;
+  location?: string;
   isVerified: boolean;
   createdAt: string;
 };

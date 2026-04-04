@@ -32,6 +32,7 @@ export default function AdminBuildersPage() {
     establishedYear: '',
     imageUrl: '',
     description: '',
+    location: '',
   });
 
   const handleOpenDialog = (builder?: BuilderData) => {
@@ -46,11 +47,12 @@ export default function AdminBuildersPage() {
         establishedYear: builder.establishedYear?.toString() || '',
         imageUrl: builder.imageUrl || '',
         description: builder.description || '',
+        location: builder.location || '',
       });
     } else {
       setEditingId(null);
       setFormData({
-        companyName: '', contactPerson: '', email: '', phone: '', website: '', establishedYear: '', imageUrl: '', description: ''
+        companyName: '', contactPerson: '', email: '', phone: '', website: '', establishedYear: '', imageUrl: '', description: '', location: ''
       });
     }
     setIsDialogOpen(true);
@@ -69,6 +71,7 @@ export default function AdminBuildersPage() {
         establishedYear: formData.establishedYear ? parseInt(formData.establishedYear) : 0,
         imageUrl: formData.imageUrl,
         description: formData.description,
+        location: formData.location,
         isVerified: true,
         ...(editingId ? {} : { createdAt: new Date().toISOString() })
       };
@@ -125,6 +128,7 @@ export default function AdminBuildersPage() {
               <Input placeholder="Website URL" value={formData.website} onChange={e => setFormData({...formData, website: e.target.value})} />
               <Input type="number" placeholder="Established Year" value={formData.establishedYear} onChange={e => setFormData({...formData, establishedYear: e.target.value})} />
               <Input placeholder="Image URL (Company Logo)" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} />
+              <Input placeholder="Location / City" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
               <Textarea placeholder="About the Builder" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? <LoaderCircle className="animate-spin h-4 w-4 mr-2" /> : null}

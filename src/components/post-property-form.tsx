@@ -252,6 +252,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
 
   const propertyType = useWatch({ control: form.control, name: 'propertyType' });
   const listingFor = useWatch({ control: form.control, name: 'listingFor' });
+  const watchedState = useWatch({ control: form.control, name: 'state' });
   const watchedCity = useWatch({ control: form.control, name: 'city' });
   const watchedPrice = useWatch({ control: form.control, name: 'price' });
   const watchedArea = useWatch({ control: form.control, name: 'details.area' });
@@ -736,7 +737,20 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                 <FormField control={form.control} name="state" render={({ field }) => (
                     <FormItem>
                         <FormLabel>State</FormLabel>
-                        <FormControl><Input {...field} disabled /></FormControl>
+                        <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            form.setValue('city', '');
+                            form.setValue('locality', '');
+                        }} value={field.value} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select a state" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {locationData.map(state => (
+                                    <SelectItem key={state.name} value={state.name}>
+                                        {state.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                     </FormItem>
                 )} />
@@ -746,10 +760,10 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                         <Select onValueChange={(value) => {
                             field.onChange(value);
                             form.setValue('locality', '');
-                        }} value={field.value} defaultValue={field.value}>
+                        }} value={field.value} defaultValue={field.value} disabled={!watchedState}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select a city/town" /></SelectTrigger></FormControl>
                             <SelectContent>
-                                {locationData[0].districts.map(district => (
+                                {locationData.find(s => s.name === watchedState)?.districts.map(district => (
                                     <SelectItem key={district.name} value={district.name}>
                                         {district.name}
                                     </SelectItem>

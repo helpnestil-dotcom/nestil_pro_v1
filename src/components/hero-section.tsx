@@ -23,9 +23,8 @@ const SearchWidget = () => {
   const firestore = useFirestore();
 
   const [searchTab, setSearchTab] = useState('buy');
+  const [state, setState] = useState('all');
   const [district, setDistrict] = useState('all');
-  const [localities, setLocalities] = useState<{name: string}[]>([]);
-  const [locality, setLocality] = useState('all');
   const [propertyType, setPropertyType] = useState('all');
   const [budget, setBudget] = useState('any');
   
@@ -64,21 +63,7 @@ const SearchWidget = () => {
     }
   }, [fetchedProperties]);
 
-  useEffect(() => {
-    if (district && district !== 'all') {
-      const altDistrict = district.endsWith(' district') ? district.replace(' district', '') : `${district} district`;
-      const uniqueLocalities = new Set(
-        propertiesFromQuery
-          .filter(p => (p.city === district || p.city === altDistrict) && p.address)
-          .map(p => p.address)
-      );
-      setLocalities(Array.from(uniqueLocalities).sort().map(name => ({ name })));
-      setLocality('all');
-    } else {
-      setLocalities([]);
-      setLocality('all');
-    }
-  }, [district, propertiesFromQuery]);
+
 
   useEffect(() => {
     setBudget('any');
@@ -87,12 +72,12 @@ const SearchWidget = () => {
   const handleSearch = () => {
     const params = new URLSearchParams();
 
+    if (state && state !== 'all') {
+      params.set('state', state);
+    }
+
     if (district && district !== 'all') {
       params.set('keyword', district);
-    }
-    
-    if (locality && locality !== 'all') {
-        params.set('locality', locality);
     }
 
     if (searchTab === 'buy') {
@@ -136,28 +121,28 @@ const SearchWidget = () => {
         <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                    <Select value={district} onValueChange={setDistrict}>
+                    <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); }}>
                         <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Select District" />
+                            <SelectValue placeholder="Select State" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                            <SelectItem value="all" className="font-medium text-primary">All Districts</SelectItem>
-                            {locationData[0].districts.map((d) => (
-                                <SelectItem key={d.name} value={d.name} className="font-medium">{d.name}</SelectItem>
+                            <SelectItem value="all" className="font-medium text-primary">All States</SelectItem>
+                            {locationData.map((s) => (
+                                <SelectItem key={s.name} value={s.name} className="font-medium">{s.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
                 
                 <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                    <Select value={locality} onValueChange={setLocality} disabled={localities.length === 0}>
+                    <Select value={district} onValueChange={setDistrict} disabled={state === 'all'}>
                         <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Select Locality" />
+                            <SelectValue placeholder="Select Sub Location" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                            <SelectItem value="all" className="font-medium text-primary">All Localities</SelectItem>
-                            {localities.map((l) => (
-                                <SelectItem key={l.name} value={l.name} className="font-medium">{l.name}</SelectItem>
+                            <SelectItem value="all" className="font-medium text-primary">All Sub Locations</SelectItem>
+                            {locationData.find(s => s.name === state)?.districts.map((d) => (
+                                <SelectItem key={d.name} value={d.name} className="font-medium">{d.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>

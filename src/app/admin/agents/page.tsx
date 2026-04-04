@@ -31,6 +31,7 @@ export default function AdminAgentsPage() {
     experienceYears: '',
     imageUrl: '',
     description: '',
+    location: '',
   });
 
   const handleOpenDialog = (agent?: AgentData) => {
@@ -44,11 +45,12 @@ export default function AdminAgentsPage() {
         experienceYears: agent.experienceYears?.toString() || '',
         imageUrl: agent.imageUrl || '',
         description: agent.description || '',
+        location: agent.location || '',
       });
     } else {
       setEditingId(null);
       setFormData({
-        name: '', email: '', phone: '', company: '', experienceYears: '', imageUrl: '', description: ''
+        name: '', email: '', phone: '', company: '', experienceYears: '', imageUrl: '', description: '', location: ''
       });
     }
     setIsDialogOpen(true);
@@ -66,6 +68,7 @@ export default function AdminAgentsPage() {
         experienceYears: formData.experienceYears ? parseInt(formData.experienceYears) : 0,
         imageUrl: formData.imageUrl,
         description: formData.description,
+        location: formData.location,
         isVerified: true,
         ...(editingId ? {} : { createdAt: new Date().toISOString() })
       };
@@ -121,6 +124,7 @@ export default function AdminAgentsPage() {
               <Input placeholder="Company / Agency" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} />
               <Input type="number" placeholder="Experience (Years)" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: e.target.value})} />
               <Input placeholder="Image URL (Profile Photo)" value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} />
+              <Input placeholder="Location / City" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
               <Textarea placeholder="About the Agent" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? <LoaderCircle className="animate-spin h-4 w-4 mr-2" /> : null}

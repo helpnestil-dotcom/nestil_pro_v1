@@ -46,4 +46,16 @@ export const locationData: State[] = [
       { name: 'West Godavari district', localities: [{ name: 'Bhimavaram' }, { name: 'Tadepalligudem' }] },
     ],
   },
+  {
+    name: 'Tamilnadu',
+    districts: [
+      { name: 'Vellore', localities: [{ name: 'Vellore City' }] }
+    ],
+  },
+  {
+    name: 'Karnataka',
+    districts: [
+      { name: 'Bangalore', localities: [{ name: 'Bangalore City' }] }
+    ],
+  },
 ];
