@@ -532,6 +532,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       ownerId: user.uid,
       title: values.title, description: values.description, propertyType: values.propertyType,
       listingFor: values.listingFor,
+      state: values.state,
       city: values.city, address: values.locality,
       subLocality: values.subLocality,
       pincode: values.pincode, googleMapsLink: values.googleMapsLink, price: values.priceOnRequest ? 0 : values.price,

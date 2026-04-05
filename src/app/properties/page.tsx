@@ -135,7 +135,10 @@ function PropertySearchComponent() {
     let result = propertiesFromQuery;
 
     if (stateParam !== 'all') {
-        result = result.filter(prop => prop.state === stateParam);
+        result = result.filter(prop => {
+            const propState = prop.state || staticLocationData.find(s => s.districts.some(d => d.name === prop.city))?.name || 'Andhra Pradesh';
+            return propState === stateParam;
+        });
     }
 
     if (locality !== 'all') {
