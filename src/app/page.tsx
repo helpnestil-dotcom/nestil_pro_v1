@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { HeroSection } from '@/components/hero-section';
 import { FeaturedProperties } from '@/components/featured-properties';
 import { PropertyCardSkeleton } from '@/components/property-card';
+import { FlatmateSection } from '@/components/flatmate-section';
 
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in Andhra Pradesh',
@@ -92,6 +93,7 @@ export default function Home() {
       <Suspense fallback={<FeaturedPropertiesSkeleton />}>
         <FeaturedProperties />
       </Suspense>
+      <FlatmateSection />
       <CtaBand />
     </>
   )

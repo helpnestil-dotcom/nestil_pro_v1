@@ -14,7 +14,7 @@ import { Skeleton } from './ui/skeleton';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
-    'Villa', 'Row House', 'Duplex', 'Studio Apartment', 'PG / Hostel', 'Land', 'Plot', 'Commercial properties', 'Godowns', 'Warehouses', 'Agricultural Land'
+    'Villa', 'Row House', 'Duplex', 'Studio Apartment', 'PG / Hostel', 'Flatmate / Co-living', 'Land', 'Plot', 'Commercial properties', 'Godowns', 'Warehouses', 'Agricultural Land'
 ];
 
 const SearchWidget = () => {
@@ -88,6 +88,9 @@ const SearchWidget = () => {
       params.set('type', 'Commercial properties');
     } else if (searchTab === 'plot') {
       params.set('type', 'Plot');
+    } else if (searchTab === 'flatmates') {
+        params.set('transaction', 'Rent');
+        params.set('type', 'Flatmate / Co-living');
     }
 
     if (propertyType !== 'all') {
@@ -113,6 +116,7 @@ const SearchWidget = () => {
             <TabsList className="flex h-12 justify-start p-1.5 bg-slate-100/80 rounded-2xl mb-4 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
                 <TabsTrigger value="buy" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Buy</TabsTrigger>
                 <TabsTrigger value="rent" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Rent</TabsTrigger>
+                <TabsTrigger value="flatmates" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Flatmates</TabsTrigger>
                 <TabsTrigger value="commercial" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[120px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Commercial</TabsTrigger>
                 <TabsTrigger value="plot" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Plot / Land</TabsTrigger>
             </TabsList>
