@@ -181,7 +181,6 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
