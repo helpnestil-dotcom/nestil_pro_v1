@@ -291,9 +291,14 @@ export default function ShiftHomePage() {
                       <p className="text-indigo-100 text-sm">
                           Are you a professional packer, driver, or labourer looking for work? Register with Nestil to get daily verified shifting leads in your city.
                       </p>
-                      <Button asChild variant="secondary" className="w-full font-bold">
-                          <Link href="/shift-home/register-worker">Register as Worker</Link>
-                      </Button>
+                      <div className="flex flex-col gap-3">
+                        <Button asChild variant="secondary" className="w-full font-bold">
+                            <Link href="/shift-home/register-worker">Register as Worker</Link>
+                        </Button>
+                        <Link href="/login?redirect=/dashboard" className="text-xs text-center text-indigo-200 hover:text-white underline underline-offset-4 cursor-pointer">
+                            Already a partner? Login with your Email
+                        </Link>
+                      </div>
                   </CardContent>
               </Card>
 

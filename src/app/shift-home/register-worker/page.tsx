@@ -74,14 +74,17 @@ export default function RegisterWorkerPage() {
             <div className="flex justify-center">
               <CheckCircle2 className="w-20 h-20 text-green-500 animate-bounce" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <h2 className="text-2xl font-bold text-slate-800">Registration Complete!</h2>
               <p className="text-slate-500">
-                Welcome to Nestil! Our team will review your application and contact you at +91 {formData.phone} for verification and onboarding.
+                Welcome to Nestil! Our team will review your application soon. Since you are registered with <strong>{user?.email}</strong>, you can access your jobs dashboard instantly.
               </p>
             </div>
-            <div className="pt-4">
-              <Button asChild className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <div className="pt-4 flex flex-col gap-3">
+              <Button asChild className="w-full h-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-lg">
+                <Link href="/dashboard">Access Worker Dashboard</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-slate-400">
                 <Link href="/">Back to Home</Link>
               </Button>
             </div>
