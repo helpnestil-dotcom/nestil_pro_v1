@@ -255,28 +255,24 @@ export default function RegisterWorkerPage() {
                                 )}
                             </div>
 
-                            {!user && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="password" title="Set a password for your worker account" className="font-medium">Set Password *</Label>
-                                        <Input 
-                                            id="password" name="password" type="password" placeholder="••••••••" required 
-                                            value={formData.password} onChange={handleChange}
-                                            minLength={6}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="confirmPassword" title="Verify your password" className="font-medium">Confirm Password *</Label>
-                                        <Input 
-                                            id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" required 
-                                            value={formData.confirmPassword} onChange={handleChange}
-                                            minLength={6}
-                                        />
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="password" title="Set a password for your worker account" className="font-medium">Set Password *</Label>
+                                    <Input 
+                                        id="password" name="password" type="password" placeholder="••••••••" required 
+                                        value={formData.password} onChange={handleChange}
+                                        minLength={6}
+                                    />
                                 </div>
-                            )}
-
-                            <div className="space-y-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirmPassword" title="Verify your password" className="font-medium">Confirm Password *</Label>
+                                    <Input 
+                                        id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" required 
+                                        value={formData.confirmPassword} onChange={handleChange}
+                                        minLength={6}
+                                    />
+                                </div>
+                            </div>
 
                             <div className="space-y-2">
                               <Label htmlFor="city" className="font-medium flex items-center gap-2">
