@@ -290,6 +290,10 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
     }
   };
 
+  const { uploadImages, isUploading: isUploadingImages } = useCloudinaryUpload();
+  const [isUploading, setIsUploading] = useState(false); // Legacy state for UI sync if needed, but we'll prefer isUploadingImages
+  const uploading = isUploadingImages || isUploading;
+
   const processAndUploadFiles = async (files: FileList | null) => {
     if (!files || !user) return;
 
@@ -301,56 +305,11 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
         });
         return;
     }
-    setUploading(true);
 
-    const fileArray = Array.from(files);
-    
-    const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
-        console.error("Cloudinary public credentials are not set in .env file.");
-        toast({ variant: 'destructive', title: 'Upload Failed', description: 'Cloudinary configuration is missing.' });
-        setUploading(false);
-        return;
-    }
-
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-    
-    try {
-        const uploadPromises = fileArray.map(async (file) => {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-            const response = await fetch(uploadUrl, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Image upload failed.');
-            }
-
-            const data = await response.json();
-            return { url: data.secure_url };
-        });
-
-        const uploadedPhotos = await Promise.all(uploadPromises);
-        appendPhoto(uploadedPhotos);
-        
+    const uploadedPhotos = await uploadImages(files);
+    if (uploadedPhotos.length > 0) {
+        appendPhoto(uploadedPhotos.map(p => ({ url: p.url })));
         toast({ title: `${uploadedPhotos.length} image(s) uploaded successfully.`});
-
-    } catch (error) {
-        console.error("Error uploading images to Cloudinary:", error);
-        let errorMessage = 'Could not upload images. Please try again.';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-        toast({ variant: 'destructive', title: 'Upload Failed', description: errorMessage });
-    } finally {
-        setUploading(false);
     }
   }
 

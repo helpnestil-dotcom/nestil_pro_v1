@@ -78,6 +78,7 @@ export type User = {
   dateJoined: string;
   role: 'Owner' | 'Agent' | 'Builder' | 'Worker' | 'Visitor';
   listings: number;
+  imageUrl?: string;
 };
 
 export type AgentData = {
