@@ -307,11 +307,24 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
     }
 
     const uploadedPhotos = await uploadImages(files);
-    if (uploadedPhotos.length > 0) {
-        appendPhoto(uploadedPhotos.map(p => ({ url: p.url })));
-        toast({ title: `${uploadedPhotos.length} image(s) uploaded successfully.`});
+    
+    // Check for errors
+    const errorResult = uploadedPhotos.find(p => p.error);
+    if (errorResult) {
+        toast({
+            variant: 'destructive',
+            title: 'Upload Error',
+            description: errorResult.error,
+        });
+        return;
     }
-  }
+
+    if (uploadedPhotos.length > 0) {
+        const validPhotos = uploadedPhotos.filter(p => p.url).map(p => ({ url: p.url }));
+        appendPhoto(validPhotos);
+        toast({ title: `${validPhotos.length} image(s) uploaded successfully.`});
+    }
+}
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     processAndUploadFiles(event.target.files);

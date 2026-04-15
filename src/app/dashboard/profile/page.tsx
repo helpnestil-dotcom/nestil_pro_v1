@@ -76,6 +76,18 @@ export default function ProfilePage() {
     if (!files || files.length === 0) return;
 
     const results = await uploadImages(files);
+    
+    // Check for errors
+    const errorResult = results.find(p => p.error);
+    if (errorResult) {
+        toast({
+            variant: 'destructive',
+            title: 'Upload Error',
+            description: errorResult.error,
+        });
+        return;
+    }
+
     if (results.length > 0) {
       form.setValue('imageUrl', results[0].url);
       toast({ title: 'Image Uploaded', description: 'Your new profile photo is ready. Click "Save Changes" to apply.' });

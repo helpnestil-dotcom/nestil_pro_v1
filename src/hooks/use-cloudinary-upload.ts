@@ -1,12 +1,11 @@
-
 'use client';
 
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 interface UploadResult {
   url: string;
   publicId?: string;
+  error?: string;
 }
 
 export function useCloudinaryUpload() {
@@ -18,10 +17,14 @@ export function useCloudinaryUpload() {
     const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
+    console.log("Starting Cloudinary upload process...");
+    console.log("Cloud Name:", CLOUDINARY_CLOUD_NAME ? "Configured" : "MISSING");
+    console.log("Upload Preset:", CLOUDINARY_UPLOAD_PRESET ? "Configured" : "MISSING");
+
     if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
-      console.error("Cloudinary credentials missing in .env file.");
-      toast.error("Upload failed: Cloudinary configuration is missing.");
-      return [];
+      const msg = "Cloudinary credentials missing in .env.local file.";
+      console.error(msg);
+      return [{ url: '', error: msg }];
     }
 
     setIsUploading(true);
@@ -30,6 +33,7 @@ export function useCloudinaryUpload() {
 
     try {
       const uploadPromises = fileArray.map(async (file) => {
+        console.log(`Uploading file: ${file.name} (${file.type}, ${file.size} bytes)`);
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -41,10 +45,12 @@ export function useCloudinaryUpload() {
 
         if (!response.ok) {
           const errorData = await response.json();
+          console.error("Cloudinary API Error:", errorData);
           throw new Error(errorData.error?.message || 'Image upload failed.');
         }
 
         const data = await response.json();
+        console.log("Upload successful:", data.secure_url);
         return { 
             url: data.secure_url,
             publicId: data.public_id
@@ -54,9 +60,8 @@ export function useCloudinaryUpload() {
       const results = await Promise.all(uploadPromises);
       return results;
     } catch (error: any) {
-      console.error("Cloudinary upload error:", error);
-      toast.error(error.message || "Failed to upload images. Please try again.");
-      return [];
+      console.error("Cloudinary hook error:", error);
+      return [{ url: '', error: error.message || "Failed to upload images." }];
     } finally {
       setIsUploading(false);
     }
