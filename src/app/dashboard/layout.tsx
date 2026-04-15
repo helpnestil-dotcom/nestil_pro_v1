@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { LoaderCircle } from 'lucide-react';
@@ -12,16 +12,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isUserLoading } = useUser();
+  const { user, profile, isLoading } = useUserProfile();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (!isLoading && !user) {
       router.replace('/login?redirect=/dashboard');
     }
   }, [isUserLoading, user, router]);
 
-  if (isUserLoading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <LoaderCircle className="h-12 w-12 animate-spin text-primary" />

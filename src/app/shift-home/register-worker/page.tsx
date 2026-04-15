@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useUser } from '@/firebase';
 
 export default function RegisterWorkerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +24,8 @@ export default function RegisterWorkerPage() {
     role: '',
     experience: ''
   });
+
+  const { user } = useUser();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,11 +40,22 @@ export default function RegisterWorkerPage() {
     setIsSubmitting(true);
 
     try {
+      // 1. Save worker application
       await addDoc(collection(db, 'shiftingWorkers'), {
         ...formData,
+        userId: user?.uid || null,
         registeredAt: serverTimestamp(),
         status: 'pending_verification'
       });
+
+      // 2. If logged in, update user role to Worker
+      if (user?.uid) {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          role: 'Worker'
+        }).catch(err => console.error("Error updating user role:", err));
+      }
+
       setIsSuccess(true);
       toast.success('Registration successful! We will verify your details soon.');
     } catch (error) {

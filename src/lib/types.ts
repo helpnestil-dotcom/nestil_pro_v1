@@ -76,7 +76,7 @@ export type User = {
   email: string;
   phone: string;
   dateJoined: string;
-  role: 'Owner' | 'Agent' | 'Builder' | 'Visitor';
+  role: 'Owner' | 'Agent' | 'Builder' | 'Worker' | 'Visitor';
   listings: number;
 };
 
