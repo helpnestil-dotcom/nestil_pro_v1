@@ -19,7 +19,7 @@ export default function DashboardLayout({
     if (!isLoading && !user) {
       router.replace('/login?redirect=/dashboard');
     }
-  }, [isUserLoading, user, router]);
+  }, [isLoading, user, router]);
 
   if (isLoading || !user) {
     return (
