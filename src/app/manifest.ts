@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Nestil Property Marketplace',
     short_name: 'Nestil',
-    description: 'Buy, Rent & Sell premium properties directly from owners across Andhra Pradesh.',
+    description: 'Buy, Rent & Sell premium properties directly from owners across India.',
     start_url: '/',
     display: 'standalone',
     background_color: '#020617',

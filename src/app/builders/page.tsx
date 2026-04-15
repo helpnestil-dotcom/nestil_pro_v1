@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Mail, Phone, Globe, Building, CalendarDays, MapPin } from 'lucide-react';
+import { Award, Mail, Phone, Globe, Building, CalendarDays, MapPin, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -22,6 +22,12 @@ const DEMO_BUILDER: BuilderData = {
   location: 'Hyderabad',
   description: 'Apex Constructions is a premier property development company known for world-class residential and commercial projects built with uncompromising quality.',
   createdAt: new Date().toISOString(),
+  rating: 4.8,
+  ongoingProjects: [
+    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=400',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=400',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400',
+  ],
 };
 
 export default function BuildersPage() {
@@ -73,6 +79,12 @@ export default function BuildersPage() {
               <div className="flex justify-between items-start gap-4">
                   <div>
                       <CardTitle className="text-xl line-clamp-1">{builder.companyName}</CardTitle>
+                      {builder.rating !== undefined && (
+                          <div className="flex items-center gap-1 mt-1 mb-2 text-amber-500">
+                             <Star className="h-4 w-4 fill-amber-500" />
+                             <span className="text-sm font-semibold text-foreground/90">{builder.rating}</span>
+                          </div>
+                      )}
                       <CardDescription className="flex flex-col gap-1 mt-1">
                           <span className="flex items-center gap-1">
                               <Building className="h-3 w-3" />
@@ -114,6 +126,22 @@ export default function BuildersPage() {
                       </div>
                   )}
                </div>
+
+               {builder.ongoingProjects && builder.ongoingProjects.length > 0 && (
+                   <div className="pt-4 border-t mt-4 border-border/50">
+                      <h4 className="text-xs font-bold uppercase text-muted-foreground mb-3 tracking-wider">Ongoing Projects</h4>
+                      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                         {builder.ongoingProjects.map((image, idx) => (
+                             <img 
+                               key={idx} 
+                               src={image} 
+                               alt={`Project ${idx + 1}`} 
+                               className="h-20 w-32 object-cover rounded-lg shrink-0 border border-border shadow-sm transition-transform hover:scale-105 hover:z-10 relative"
+                             />
+                         ))}
+                      </div>
+                   </div>
+               )}
             </CardContent>
           </Card>
         ))}

@@ -35,7 +35,8 @@ export function Header() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/properties', label: 'Properties' },
-    { href: '/agents', label: 'Agents' },
+    { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
+    { href: '/shift-home', label: 'Shift Home' },
     { href: '/builders', label: 'Builders' },
     { href: '/about', label: 'About' },
   ];

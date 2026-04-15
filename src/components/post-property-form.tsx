@@ -87,6 +87,7 @@ const formSchema = z.object({
   deposit: z.coerce.number().optional().default(0),
   availableFrom: z.date().optional(),
   preferredTenants: z.enum(['Family', 'Bachelor', 'Anyone']).optional(),
+  flatmateGenderPreference: z.enum(['Male', 'Female', 'Anyone']).optional(),
   isAvailableAnytime: z.boolean().default(false),
   visitAvailability: z.array(z.object({
     day: z.string().min(1, "Day is required."),
@@ -210,6 +211,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       deposit: 0,
       availableFrom: undefined,
       preferredTenants: 'Anyone',
+      flatmateGenderPreference: 'Anyone',
       isAvailableAnytime: false,
       visitAvailability: [],
       amenities: [],
@@ -464,6 +466,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                             deposit: data.deposit,
                             availableFrom: data.availableFrom ? new Date(data.availableFrom) : undefined,
                             preferredTenants: data.preferredTenants,
+                            flatmateGenderPreference: data.flatmateGenderPreference || 'Anyone',
                             isAvailableAnytime: data.isAvailableAnytime || false,
                             visitAvailability: Array.isArray(data.visitAvailability) ? data.visitAvailability : [],
                             amenities: data.amenities,
@@ -539,6 +542,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       priceOnRequest: values.priceOnRequest, negotiable: values.negotiable === 'Yes', maintenance: values.maintenance,
       deposit: values.deposit, availableFrom: values.availableFrom ? values.availableFrom.toISOString() : null,
       preferredTenants: values.preferredTenants, 
+      flatmateGenderPreference: values.propertyType === 'Flatmate / Co-living' ? values.flatmateGenderPreference : null,
       isAvailableAnytime: values.isAvailableAnytime,
       visitAvailability: values.isAvailableAnytime ? [] : values.visitAvailability,
       areaSqFt: values.details.area || values.details.plotArea || 0,
@@ -934,6 +938,30 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                             </FormControl>
                         </FormItem>
                     )} />
+                    {propertyType === 'Flatmate / Co-living' && (
+                        <FormField control={form.control} name="flatmateGenderPreference" render={({ field }) => (
+                            <FormItem className="border-t pt-4">
+                                <FormLabel className="text-primary font-bold">Looking for (Flatmate Preference)</FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} value={field.value} className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl><RadioGroupItem value="Male" id="gender-male" /></FormControl>
+                                            <Label htmlFor="gender-male" className="cursor-pointer">Male Flatmate</Label>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl><RadioGroupItem value="Female" id="gender-female" /></FormControl>
+                                            <Label htmlFor="gender-female" className="cursor-pointer">Female Flatmate</Label>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl><RadioGroupItem value="Anyone" id="gender-anyone" /></FormControl>
+                                            <Label htmlFor="gender-anyone" className="cursor-pointer">No Restrictions (Anyone)</Label>
+                                        </FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormDescription>This helps filter your listing for the right seekers.</FormDescription>
+                            </FormItem>
+                        )} />
+                    )}
                 </div>
           </FormSection>
 

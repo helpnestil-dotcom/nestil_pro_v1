@@ -248,6 +248,14 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                                     <span className="font-bold text-slate-800">{property.nonVegAllowed ? 'Allowed' : 'Not Allowed'}</span>
                                 </div>
                              )}
+                             {property.propertyType === 'Flatmate / Co-living' && property.flatmateGenderPreference && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2 col-span-2">
+                                    <span className="text-slate-500 font-medium">Looking For</span>
+                                    <span className="font-bold text-primary">
+                                        {property.flatmateGenderPreference === 'Anyone' ? 'Anyone (No Restrictions)' : `${property.flatmateGenderPreference} Flatmate`}
+                                    </span>
+                                </div>
+                              )}
                         </div>
                     </div>
                 </div>

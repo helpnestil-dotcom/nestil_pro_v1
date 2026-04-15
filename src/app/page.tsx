@@ -9,12 +9,12 @@ import { PropertyCardSkeleton } from '@/components/property-card';
 import { FlatmateSection } from '@/components/flatmate-section';
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in Andhra Pradesh',
-  description: 'Find your dream home in AP instantly. Browse over 12,400+ verified flats, independent houses, plots, and commercial properties across all 26 districts of Andhra Pradesh.',
-  keywords: 'properties in Andhra Pradesh, real estate AP, buy flat in Vijayawada, rent house in Visakhapatnam, property portal AP, Nestil',
+  title: 'Nestil | Buy, Rent & Sell Properties in India',
+  description: 'Find your dream home instantly. Browse thousands of verified flats, independent houses, plots, and commercial properties across all major cities of India.',
+  keywords: 'properties in India, real estate India, buy flat in India, rent house in Bangalore, property portal India, Nestil',
   openGraph: {
-    title: 'Nestil | AP\'s #1 Property Platform',
-    description: 'Find verified properties across all 26 districts of Andhra Pradesh.',
+    title: 'Nestil | India\'s #1 Property Platform',
+    description: 'Find verified properties across every major city in India.',
     url: 'https://www.nestil.in',
     siteName: 'Nestil',
     type: 'website',

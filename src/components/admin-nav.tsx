@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { User, LogOut, LayoutGrid, List, MessageSquare, Shield } from 'lucide-react';
+import { User, LogOut, LayoutGrid, List, MessageSquare, Shield, Truck, Briefcase } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,8 @@ export function AdminNav() {
 
   const links = [
     { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
+    { href: '/admin/shifting-requests', label: 'Shifting Requests', icon: Truck },
+    { href: '/admin/shifting-workers', label: 'Shifting Workers', icon: Briefcase },
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
     { href: '/admin/agents', label: 'Agents', icon: User },
     { href: '/admin/builders', label: 'Builders', icon: Shield },

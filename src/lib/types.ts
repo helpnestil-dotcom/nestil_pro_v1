@@ -55,6 +55,7 @@ export type Property = {
   deposit?: number;
   availableFrom?: string | null;
   preferredTenants?: 'Family' | 'Bachelor' | 'Anyone';
+  flatmateGenderPreference?: 'Male' | 'Female' | 'Anyone';
   isApproved: boolean;
   floor?: string;
   totalFloors?: string;
@@ -106,4 +107,6 @@ export type BuilderData = {
   location?: string;
   isVerified: boolean;
   createdAt: string;
+  rating?: number;
+  ongoingProjects?: string[];
 };

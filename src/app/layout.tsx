@@ -16,9 +16,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in Andhra Pradesh',
+  title: 'Nestil | Buy, Rent & Sell Properties in India',
   description:
-    'Search, Buy, and Sell premium real estate with zero brokerage fees on Nestil, Andhra Pradesh\'s fastest growing direct-to-owner property marketplace.',
+    'Search, Buy, and Sell premium real estate with zero brokerage fees on Nestil, India\'s fastest growing direct-to-owner property marketplace.',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',

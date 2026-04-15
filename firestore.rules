@@ -88,5 +88,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+  // SHIFTING REQUESTS
+    match /homeShiftingRequests/{requestId} {
+      allow create: if true; // Any customer can raise a request
+      allow read, update, delete: if isAdmin(); // Only admins can see and manage them
+    }
+
+    // SHIFTING WORKERS
+    match /shiftingWorkers/{workerId} {
+      allow create: if true; // Any worker can apply
+      allow read, update, delete: if isAdmin(); // Only admins can manage applications
+    }
   }
 }

@@ -65,7 +65,7 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold font-headline text-primary">Our Vision</h3>
                 </div>
                 <p className="text-muted-foreground">
-                  To become Andhra Pradesh’s most reliable hyper-local property platform connecting people with homes in every town and village.
+                  To become India’s most reliable hyper-local property platform connecting people with homes in every city, town and village.
                 </p>
               </div>
             </div>

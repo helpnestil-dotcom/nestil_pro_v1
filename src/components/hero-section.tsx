@@ -256,15 +256,15 @@ export function HeroSection() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                Andhra Pradesh's #1 Property Platform
+                India's #1 Property Platform
             </div>
 
             <h1 className="animate-in-up delay-100 font-extrabold text-5xl md:text-6xl lg:text-[72px] leading-[1.1] tracking-[-0.02em] max-w-4xl text-slate-800 mb-6 drop-shadow-sm">
-              Discover Your <span className="glow-text">Dream Property</span> Across AP
+              Discover Your <span className="glow-text">Dream Property</span> Across India
             </h1>
             
             <p className="animate-in-up delay-200 text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed mb-12 font-medium">
-              List Free. Find Fast. Direct Owner Contact. The smartest way to buy, sell, and rent across all 26 districts of Andhra Pradesh.
+              List Free. Find Fast. Direct Owner Contact. The smartest way to buy, sell, and rent properties across all major cities of India.
             </p>
 
             <div className="animate-in-up delay-300">
