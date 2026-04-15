@@ -295,8 +295,8 @@ export default function ShiftHomePage() {
                         <Button asChild variant="secondary" className="w-full font-bold">
                             <Link href="/shift-home/register-worker">Register as Worker</Link>
                         </Button>
-                        <Link href="/login?redirect=/dashboard" className="text-xs text-center text-indigo-200 hover:text-white underline underline-offset-4 cursor-pointer">
-                            Already a partner? Login with your Email
+                        <Link href="/shift-home/login" className="text-xs text-center text-indigo-200 hover:text-white underline underline-offset-4 cursor-pointer">
+                            Already a partner? Login to Partner Portal
                         </Link>
                       </div>
                   </CardContent>

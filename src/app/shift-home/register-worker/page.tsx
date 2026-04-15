@@ -11,7 +11,9 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { useUser } from '@/firebase';
+import { useUser, useAuth } from '@/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterWorkerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,6 +22,8 @@ export default function RegisterWorkerPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     phone: '',
     city: '',
     role: '',
@@ -27,6 +31,8 @@ export default function RegisterWorkerPage() {
   });
 
   const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
 
   // Pre-fill user data if logged in
   useEffect(() => {
@@ -50,30 +56,82 @@ export default function RegisterWorkerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // 1. Save worker application
+      let currentUserId = user?.uid;
+
+      // 1. If not logged in and password provided, create account
+      if (!currentUserId && formData.email && formData.password) {
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+          currentUserId = userCredential.user.uid;
+          
+          // Set display name for the new user
+          await updateProfile(userCredential.user, {
+            displayName: formData.name
+          });
+
+          // Create the user document in Firestore immediately
+          const userDocRef = doc(db, 'users', currentUserId);
+          await updateDoc(userDocRef, {
+            uid: currentUserId,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            role: 'Worker',
+            createdAt: serverTimestamp(),
+          }).catch(async () => {
+            // If update fails (doc doesn't exist), setDoc instead
+            const { setDoc } = await import('firebase/firestore');
+            await setDoc(userDocRef, {
+              uid: currentUserId,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              role: 'Worker',
+              createdAt: serverTimestamp(),
+            });
+          });
+        } catch (authError: any) {
+          if (authError.code === 'auth/email-already-in-use') {
+            toast.error('This email is already registered. Please login instead.');
+            setIsSubmitting(false);
+            return;
+          }
+          throw authError;
+        }
+      }
+
+      // 2. Save worker application details
       await addDoc(collection(db, 'shiftingWorkers'), {
         ...formData,
-        userId: user?.uid || null,
+        password: '', // Don't store plain password in Firestore
+        confirmPassword: '',
+        userId: currentUserId || null,
         registeredAt: serverTimestamp(),
         status: 'pending_verification'
       });
 
-      // 2. If logged in, update user role to Worker
-      if (user?.uid) {
-        const userRef = doc(db, 'users', user.uid);
+      // 3. Update role for existing logged-in user
+      if (currentUserId) {
+        const userRef = doc(db, 'users', currentUserId);
         await updateDoc(userRef, {
           role: 'Worker'
         }).catch(err => console.error("Error updating user role:", err));
       }
 
       setIsSuccess(true);
-      toast.success('Registration successful! We will verify your details soon.');
-    } catch (error) {
+      toast.success('Registration successful! Your worker account is ready.');
+    } catch (error: any) {
       console.error('Error registering worker:', error);
-      toast.error('Failed to register. Please try again later.');
+      toast.error(error.message || 'Failed to register. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -186,8 +244,39 @@ export default function RegisterWorkerPage() {
                                     id="email" name="email" type="email" placeholder="yourname@gmail.com" required 
                                     value={formData.email} onChange={handleChange}
                                 />
-                                <p className="text-[11px] text-slate-400 italic">This email will be used as your registered ID to access your dashboard.</p>
+                                {user && formData.email && user.email !== formData.email && (
+                                    <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-700 flex items-start gap-2">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mt-0.5 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                        <span>
+                                            <strong>Warning:</strong> You are logged in with <b>{user.email}</b>. 
+                                            If you register using <b>{formData.email}</b>, your dashboard access will still be tied to your current login account.
+                                        </span>
+                                    </div>
+                                )}
                             </div>
+
+                            {!user && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password" title="Set a password for your worker account" className="font-medium">Set Password *</Label>
+                                        <Input 
+                                            id="password" name="password" type="password" placeholder="••••••••" required 
+                                            value={formData.password} onChange={handleChange}
+                                            minLength={6}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confirmPassword" title="Verify your password" className="font-medium">Confirm Password *</Label>
+                                        <Input 
+                                            id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" required 
+                                            value={formData.confirmPassword} onChange={handleChange}
+                                            minLength={6}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
 
                             <div className="space-y-2">
                               <Label htmlFor="city" className="font-medium flex items-center gap-2">
