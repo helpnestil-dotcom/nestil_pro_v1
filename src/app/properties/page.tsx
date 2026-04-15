@@ -63,6 +63,7 @@ function PropertySearchComponent() {
   const [propertyType, setPropertyType] = useState(searchParams.get('type') || 'all');
   const [constructionStatus, setConstructionStatus] = useState(searchParams.get('constructionStatus') || 'all');
   const [rentalStatus, setRentalStatus] = useState(searchParams.get('rentalStatus') || 'all');
+  const [genderPreference, setGenderPreference] = useState(searchParams.get('gender') || 'all');
   const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
   const [headerLocation, setHeaderLocation] = useState<Location | null>(null);
   
@@ -156,6 +157,9 @@ function PropertySearchComponent() {
     if (rentalStatus !== 'all') {
         result = result.filter(prop => prop.rentalStatus === rentalStatus);
     }
+    if (genderPreference !== 'all') {
+        result = result.filter(prop => prop.flatmateGenderPreference === genderPreference);
+    }
     
     const isPriceFiltered = priceRange[0] > 0 || priceRange[1] < 10000000;
     if (isPriceFiltered) {
@@ -184,7 +188,7 @@ function PropertySearchComponent() {
   // Reset page to 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [keyword, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
+  }, [keyword, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
   const currentProperties = useMemo(() => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -203,6 +207,7 @@ function PropertySearchComponent() {
     setPropertyType('all');
     setConstructionStatus('all');
     setRentalStatus('all');
+    setGenderPreference('all');
     setPriceRange([0, 10000000]);
   };
   
@@ -214,6 +219,7 @@ function PropertySearchComponent() {
     setPropertyType(searchParams.get('type') || 'all');
     setConstructionStatus(searchParams.get('constructionStatus') || 'all');
     setRentalStatus(searchParams.get('rentalStatus') || 'all');
+    setGenderPreference(searchParams.get('gender') || 'all');
     setPriceRange(getInitialPriceRange());
   }, [searchParams]);
 
@@ -337,6 +343,22 @@ function PropertySearchComponent() {
                 </SelectContent>
               </Select>
             </div>
+
+            {propertyType === 'Flatmate / Co-living' && (
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <Label htmlFor="gender-pref">Flatmate Preference</Label>
+                    <Select value={genderPreference} onValueChange={setGenderPreference}>
+                        <SelectTrigger id="gender-pref">
+                            <SelectValue placeholder="Anyone / No Restrictions" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Anyone / All</SelectItem>
+                            <SelectItem value="Male">Looking for Male</SelectItem>
+                            <SelectItem value="Female">Looking for Female</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
 
             <div className="space-y-4 pt-2">
                 <Label>Price Range</Label>
