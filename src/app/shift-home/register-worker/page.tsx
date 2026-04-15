@@ -19,6 +19,7 @@ export default function RegisterWorkerPage() {
 
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     phone: '',
     city: '',
     role: '',
@@ -26,6 +27,18 @@ export default function RegisterWorkerPage() {
   });
 
   const { user } = useUser();
+
+  // Pre-fill user data if logged in
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.displayName || prev.name,
+        email: user.email || prev.email,
+        phone: user.phoneNumber || prev.phone
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -162,6 +175,18 @@ export default function RegisterWorkerPage() {
                                     pattern="[0-9]{10}"
                                   />
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="font-medium flex items-center gap-2">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-slate-400"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    Gmail Address (Google Account) *
+                                </Label>
+                                <Input 
+                                    id="email" name="email" type="email" placeholder="yourname@gmail.com" required 
+                                    value={formData.email} onChange={handleChange}
+                                />
+                                <p className="text-[11px] text-slate-400 italic">This email will be used as your registered ID to access your dashboard.</p>
                             </div>
 
                             <div className="space-y-2">
