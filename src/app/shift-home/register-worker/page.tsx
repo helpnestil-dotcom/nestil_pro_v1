@@ -94,15 +94,26 @@ export default function RegisterWorkerPage() {
         status: 'pending_verification'
       });
 
+      // Step 3: Link worker profile to user account and upgrade role
       if (currentUserId) {
-        await updateDoc(doc(db, 'users', currentUserId), { role: 'Worker' });
+        // Use setDoc with merge: true instead of updateDoc to handle cases where 
+        // the user doc might not exist yet (common for social logins/new accounts)
+        await setDoc(doc(db, 'users', currentUserId), { 
+          role: 'Worker',
+          lastWorkerRegistration: serverTimestamp() 
+        }, { merge: true });
       }
 
       setIsSuccess(true);
       toast.success('Registration successful!');
     } catch (error: any) {
-      console.error('Error:', error);
-      toast.error(error.message || 'Failed to register.');
+      console.error('Registration Error:', error);
+      // More descriptive error messages for common Firestore issues
+      if (error.code === 'permission-denied') {
+        toast.error('Permission denied. Please ensure you are logged in correctly.');
+      } else {
+        toast.error(error.message || 'Failed to register. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -164,12 +175,12 @@ export default function RegisterWorkerPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="password flex items-center gap-2"><Lock className="w-4 h-4" /> Password *</Label>
-                            <Input id="password" name="password" type="password" required value={formData.password} onChange={handleChange} placeholder="••••••••" />
+                            <Label htmlFor="password" title="Password"><div className="flex items-center gap-2"><Lock className="w-4 h-4" /> Password {user ? '(Optional)' : '*'}</div></Label>
+                            <Input id="password" name="password" type="password" required={!user} value={formData.password} onChange={handleChange} placeholder="••••••••" />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                            <Input id="confirmPassword" name="confirmPassword" type="password" required value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" />
+                            <Label htmlFor="confirmPassword">Confirm Password {user ? '(Optional)' : '*'}</Label>
+                            <Input id="confirmPassword" name="confirmPassword" type="password" required={!user} value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" />
                         </div>
                     </div>
                   </div>
