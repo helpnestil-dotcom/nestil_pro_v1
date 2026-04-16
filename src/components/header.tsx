@@ -38,6 +38,7 @@ export function Header() {
     { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
     { href: '/shift-home', label: 'Shift Home' },
     { href: '/builders', label: 'Builders' },
+    { href: '/shift-home/login', label: 'Partner Login' },
     { href: '/about', label: 'About' },
   ];
 
