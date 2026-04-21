@@ -62,7 +62,7 @@ export default function DashboardPage() {
                 <CardTitle className="flex items-center gap-2 group-hover:text-emerald-600 transition-colors"><Truck /> Service Area</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-black text-emerald-600">{profile.city || 'National'}</p>
+                <p className="text-2xl font-black text-emerald-600">{(profile as any).city || 'National'}</p>
                 <p className="text-xs text-muted-foreground">Primary working location</p>
                  <Button asChild variant="outline" size="sm" className="mt-4 rounded-xl border-emerald-200">
                   <Link href="/dashboard/profile">Update City</Link>
