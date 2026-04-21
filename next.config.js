@@ -2,9 +2,11 @@
 const nextConfig = {
   // 1. FIX THE CROSS-ORIGIN WARNING
   experimental: {
-    allowedDevOrigins: [
-      '3000-firebase-studio-1771129502154.cluster-cd3bsnf6r5bemwki2bxljme5as.cloudworkstations.dev'
-    ]
+    serverActions: {
+      allowedOrigins: [
+        '3000-firebase-studio-1771129502154.cluster-cd3bsnf6r5bemwki2bxljme5as.cloudworkstations.dev'
+      ]
+    }
   },
   
   // 2. ENABLE LOGGING TO SEE THE 500 ERROR CAUSE
