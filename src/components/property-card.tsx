@@ -101,14 +101,14 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
       {/* Bottom Body */}
       <div className="flex flex-col md:flex-row p-4 gap-4 sm:gap-6 bg-white relative items-stretch">
         {/* Image container */}
-        <Link href={`/properties/${property.id}`} className="block w-full md:w-[320px] shrink-0 relative aspect-[4/3] overflow-hidden bg-black group">
+        <Link href={`/properties/${property.id}`} className="block w-full md:w-[320px] shrink-0 relative aspect-[4/3] overflow-hidden bg-slate-100 group">
           <Image 
             src={imageUrl} 
             alt={`Photo of ${property.title}`} 
             fill 
             sizes="(max-width: 768px) 100vw, 320px"
             priority={priority}
-            className="object-contain group-hover:scale-105 transition-transform duration-500" 
+            className="object-cover group-hover:scale-105 transition-transform duration-500" 
           />
           {/* Badges on image */}
           {property.negotiable && (
