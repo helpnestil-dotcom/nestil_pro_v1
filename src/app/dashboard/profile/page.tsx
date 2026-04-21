@@ -1,3 +1,5 @@
+'use client';
+
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useCloudinaryUpload } from '@/hooks/use-cloudinary-upload';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
