@@ -124,39 +124,47 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
 
         {/* Details Grid & Actions */}
         <div className="flex-grow flex flex-col justify-between pt-2">
-          <div className="grid grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-6 lg:gap-y-8 border border-slate-200 rounded-sm p-4 sm:p-5 h-full">
+          <div className="grid grid-cols-2 border border-slate-200 rounded-sm bg-white mb-2 md:mb-0 shadow-sm relative overflow-hidden">
             {/* Furnished */}
-            <div className="flex items-start sm:items-center gap-3">
-              <Armchair className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 shrink-0 mt-1 sm:mt-0" strokeWidth={1.5} />
-              <div className="flex flex-col">
-                  <span className="font-bold text-[15px] text-slate-800 leading-tight block">{property.furnishing || 'Unfurnished'}</span>
-                  <span className="text-[13px] text-slate-500 block mt-0.5">Furnishing</span>
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 p-4 border-b border-r border-slate-200 hover:bg-slate-50 transition-colors">
+              <div className="bg-slate-100 p-2 sm:p-2.5 rounded-full shrink-0">
+                <Armchair className="h-5 w-5 sm:h-6 sm:w-6 text-slate-500" strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col text-center sm:text-left">
+                  <span className="font-semibold text-[14px] sm:text-[15px] text-slate-800 leading-tight block">{property.furnishing || 'Unfurnished'}</span>
+                  <span className="text-[12px] sm:text-[13px] text-slate-500 block mt-0.5">Furnishing</span>
               </div>
             </div>
             {/* Apartment Type */}
-            <div className="flex items-start sm:items-center gap-3">
-              <Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 shrink-0 mt-1 sm:mt-0" strokeWidth={1.5} />
-              <div className="flex flex-col">
-                  <span className="font-bold text-[15px] text-slate-800 leading-tight block">{property.bhk || (property.propertyType === 'PG / Hostel' ? 'PG Status' : 'Standard')}</span>
-                  <span className="text-[13px] text-slate-500 block mt-0.5">Apartment Type</span>
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 p-4 border-b border-slate-200 hover:bg-slate-50 transition-colors">
+              <div className="bg-slate-100 p-2 sm:p-2.5 rounded-full shrink-0">
+                <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-slate-500" strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col text-center sm:text-left">
+                  <span className="font-semibold text-[14px] sm:text-[15px] text-slate-800 leading-tight block">{property.bhk || (property.propertyType === 'PG / Hostel' ? 'PG Status' : 'Standard')}</span>
+                  <span className="text-[12px] sm:text-[13px] text-slate-500 block mt-0.5">Apartment Type</span>
               </div>
             </div>
             {/* Preferred Tenants */}
-            <div className="flex items-start sm:items-center gap-3">
-              <Users className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 shrink-0 mt-1 sm:mt-0" strokeWidth={1.5} />
-              <div className="flex flex-col">
-                  <span className="font-bold text-[15px] text-slate-800 leading-tight block">{property.preferredTenants || 'Anyone'}</span>
-                  <span className="text-[13px] text-slate-500 block mt-0.5">Preferred Tenants</span>
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 p-4 border-r border-slate-200 hover:bg-slate-50 transition-colors">
+              <div className="bg-slate-100 p-2 sm:p-2.5 rounded-full shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-slate-500" strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col text-center sm:text-left">
+                  <span className="font-semibold text-[14px] sm:text-[15px] text-slate-800 leading-tight block">{property.preferredTenants || 'Anyone'}</span>
+                  <span className="text-[12px] sm:text-[13px] text-slate-500 block mt-0.5">Preferred Tenants</span>
               </div>
             </div>
             {/* Available From */}
-            <div className="flex items-start sm:items-center gap-3">
-              <Key className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 shrink-0 mt-1 sm:mt-0" strokeWidth={1.5} />
-              <div className="flex flex-col">
-                  <span className="font-bold text-[15px] text-slate-800 leading-tight block">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
+              <div className="bg-slate-100 p-2 sm:p-2.5 rounded-full shrink-0">
+                <Key className="h-5 w-5 sm:h-6 sm:w-6 text-slate-500" strokeWidth={1.5} />
+              </div>
+              <div className="flex flex-col text-center sm:text-left">
+                  <span className="font-semibold text-[14px] sm:text-[15px] text-slate-800 leading-tight block">
                     {property.availableFrom ? new Date(property.availableFrom).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Immediately'}
                   </span>
-                  <span className="text-[13px] text-slate-500 block mt-0.5">Available From</span>
+                  <span className="text-[12px] sm:text-[13px] text-slate-500 block mt-0.5">Available From</span>
               </div>
             </div>
           </div>
