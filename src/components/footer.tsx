@@ -71,6 +71,7 @@ export function Footer() {
                         <Link href="/contact" className="text-sm text-slate-300 hover:text-primary transition-colors">Contact Support</Link>
                         <Link href="/privacy-policy" className="text-sm text-slate-300 hover:text-primary transition-colors">Privacy Policy</Link>
                         <Link href="/terms-of-service" className="text-sm text-slate-300 hover:text-primary transition-colors">Terms of Service</Link>
+                        <Link href="/shift-home/login" className="text-sm text-slate-300 hover:text-primary transition-colors font-semibold">Partner with Us</Link>
                     </nav>
                 </div>
 
