@@ -182,7 +182,7 @@ const SearchWidget = () => {
             </div>
             
             <div className="md:w-36 flex-shrink-0">
-                <Button onClick={handleSearch} className="w-full h-14 md:h-full bg-gradient-to-r from-primary to-rose-600 text-white font-bold text-lg rounded-2xl hover:shadow-[0_8px_25px_-8px_var(--primary)] hover:scale-[1.02] transform transition-all duration-300">
+                <Button onClick={handleSearch} className="w-full h-14 md:h-full bg-gradient-to-r from-primary to-rose-600 text-white font-bold text-lg rounded-2xl hover:shadow-[0_8px_25px_-8px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transform transition-all duration-300">
                     <Search className="mr-2 h-5 w-5" /> 
                     <span className="md:hidden">Search</span>
                 </Button>
