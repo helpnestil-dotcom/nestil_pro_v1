@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/hero-section';
 import { FeaturedProperties } from '@/components/featured-properties';
 import { PropertyCardSkeleton } from '@/components/property-card';
 import { FlatmateSection } from '@/components/flatmate-section';
+import { DynamicTicker } from '@/components/dynamic-ticker';
 
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in India',
@@ -22,25 +23,9 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 600; // Refresh data every 10 minutes
 
-const Ticker = () => (
-    <div className="bg-white border-y border-slate-200">
-        <div className="container flex items-center gap-6 py-3">
-            <div className="text-[10px] font-bold tracking-[2.5px] uppercase text-primary whitespace-nowrap flex-shrink-0 flex items-center gap-1.5">
-                <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span></span>
-                All Cities
-            </div>
-            <div className="flex-1 overflow-hidden">
-                <div className="flex gap-7 animate-ticker whitespace-nowrap">
-                    {['Bangalore', 'Vellore', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore', 'Kurnool', 'Kakinada', 'Rajahmundry', 'Eluru', 'Ongole', 'Anantapur', 'Kadapa', 'Nandyal', 'Srikakulam', 'Vizianagaram', 'Proddutur'].concat(...['Bangalore', 'Vellore', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore', 'Kurnool', 'Kakinada', 'Rajahmundry', 'Eluru', 'Ongole', 'Anantapur', 'Kadapa', 'Nandyal', 'Srikakulam', 'Vizianagaram', 'Proddutur']).map((city, i) => (
-                        <span key={i} className="text-sm text-slate-500 flex items-center gap-2.5 after:content-['◆'] after:text-slate-200 after:text-[8px]">{city}</span>
-                    ))}
-                </div>
-            </div>
-        </div>
-    </div>
-);
+// Old Ticker removed in favor of DynamicTicker
 
 const CtaBand = () => (
     <div className="py-20">
@@ -89,7 +74,9 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <Ticker />
+      <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
+        <DynamicTicker />
+      </Suspense>
       <Suspense fallback={<FeaturedPropertiesSkeleton />}>
         <FeaturedProperties />
       </Suspense>
