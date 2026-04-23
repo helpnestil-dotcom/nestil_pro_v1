@@ -1,11 +1,66 @@
 
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { TrendingUp, Users, Target, Rocket, Mail, Phone, ExternalLink } from 'lucide-react';
+import { TrendingUp, Users, Target, Rocket, Mail, Phone, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function InvestorsPage() {
+    const firestore = useFirestore();
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({ 
+        name: '', 
+        organization: '', 
+        email: '', 
+        message: '' 
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!firestore) return;
+        
+        if (!formData.name || !formData.organization || !formData.email) {
+            toast({ 
+                variant: 'destructive', 
+                title: 'Missing Information', 
+                description: 'Please provide at least your name, email, and organization.' 
+            });
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(firestore, 'investor_requests'), {
+                ...formData,
+                type: 'investor_inquiry',
+                status: 'new',
+                createdAt: serverTimestamp(),
+            });
+            
+            toast({ 
+                title: 'Request Submitted!', 
+                description: 'Thank you for your interest. Our team will contact you shortly with the pitch deck.' 
+            });
+            
+            setFormData({ name: '', organization: '', email: '', message: '' });
+        } catch (error) {
+            console.error("Error submitting investor request:", error);
+            toast({ 
+                variant: 'destructive', 
+                title: 'Submission Failed', 
+                description: 'Something went wrong. Please try again or contact us directly via email.' 
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Hero Section */}
@@ -23,8 +78,8 @@ export default function InvestorsPage() {
                             Nestil is transforming how millions of Indians find their homes. Join us as we scale the most trusted zero-brokerage property ecosystem in India.
                         </p>
                         <div className="flex flex-wrap gap-4">
-                            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-14 px-8" asChild>
-                                <Link href="#contact">Get in Touch</Link>
+                            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-14 px-8" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+                                Get in Touch
                             </Button>
                             <Button size="lg" variant="outline" className="border-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl h-14 px-8" asChild>
                                 <Link href="/about">Our Vision</Link>
@@ -43,7 +98,7 @@ export default function InvestorsPage() {
                             { label: 'Active Users', value: '500K+', icon: Users },
                             { label: 'Properties Listed', value: '12K+', icon: TrendingUp },
                             { label: 'MoM Growth', value: '35%', icon: Rocket },
-                        ].map((stat, i) => ( stat.icon && (
+                        ].map((stat, i) => (
                             <Card key={i} className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
                                 <CardContent className="p-8 flex flex-col items-center text-center">
                                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
@@ -53,7 +108,7 @@ export default function InvestorsPage() {
                                     <div className="text-sm font-medium text-slate-500 uppercase tracking-wider">{stat.label}</div>
                                 </CardContent>
                             </Card>
-                        )))}
+                        ))}
                     </div>
                 </div>
             </section>
@@ -102,7 +157,7 @@ export default function InvestorsPage() {
                                     </div>
                                     <div>
                                         <div className="text-[10px] uppercase font-bold text-white/60">Email Us</div>
-                                        <div className="font-bold">investors@nestil.in</div>
+                                        <div className="font-bold">helpnestil@gmail.com</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -118,17 +173,57 @@ export default function InvestorsPage() {
                         </div>
                         <div className="md:w-1/2 p-12 bg-white flex flex-col justify-center">
                             <h3 className="text-xl font-bold text-slate-800 mb-6">Request Pitch Deck</h3>
-                            <form className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
-                                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Enter your name" />
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+                                        <input 
+                                            type="text" 
+                                            required
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
+                                            placeholder="Your name" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+                                        <input 
+                                            type="email" 
+                                            required
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
+                                            placeholder="email@example.com" 
+                                        />
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Firm / Organization</label>
-                                    <input type="text" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Company name" />
+                                    <input 
+                                        type="text" 
+                                        required
+                                        value={formData.organization}
+                                        onChange={(e) => setFormData({...formData, organization: e.target.value})}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm" 
+                                        placeholder="Company name" 
+                                    />
                                 </div>
-                                <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-14 rounded-xl mt-4">
-                                    Submit Request
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Message (Optional)</label>
+                                    <textarea 
+                                        value={formData.message}
+                                        onChange={(e) => setFormData({...formData, message: e.target.value})}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm min-h-[100px]" 
+                                        placeholder="Tell us about your interest..."
+                                    />
+                                </div>
+                                <Button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-14 rounded-xl mt-4"
+                                >
+                                    {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Submit Request'}
                                 </Button>
                             </form>
                         </div>
