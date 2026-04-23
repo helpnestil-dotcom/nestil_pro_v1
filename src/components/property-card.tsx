@@ -49,7 +49,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
   return (
     <div className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
       {/* Top Image Section */}
-      <Link href={`/properties/${property.id}`} className="relative aspect-[4/3] overflow-hidden block">
+      <Link href={`/properties/${property.id}`} className="relative aspect-[3/2] overflow-hidden block">
         <Image 
           src={imageUrl} 
           alt={`Photo of ${property.title}`} 
@@ -60,10 +60,8 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         />
         
         {/* BHK Badge */}
-        <div className="absolute top-3 left-3">
-          <div className="bg-[#fb3857] text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wider">
-            {property.bhk || 'Studio'}
-          </div>
+        <div className="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm z-10">
+          {property.bhk || '1 BHK'}
         </div>
 
         {/* Heart Icon Button */}
@@ -81,7 +79,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
       </Link>
 
       {/* Details Section */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-3.5 flex flex-col flex-grow">
         {/* Price and Maintenance */}
         <div className="flex items-center gap-2 mb-1">
             <span className="text-xl font-bold text-slate-900">{currentPrice}</span>
@@ -99,7 +97,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         </h3>
 
         {/* Location */}
-        <div className="flex items-center gap-1 text-[13px] text-slate-500 mb-4">
+        <div className="flex items-center gap-1 text-[13px] text-slate-500 mb-3">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{property.address || property.city}</span>
             <span className="mx-1">•</span>
@@ -107,9 +105,9 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         </div>
 
         {/* 2x2 Stats Grid */}
-        <div className="grid grid-cols-2 border border-slate-100 rounded-lg overflow-hidden bg-slate-50/30 mb-5">
+        <div className="grid grid-cols-2 border border-slate-100 rounded-lg overflow-hidden bg-slate-50/30 mb-4">
             {/* Area */}
-            <div className="p-2.5 border-b border-r border-slate-100 flex items-center gap-3">
+            <div className="p-2 border-b border-r border-slate-100 flex items-center gap-3">
                 <div className="bg-white p-1.5 rounded-md shadow-sm">
                     <Building2 className="h-4 w-4 text-slate-400" />
                 </div>
@@ -119,7 +117,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
                 </div>
             </div>
             {/* Furnishing */}
-            <div className="p-2.5 border-b border-slate-100 flex items-center gap-3">
+            <div className="p-2 border-b border-slate-100 flex items-center gap-3">
                 <div className="bg-white p-1.5 rounded-md shadow-sm">
                     <Armchair className="h-4 w-4 text-slate-400" />
                 </div>
@@ -129,7 +127,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
                 </div>
             </div>
             {/* Deposit */}
-            <div className="p-2.5 border-r border-slate-100 flex items-center gap-3">
+            <div className="p-2 border-r border-slate-100 flex items-center gap-3">
                 <div className="bg-white p-1.5 rounded-md shadow-sm">
                     <IndianRupee className="h-4 w-4 text-slate-400" />
                 </div>
@@ -139,7 +137,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
                 </div>
             </div>
             {/* Available From */}
-            <div className="p-2.5 flex items-center gap-3">
+            <div className="p-2 flex items-center gap-3">
                 <div className="bg-white p-1.5 rounded-md shadow-sm">
                     <Calendar className="h-4 w-4 text-slate-400" />
                 </div>
@@ -154,7 +152,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
 
         {/* CTA Button */}
         <Link href={`/properties/${property.id}`} className="mt-auto">
-          <Button className="w-full bg-[#fb3857] hover:bg-[#e4304e] text-white font-bold h-10 rounded-lg shadow-none text-[14px] transition-colors">
+          <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-10 rounded-lg shadow-none text-[14px] transition-colors">
             Get Owner Details
           </Button>
         </Link>
@@ -166,8 +164,8 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
 export function PropertyCardSkeleton() {
   return (
     <div className="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-      <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-4 flex flex-col gap-3">
+      <Skeleton className="aspect-[3/2] w-full" />
+      <div className="p-3.5 flex flex-col gap-3">
         <div className="flex items-center gap-2">
             <Skeleton className="h-6 w-24" />
             <Skeleton className="h-4 w-16" />

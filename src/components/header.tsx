@@ -70,7 +70,7 @@ export function Header() {
         {/* Right Side: Actions and Mobile Menu */}
         <div className="flex items-center gap-2">
             {/* Desktop version */}
-            <Button asChild className="hidden md:inline-flex !font-bold text-[13px] bg-gradient-to-r from-primary to-indigo-500 border-0 hover:shadow-[0_8px_25px_-8px_var(--primary)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl">
+            <Button asChild className="hidden md:inline-flex !font-bold text-[13px] bg-gradient-to-r from-primary to-rose-600 border-0 hover:shadow-[0_8px_25px_-8px_var(--primary)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl">
                 <Link href="/post-property">+ List Property</Link>
             </Button>
             
@@ -89,7 +89,7 @@ export function Header() {
             </Button>
 
             {/* Mobile version, visible in the main header */}
-            <Button asChild size="sm" className="md:hidden !font-bold text-[12px] px-3 bg-gradient-to-r from-primary to-indigo-500 border-0 text-white rounded-lg shadow-md">
+            <Button asChild size="sm" className="md:hidden !font-bold text-[12px] px-3 bg-gradient-to-r from-primary to-rose-600 border-0 text-white rounded-lg shadow-md">
                  <Link href="/post-property">+ List Property</Link>
             </Button>
 

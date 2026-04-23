@@ -18,12 +18,12 @@ export function FlatmateSection() {
       <div className="container relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-y-6">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-indigo-600 mb-4">
-              <span className="w-5 h-0.5 bg-indigo-600 rounded-full"></span>Co-living & Flatmates
+            <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-primary mb-4">
+              <span className="w-5 h-0.5 bg-primary rounded-full"></span>Co-living & Flatmates
             </div>
             <h2 className="font-bold text-3xl md:text-5xl leading-tight tracking-tight text-slate-800">
               Find Your Vibe.<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-emerald-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-rose-500">
                 Share Your Space.
               </span>
             </h2>
@@ -33,7 +33,7 @@ export function FlatmateSection() {
           </div>
           <Link 
             href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" 
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm"
           >
             Explore All <ArrowRight className="w-4 h-4" />
           </Link>
