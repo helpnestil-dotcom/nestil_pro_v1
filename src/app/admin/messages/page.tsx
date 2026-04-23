@@ -43,6 +43,16 @@ type InvestorRequest = {
   status: string;
 };
 
+export default function AdminMessagesPage() {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const messagesQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'contactMessages'), orderBy('sentAt', 'desc'));
+  }, [firestore]);
+
   const { data: messages, isLoading: isMessagesLoading } = useCollection<ContactMessage>(messagesQuery);
 
   const investorQuery = useMemoFirebase(() => {
