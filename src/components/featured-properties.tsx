@@ -59,11 +59,11 @@ export async function FeaturedProperties() {
                         <Link href="/properties">Browse All →</Link>
                     </Button>
                 </div>
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {properties && properties.length > 0 ? (
                         properties.map((prop, index) => <PropertyCard key={prop.id} property={prop} priority={index < 3} />)
                     ) : (
-                        <div className="col-span-3 text-center py-10 border-dashed border-2 rounded-lg bg-background">
+                        <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-10 border-dashed border-2 rounded-lg bg-background">
                             <h3 className="text-xl font-semibold">No Properties Found</h3>
                             <p className="text-muted-foreground mt-2">
                                 Check back later for new listings.
@@ -71,6 +71,7 @@ export async function FeaturedProperties() {
                         </div>
                     )}
                 </div>
+
             </div>
         </section>
     );
