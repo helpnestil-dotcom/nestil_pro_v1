@@ -8,6 +8,7 @@ import { FeaturedProperties } from '@/components/featured-properties';
 import { PropertyCardSkeleton } from '@/components/property-card';
 import { FlatmateSection } from '@/components/flatmate-section';
 import { DynamicTicker } from '@/components/dynamic-ticker';
+import { FeaturedAdDice } from '@/components/featured-ad-dice';
 
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in India',
@@ -77,6 +78,7 @@ export default function Home() {
       <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
         <DynamicTicker />
       </Suspense>
+      <FeaturedAdDice />
       <Suspense fallback={<FeaturedPropertiesSkeleton />}>
         <FeaturedProperties />
       </Suspense>

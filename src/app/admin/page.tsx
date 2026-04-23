@@ -37,7 +37,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // 1. Standard Firebase Functions
-import { collection, doc, updateDoc, deleteDoc, query, where, getDoc, getCountFromServer, orderBy } from 'firebase/firestore';
+import { collection, doc, updateDoc, deleteDoc, query, where, getDoc, getCountFromServer, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 // 2. React Firebase Hooks
@@ -408,6 +408,27 @@ export default function AdminPage() {
   };
 
   
+  const handlePromoteToAd = async (propertyId: string) => {
+    setProcessingPropertyId(propertyId);
+    const propRef = doc(db, 'properties', propertyId);
+    const expiry = new Date();
+    expiry.setHours(expiry.getHours() + 24);
+    
+    try {
+      await updateDoc(propRef, {
+        adStatus: 'approved',
+        adExpiry: Timestamp.fromDate(expiry),
+        featured: true
+      });
+      toast({ title: "Property Promoted", description: "Live as a 24-hour featured ad." });
+    } catch (error) {
+      console.error("Error promoting property:", error);
+      toast({ variant: "destructive", title: "Promotion Failed" });
+    } finally {
+      setProcessingPropertyId(null);
+    }
+  };
+
   const handlePropertyCsvDownload = () => {
     if (!tableProperties) return;
 
@@ -822,12 +843,19 @@ export default function AdminPage() {
                                 {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <DollarSign className="mr-2 h-4 w-4" />}
                                 {prop.isPaid ? 'Mark as Unpaid' : 'Mark as Paid'}
                             </DropdownMenuItem>
-                             <DropdownMenuItem 
+                            <DropdownMenuItem 
                                 className="cursor-pointer"
                                 onClick={() => handleDownloadPdfClick(prop)}
                                 disabled={isGeneratingPdf || processingPropertyId === prop.id}
                             >
                                 {isGeneratingPdf && pdfProperty?.property.id === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}Download PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                className="text-primary focus:text-primary cursor-pointer font-bold"
+                                onClick={() => handlePromoteToAd(prop.id)}
+                                disabled={processingPropertyId === prop.id}
+                            >
+                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Promote as 24h Ad
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 className="text-orange-600 focus:text-orange-600 cursor-pointer"
