@@ -36,7 +36,7 @@ async function getFeaturedProperties(): Promise<Property[]> {
   const featured = shuffled.filter(p => p.featured);
   const nonFeatured = shuffled.filter(p => !p.featured);
   
-  return [...featured, ...nonFeatured].slice(0, 6);
+  return [...featured, ...nonFeatured].slice(0, 8);
 }
 
 
@@ -59,7 +59,7 @@ export async function FeaturedProperties() {
                         <Link href="/properties">Browse All →</Link>
                     </Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {properties && properties.length > 0 ? (
                         properties.map((prop, index) => <PropertyCard key={prop.id} property={prop} priority={index < 3} />)
                     ) : (

@@ -394,9 +394,9 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                     </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {similarProperties.map(prop => (
-                         <PropertyCard key={prop.id} property={prop} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {similarProperties.slice(0, 4).map((prop) => (
+                        <PropertyCard key={prop.id} property={prop} />
                     ))}
                 </div>
                 

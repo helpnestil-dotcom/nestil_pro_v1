@@ -412,14 +412,14 @@ function PropertySearchComponent() {
           </div>
           
           {isLoading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(12)].map((_, i) => <PropertyCardSkeleton key={i} />)}
              </div>
           ) : filteredProperties.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {currentProperties.map((prop, index) => (
-                  <PropertyCard key={prop.id} property={prop} priority={index < 3} />
+                  <PropertyCard key={prop.id} property={prop} priority={index < 4} />
                 ))}
               </div>
               {totalPages > 1 && (
@@ -463,7 +463,7 @@ export default function PropertiesPage() {
         <div className="container py-12">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div className="lg:col-span-1 hidden lg:block"><Skeleton className="h-96 w-full" /></div>
-                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(12)].map((_, i) => <PropertyCardSkeleton key={i} />)}
                 </div>
             </div>

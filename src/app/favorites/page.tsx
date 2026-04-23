@@ -31,8 +31,8 @@ function FavoritesList() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[...Array(3)].map((_, i) => <PropertyCardSkeleton key={i} />)}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => <PropertyCardSkeleton key={i} />)}
       </div>
     );
   }
@@ -50,8 +50,8 @@ function FavoritesList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {favoriteProperties.map((prop, index) => <PropertyCard key={prop.id} property={prop} priority={index < 3} />)}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {favoriteProperties.map((prop, index) => <PropertyCard key={prop.id} property={prop} priority={index < 4} />)}
     </div>
   )
 }
