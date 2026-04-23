@@ -161,6 +161,9 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         </Link>
       </div>
     </div>
+  );
+}
+
 export function PropertyCardSkeleton() {
   return (
     <div className="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
