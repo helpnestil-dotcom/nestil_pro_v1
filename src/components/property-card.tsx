@@ -74,9 +74,8 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
           <Heart className={cn("h-4 w-4 text-slate-600 transition-colors", isFavorited && "fill-[#fb3857] text-[#fb3857]")} />
         </button>
 
-        {/* Photo Counter */}
         <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-          <Image className="h-3 w-3" width={12} height={12} alt="photos" src="https://img.icons8.com/material-outlined/24/ffffff/camera.png" />
+          <img className="h-3 w-3" width={12} height={12} alt="photos" src="https://img.icons8.com/material-outlined/24/ffffff/camera.png" />
           1/{rawPhotos.length || 1}
         </div>
       </Link>
