@@ -59,7 +59,7 @@ export function FeaturedAdDice() {
             x: 0,
             transition: {
                 duration: 0.8,
-                type: "spring",
+                type: "spring" as const,
                 stiffness: 100,
                 damping: 20
             }

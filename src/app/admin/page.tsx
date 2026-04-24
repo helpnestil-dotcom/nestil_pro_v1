@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Image from 'next/image';
 import { CalendarIcon, CheckCircle, XCircle, Clock, Download, Users, Ban, Trash2, MoreVertical, Filter, Search, Edit, Home, LoaderCircle, BedDouble, Bath, Expand, MapPin, Archive, Eye, DollarSign } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { Property, PropertyOwner } from "@/lib/types";
 import Link from "next/link";
 import { format, fromUnixTime } from "date-fns";
@@ -50,6 +51,21 @@ import html2canvas from 'html2canvas';
 import { DateRange } from 'react-day-picker';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const formatDateLocal = (date: any) => {
+    if (!date) return 'N/A';
+    try {
+        if (typeof date === 'string') {
+            return format(new Date(date), 'dd/MM/yyyy');
+        }
+        if (date?.seconds) {
+            return format(fromUnixTime(date.seconds), 'dd/MM/yyyy');
+        }
+        return format(new Date(date), 'dd/MM/yyyy');
+    } catch (e) {
+        return 'N/A';
+    }
+};
 
 
 function AdminSkeleton() {
@@ -812,12 +828,12 @@ export default function AdminPage() {
                                {prop.listingStatus}
                            </Badge>
                            {prop.isPaid && <Badge variant='secondary' className="capitalize flex items-center gap-1 w-fit"><DollarSign className="h-3 w-3" />Paid</Badge>}
-                           {prop.featured && (
-                               <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 capitalize flex items-center gap-1 w-fit text-[10px]">
-                                   <Sparkles className="h-3 w-3" />
-                                   Featured {prop.adExpiry && `(Until ${formatDate(prop.adExpiry)})`}
-                               </Badge>
-                           )}
+                               {prop.featured && (
+                                <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 capitalize flex items-center gap-1 w-fit text-[10px]">
+                                    <Sparkles className="h-3 w-3" />
+                                    Featured {(prop as any).adExpiry && `(Until ${formatDateLocal((prop as any).adExpiry)})`}
+                                </Badge>
+                               )}
                         </div>
                     </TableCell>
                     <TableCell className="text-right">

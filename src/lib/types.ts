@@ -68,6 +68,8 @@ export type Property = {
   updatedAt: Timestamp | string; // Can be Timestamp from Firestore or string when serialized
   googleMapsLink?: string;
   isPaid?: boolean;
+  adExpiry?: string | Timestamp | null;
+  adStatus?: 'approved' | 'pending' | 'rejected' | 'none';
 };
 
 export type User = {
