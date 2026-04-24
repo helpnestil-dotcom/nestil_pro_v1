@@ -51,7 +51,7 @@ function PropertySearchComponent() {
   const getInitialPriceRange = (): [number, number] => {
     const min = searchParams.get('minPrice');
     const max = searchParams.get('maxPrice');
-    const maxVal = (max === 'Infinity' || !max) ? 10000000 : parseInt(max, 10);
+    const maxVal = (max === 'Infinity' || !max) ? 100000000 : parseInt(max, 10);
     return [
       min ? parseInt(min, 10) : 0,
       maxVal,
@@ -195,7 +195,7 @@ function PropertySearchComponent() {
     setConstructionStatus('all');
     setRentalStatus('all');
     setGenderPreference('all');
-    setPriceRange([0, 10000000]);
+    setPriceRange([0, 100000000]);
     
     router.push('/properties');
   };
@@ -354,13 +354,13 @@ function PropertySearchComponent() {
                     <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Price Budget</Label>
                 </div>
                 <div className="text-[11px] font-black text-primary bg-primary/5 px-2 py-1 rounded-md">
-                    Max: ₹{(priceRange[1] / 100000).toFixed(1)}L
+                    Max: ₹{priceRange[1] >= 10000000 ? `${(priceRange[1] / 10000000).toFixed(1)}Cr` : `${(priceRange[1] / 100000).toFixed(1)}L`}
                 </div>
             </div>
             
             <Slider
                 min={0}
-                max={10000000}
+                max={100000000}
                 step={50000}
                 value={priceRange}
                 onValueChange={(value: [number, number]) => setPriceRange(value)}
@@ -374,7 +374,7 @@ function PropertySearchComponent() {
                 <div className="w-4 h-px bg-slate-300" />
                 <div className="flex flex-col text-right">
                     <span className="text-[9px] font-black text-slate-400 uppercase">Max</span>
-                    <span className="text-[11px] font-black text-slate-800">₹{priceRange[1].toLocaleString('en-IN')}{priceRange[1] === 10000000 ? '+' : ''}</span>
+                    <span className="text-[11px] font-black text-slate-800">₹{priceRange[1].toLocaleString('en-IN')}{priceRange[1] === 100000000 ? '+' : ''}</span>
                 </div>
             </div>
         </div>

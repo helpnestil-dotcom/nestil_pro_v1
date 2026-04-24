@@ -86,11 +86,21 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
         
         {/* BHK Badge */}
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute top-4 left-4 z-10 flex gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-[10px] font-black uppercase tracking-wider rounded-lg shadow-sm border border-white/20">
             <Building2 className="w-3 h-3 text-primary" />
             {property.bhk || '1 BHK'}
           </div>
+          {property.featured && (
+            <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-lg border border-amber-400"
+            >
+              <Sparkles className="w-3 h-3 fill-white" />
+              Featured
+            </motion.div>
+          )}
         </div>
 
         {/* Heart Icon Button */}
