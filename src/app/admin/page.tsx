@@ -812,6 +812,12 @@ export default function AdminPage() {
                                {prop.listingStatus}
                            </Badge>
                            {prop.isPaid && <Badge variant='secondary' className="capitalize flex items-center gap-1 w-fit"><DollarSign className="h-3 w-3" />Paid</Badge>}
+                           {prop.featured && (
+                               <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 capitalize flex items-center gap-1 w-fit text-[10px]">
+                                   <Sparkles className="h-3 w-3" />
+                                   Featured {prop.adExpiry && `(Until ${formatDate(prop.adExpiry)})`}
+                               </Badge>
+                           )}
                         </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -851,11 +857,12 @@ export default function AdminPage() {
                                 {isGeneratingPdf && pdfProperty?.property.id === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}Download PDF
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                                className="text-primary focus:text-primary cursor-pointer font-bold"
+                                className="text-amber-600 focus:text-amber-600 cursor-pointer font-black"
                                 onClick={() => handlePromoteToAd(prop.id)}
                                 disabled={processingPropertyId === prop.id}
                             >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Promote as 24h Ad
+                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                {prop.featured ? 'Renew 24h Spotlight' : 'Boost: 24h Spotlight'}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                                 className="text-orange-600 focus:text-orange-600 cursor-pointer"

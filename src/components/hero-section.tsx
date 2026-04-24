@@ -1,9 +1,10 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search } from 'lucide-react';
+import { Search, MapPin, Navigation, IndianRupee, Sparkles, Filter, Home, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -11,6 +12,8 @@ import { collection, query, where, getCountFromServer } from 'firebase/firestore
 import type { Property } from '@/lib/types';
 import { locationData } from '@/lib/locations';
 import { Skeleton } from './ui/skeleton';
+import { Slider } from './ui/slider';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -26,48 +29,58 @@ const SearchWidget = () => {
   const [state, setState] = useState('all');
   const [district, setDistrict] = useState('all');
   const [propertyType, setPropertyType] = useState('all');
-  const [budget, setBudget] = useState('any');
   
-  const saleBudgetOptions = [
-      { value: "0-3000000", label: "Under ₹30 Lac" },
-      { value: "3000000-6000000", label: "₹30 - ₹60 Lac" },
-      { value: "6000000-10000000", label: "₹60 Lac - ₹1 Cr" },
-      { value: "10000000-Infinity", label: "Above ₹1 Cr" },
-  ];
+  // Budget as a range [min, max]
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 100000000]); // Default max 10Cr
+  const [isLocating, setIsLocating] = useState(false);
 
-  const rentBudgetOptions = [
-      { value: "0-10000", label: "Under ₹10,000" },
-      { value: "10000-20000", label: "₹10,000 - ₹20,000" },
-      { value: "20000-50000", label: "₹20,000 - ₹50,000" },
-      { value: "50000-100000", label: "₹50,000 - ₹1 Lac" },
-      { value: "100000-Infinity", label: "Above ₹1 Lac" },
-  ];
-  
-  const budgetOptions = searchTab === 'rent' ? rentBudgetOptions : saleBudgetOptions;
+  useEffect(() => {
+    // Reset budget range when tab changes
+    if (searchTab === 'rent') {
+        setBudgetRange([0, 200000]); // Max 2 Lac for rent
+    } else {
+        setBudgetRange([0, 100000000]); // Max 10 Cr for sale
+    }
+  }, [searchTab]);
 
   const propertiesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     let q = query(collection(firestore, 'properties'), where('listingStatus', '==', 'approved'));
+    
+    if (searchTab === 'buy') {
+        q = query(q, where('listingFor', '==', 'Sale'));
+    } else if (searchTab === 'rent') {
+        q = query(q, where('listingFor', '==', 'Rent'));
+    } else if (searchTab === 'commercial') {
+        q = query(q, where('propertyType', '==', 'Commercial properties'));
+    } else if (searchTab === 'plot') {
+        q = query(q, where('propertyType', '==', 'Plot'));
+    } else if (searchTab === 'flatmates') {
+        q = query(q, where('propertyType', '==', 'Flatmate / Co-living'));
+    }
+
     if (district !== 'all') {
       const altDistrict = district.endsWith(' district') ? district.replace(' district', '') : `${district} district`;
       q = query(q, where('city', 'in', [district, altDistrict]));
     }
     return q;
-  }, [firestore, district]);
+  }, [firestore, district, searchTab]);
 
-  const { data: fetchedProperties } = useCollection<Property>(propertiesQuery);
+  const { data: fetchedProperties, isLoading: isQueryLoading } = useCollection<Property>(propertiesQuery);
 
-  useEffect(() => {
-    if (fetchedProperties) {
-      setPropertiesFromQuery(fetchedProperties as Property[]);
+  const filteredCount = useMemo(() => {
+    if (!fetchedProperties) return 0;
+    let props = fetchedProperties;
+    
+    // Apply client-side filters for instant count
+    if (propertyType !== 'all') {
+        props = props.filter(p => p.propertyType === propertyType);
     }
-  }, [fetchedProperties]);
-
-
-
-  useEffect(() => {
-    setBudget('any');
-  }, [searchTab]);
+    
+    props = props.filter(p => p.price >= budgetRange[0] && p.price <= budgetRange[1]);
+    
+    return props.length;
+  }, [fetchedProperties, propertyType, budgetRange]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -97,95 +110,174 @@ const SearchWidget = () => {
       params.set('type', propertyType);
     }
     
-    if (budget && budget !== 'any') {
-      const [min, max] = budget.split('-');
-      if (min) {
-        params.set('minPrice', min);
-      }
-      if (max) {
-        params.set('maxPrice', max);
-      }
-    }
+    params.set('minPrice', budgetRange[0].toString());
+    params.set('maxPrice', budgetRange[1].toString());
 
     router.push(`/properties?${params.toString()}`);
   };
 
+  const handleNearMe = () => {
+    setIsLocating(true);
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // In a real app, we would use reverse geocoding here.
+                // For now, we'll simulate finding "Bangalore" if the user is in a certain range, 
+                // or just show a message.
+                setTimeout(() => {
+                    setState('Karnataka');
+                    setDistrict('Bangalore');
+                    setIsLocating(false);
+                }, 1500);
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                setIsLocating(false);
+            }
+        );
+    } else {
+        setIsLocating(false);
+    }
+  };
+
+  const formatCurrency = (val: number) => {
+    if (val >= 10000000) return `${(val / 10000000).toFixed(1)} Cr`;
+    if (val >= 100000) return `${(val / 100000).toFixed(1)} Lac`;
+    return val.toLocaleString('en-IN');
+  };
+
   return (
-    <div className="glass-card p-3 md:p-4 max-w-[850px] rounded-[32px] transition-all hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] duration-500">
-        <Tabs defaultValue={searchTab} onValueChange={setSearchTab} className="w-full">
-            <TabsList className="flex h-12 justify-start p-1.5 bg-slate-100/80 rounded-2xl mb-4 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
-                <TabsTrigger value="buy" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Buy</TabsTrigger>
-                <TabsTrigger value="rent" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Rent</TabsTrigger>
-                <TabsTrigger value="flatmates" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Flatmates</TabsTrigger>
-                <TabsTrigger value="commercial" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[120px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Commercial</TabsTrigger>
-                <TabsTrigger value="plot" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold text-slate-500 transition-all duration-300">Plot / Land</TabsTrigger>
-            </TabsList>
-        </Tabs>
+    <div className="relative z-20 group">
+        {/* Glow effect around widget */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-[40px] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
         
-        <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                    <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); }}>
-                        <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Select State" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                            <SelectItem value="all" className="font-medium text-primary">All States</SelectItem>
-                            {locationData.map((s) => (
-                                <SelectItem key={s.name} value={s.name} className="font-medium">{s.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                    <Select value={district} onValueChange={setDistrict} disabled={state === 'all'}>
-                        <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Select Sub Location" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                            <SelectItem value="all" className="font-medium text-primary">All Sub Locations</SelectItem>
-                            {locationData.find(s => s.name === state)?.districts.map((d) => (
-                                <SelectItem key={d.name} value={d.name} className="font-medium">{d.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                    <Select value={propertyType} onValueChange={setPropertyType}>
-                        <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Property Type" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                          <SelectItem value="all" className="font-medium text-primary">All Types</SelectItem>
-                          {propertyTypesList.map(type => (
-                            <SelectItem key={type} value={type} className="font-medium">{type}</SelectItem>
-                          ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                     <Select value={budget} onValueChange={setBudget}>
-                        <SelectTrigger className="w-full h-14 border-0 bg-transparent shadow-none focus:ring-0 px-4 font-medium text-slate-700">
-                            <SelectValue placeholder="Budget" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                          <SelectItem value="any" className="font-medium text-primary">Any Budget</SelectItem>
-                          {budgetOptions.map(option => (
-                              <SelectItem key={option.value} value={option.value} className="font-medium">{option.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
+        <div className="relative bg-white/80 backdrop-blur-2xl p-4 md:p-6 max-w-[950px] rounded-[40px] border border-white/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all duration-500">
+            <Tabs defaultValue={searchTab} onValueChange={setSearchTab} className="w-full">
+                <TabsList className="flex h-14 justify-start p-1.5 bg-slate-100/50 rounded-2xl mb-6 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
+                    {['buy', 'rent', 'flatmates', 'commercial', 'plot'].map((tab) => (
+                        <TabsTrigger 
+                            key={tab} 
+                            value={tab} 
+                            className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md min-w-[100px] whitespace-nowrap font-black text-[13px] uppercase tracking-wider transition-all duration-300"
+                        >
+                            {tab === 'buy' ? 'Buy' : tab === 'rent' ? 'Rent' : tab === 'flatmates' ? 'Flatmates' : tab === 'commercial' ? 'Office' : 'Plots'}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
             
-            <div className="md:w-36 flex-shrink-0">
-                <Button onClick={handleSearch} className="w-full h-14 md:h-full bg-gradient-to-r from-primary to-rose-600 text-white font-bold text-lg rounded-2xl hover:shadow-[0_8px_25px_-8px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transform transition-all duration-300">
-                    <Search className="mr-2 h-5 w-5" /> 
-                    <span className="md:hidden">Search</span>
-                </Button>
+            <div className="flex flex-col gap-6">
+                {/* Main Filter Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Location Selectors */}
+                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="relative group/select">
+                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">State</label>
+                            <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); }}>
+                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                    <SelectValue placeholder="Select State" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                    <SelectItem value="all" className="font-bold text-primary italic">All of India</SelectItem>
+                                    {locationData.map((s) => (
+                                        <SelectItem key={s.name} value={s.name} className="font-semibold">{s.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div className="relative group/select">
+                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Sub Location</label>
+                            <Select value={district} onValueChange={setDistrict} disabled={state === 'all'}>
+                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                    <SelectValue placeholder="Choose District" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                    <SelectItem value="all" className="font-bold text-primary italic">Entire State</SelectItem>
+                                    {locationData.find(s => s.name === state)?.districts.map((d) => (
+                                        <SelectItem key={d.name} value={d.name} className="font-semibold">{d.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button 
+                                onClick={handleNearMe}
+                                variant="ghost" 
+                                size="icon" 
+                                className="absolute right-10 top-1/2 -translate-y-1/2 h-8 w-8 text-primary hover:bg-primary/10 rounded-full"
+                                title="Locate me"
+                            >
+                                {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="relative group/select">
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Property Category</label>
+                        <Select value={propertyType} onValueChange={setPropertyType}>
+                            <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100 max-h-[300px]">
+                              <SelectItem value="all" className="font-bold text-primary italic">Everything</SelectItem>
+                              {propertyTypesList.map(type => (
+                                <SelectItem key={type} value={type} className="font-semibold">{type}</SelectItem>
+                              ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                {/* Budget Slider Row */}
+                <div className="px-2 pt-2 pb-4">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <IndianRupee className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Budget Range</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="px-3 py-1 bg-slate-100 rounded-lg text-sm font-black text-slate-700 border border-slate-200/50">
+                                {formatCurrency(budgetRange[0])}
+                            </div>
+                            <div className="w-3 h-px bg-slate-300" />
+                            <div className="px-3 py-1 bg-slate-900 rounded-lg text-sm font-black text-white border border-slate-800">
+                                {formatCurrency(budgetRange[1])}+
+                            </div>
+                        </div>
+                    </div>
+                    <Slider 
+                        defaultValue={[0, searchTab === 'rent' ? 200000 : 100000000]} 
+                        max={searchTab === 'rent' ? 200000 : 100000000} 
+                        step={searchTab === 'rent' ? 500 : 100000}
+                        onValueChange={(vals) => setBudgetRange([vals[0], vals[1] || vals[0]])}
+                        className="py-4"
+                    />
+                </div>
+                
+                {/* Search Action + Instant Count */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                    <div className="flex-1 flex items-center gap-4 px-6 h-16 bg-slate-50 rounded-2xl border border-slate-100">
+                        {isQueryLoading ? (
+                            <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                                <span className="text-sm font-bold text-slate-600">
+                                    <span className="text-primary text-lg font-black">{filteredCount}</span> Properties matching your taste
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <Button 
+                        onClick={handleSearch} 
+                        className="w-full sm:w-56 h-16 bg-slate-900 hover:bg-primary text-white font-black text-lg rounded-2xl shadow-xl shadow-slate-200 hover:shadow-primary/30 transform transition-all duration-300 group/search"
+                    >
+                        <Search className="mr-3 h-6 w-6 transform group-hover/search:scale-110 transition-transform" /> 
+                        Search Now
+                    </Button>
+                </div>
             </div>
         </div>
     </div>
@@ -206,7 +298,7 @@ const HeroStats = () => {
                 setActiveListings(snapshot.data().count);
             } catch (error) {
                 console.error("Error fetching active listings count:", error);
-                setActiveListings(12400); // Fallback to original number on error
+                setActiveListings(12400); 
             }
         };
         fetchCount();
@@ -217,23 +309,45 @@ const HeroStats = () => {
     }
     
     return (
-        <div className="flex flex-wrap gap-x-10 gap-y-5 mt-14 min-h-[58px]">
-            <div className="flex flex-col min-w-[120px]">
-                <div className="text-3xl font-extrabold text-slate-800 leading-tight">
+        <div className="flex flex-wrap gap-x-12 gap-y-6 mt-16 min-h-[60px]">
+            <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                className="flex flex-col"
+            >
+                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">
                     {activeListings === null ? (
-                        <Skeleton className="h-8 w-24 bg-slate-200" />
+                        <Skeleton className="h-9 w-24 bg-slate-200" />
                     ) : (
                         `${formatNumber(activeListings)}+`
                     )}
                 </div>
-                <div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-1.5">Active Listings</div>
-            </div>
-            <div className="w-px bg-slate-300 self-stretch hidden sm:block"></div>
-            <div className="flex flex-col"><div className="text-3xl font-extrabold text-slate-800">26<span>+</span></div><div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Districts</div></div>
-            <div className="w-px bg-slate-300 self-stretch hidden sm:block"></div>
-            <div className="flex flex-col"><div className="text-3xl font-extrabold text-slate-800">Direct</div><div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Owner Contact</div></div>
-            <div className="w-px bg-slate-300 self-stretch hidden sm:block"></div>
-            <div className="flex flex-col"><div className="text-3xl font-extrabold text-slate-800">100%</div><div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Free Listing</div></div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Live Listings</div>
+            </motion.div>
+            
+            <div className="w-px bg-slate-200 self-stretch hidden sm:block"></div>
+            
+            <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-col"
+            >
+                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">24/7</div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Support Ready</div>
+            </motion.div>
+
+            <div className="w-px bg-slate-200 self-stretch hidden sm:block"></div>
+
+            <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex flex-col"
+            >
+                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">Direct</div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Owner Access</div>
+            </motion.div>
         </div>
     );
 };
@@ -241,39 +355,61 @@ const HeroStats = () => {
 
 export function HeroSection() {
   return (
-    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] py-24 overflow-hidden bg-slate-50">
-        {/* Dynamic Blobs */}
-        <div className="absolute top-[-100px] right-[-50px] w-[500px] h-[500px] bg-primary/20 rounded-full filter blur-[100px] animate-blob pointer-events-none mix-blend-multiply"></div>
-        <div className="absolute top-1/2 left-[-150px] w-[400px] h-[400px] bg-emerald-400/20 rounded-full filter blur-[80px] animate-blob animation-delay-[2000ms] pointer-events-none mix-blend-multiply"></div>
-        <div className="absolute bottom-[-50px] right-[20%] w-[300px] h-[300px] bg-sky-400/20 rounded-full filter blur-[80px] animate-blob animation-delay-[4000ms] pointer-events-none mix-blend-multiply"></div>
+    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] py-24 overflow-hidden bg-[#fafbfc]">
+        {/* Modern Dynamic Blobs */}
+        <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-primary/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
+        <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-blue-400/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
 
-        {/* Subtle dot pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none z-0"></div>
+        {/* High-end Pattern Overlay */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"></div>
 
-        <div className="container relative z-10 px-4 mb-2">
-            <div className="animate-in-up inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-slate-200/50 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-700 mb-8 shadow-sm">
-                <span className="relative flex h-2 w-2 mr-1">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                India's #1 Property Platform
-            </div>
+        <div className="container relative z-10 px-4">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-slate-800 mb-10"
+            >
+                <div className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                </div>
+                Premium Real Estate Network
+            </motion.div>
 
-            <h1 className="animate-in-up delay-100 font-extrabold text-5xl md:text-6xl lg:text-[72px] leading-[1.1] tracking-[-0.02em] max-w-4xl text-slate-800 mb-6 drop-shadow-sm">
-              Discover Your <span className="glow-text">Dream Property</span> Across India
-            </h1>
+            <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="font-black text-6xl md:text-7xl lg:text-[84px] leading-[0.95] tracking-[-0.04em] max-w-5xl text-slate-900 mb-8"
+            >
+              Find Your <span className="bg-gradient-to-r from-primary via-rose-500 to-indigo-600 bg-clip-text text-transparent">Perfect Space</span> <br className="hidden md:block" /> Without the Noise.
+            </motion.h1>
             
-            <p className="animate-in-up delay-200 text-lg md:text-xl text-slate-600 max-w-2xl leading-relaxed mb-12 font-medium">
-              List Free. Find Fast. Direct Owner Contact. The smartest way to buy, sell, and rent properties across all major cities of India.
-            </p>
+            <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-xl md:text-2xl text-slate-500 max-w-3xl leading-relaxed mb-16 font-medium"
+            >
+              Verified listings, direct owner contacts, and zero brokerage. Experience the most innovative property search in India.
+            </motion.p>
 
-            <div className="animate-in-up delay-300">
+            <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+            >
                 <SearchWidget />
-            </div>
+            </motion.div>
             
-            <div className="animate-in-up delay-400 mt-8 border-t border-slate-200/60 pt-6 max-w-[850px]">
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-12 border-t border-slate-200/60 pt-8 max-w-[950px]"
+            >
                 <HeroStats />
-            </div>
+            </motion.div>
         </div>
     </section>
   );

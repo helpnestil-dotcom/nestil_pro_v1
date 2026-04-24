@@ -2,7 +2,7 @@
 'use client';
 
 import { Suspense, useMemo, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { PropertyCard, PropertyCardSkeleton } from '@/components/property-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, X, Filter, MapPin, Building2, Home, CheckCircle2, RotateCcw, IndianRupee, Sparkles, ChevronRight, LayoutGrid } from 'lucide-react';
 import { collection, query, where, DocumentData, Query, orderBy } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { db } from '@/lib/firebase';
@@ -28,7 +28,8 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -44,6 +45,7 @@ type Location = {
 
 function PropertySearchComponent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const getInitialPriceRange = (): [number, number] => {
@@ -52,7 +54,7 @@ function PropertySearchComponent() {
     const maxVal = (max === 'Infinity' || !max) ? 10000000 : parseInt(max, 10);
     return [
       min ? parseInt(min, 10) : 0,
-      maxVal > 10000000 ? 10000000 : maxVal,
+      maxVal,
     ];
   };
 
@@ -99,7 +101,6 @@ function PropertySearchComponent() {
       where('listingStatus', '==', 'approved')
     );
 
-    // Only apply the district (city) filter at the database level to avoid missing composite indexes
     if (keyword && keyword !== 'all') {
       const altKeyword = keyword.endsWith(' district') ? keyword.replace(' district', '') : `${keyword} district`;
       q = query(q, where('city', 'in', [keyword, altKeyword]));
@@ -109,10 +110,6 @@ function PropertySearchComponent() {
   }, [keyword]);
 
   const [serverFilteredSnapshot, isLoading, error] = useCollection(propertiesQuery);
-  
-  if (error) {
-     console.error("Firestore query error:", error);
-  }
   
   const propertiesFromQuery = useMemo(() => {
       if (!serverFilteredSnapshot) return [];
@@ -161,31 +158,22 @@ function PropertySearchComponent() {
         result = result.filter(prop => prop.flatmateGenderPreference === genderPreference);
     }
     
-    const isPriceFiltered = priceRange[0] > 0 || priceRange[1] < 10000000;
-    if (isPriceFiltered) {
-        if (priceRange[0] > 0) result = result.filter(prop => prop.price >= priceRange[0]);
-        if (priceRange[1] < 10000000) result = result.filter(prop => prop.price <= priceRange[1]);
-        
-        // Sort by price if filtered
-        result = result.sort((a, b) => a.price - b.price);
-    } else {
-        // Default sort by dateAdded descending
-        result = result.sort((a, b) => {
-            const dateA = new Date(a.dateAdded || 0).getTime();
-            const dateB = new Date(b.dateAdded || 0).getTime();
-            return dateB - dateA;
-        });
-    }
+    result = result.filter(prop => prop.price >= priceRange[0] && prop.price <= priceRange[1]);
+    
+    // Sort logic
+    result = result.sort((a, b) => {
+        const dateA = new Date(a.dateAdded || 0).getTime();
+        const dateB = new Date(b.dateAdded || 0).getTime();
+        return dateB - dateA;
+    });
 
     return result;
-  }, [propertiesFromQuery, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, priceRange]);
+  }, [propertiesFromQuery, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
-  // Reset locality and page when district changes
   useEffect(() => {
     setLocality('all');
   }, [keyword]);
   
-  // Reset page to 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [keyword, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
@@ -198,7 +186,6 @@ function PropertySearchComponent() {
 
   const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
 
-
   const handleReset = () => {
     setStateParam('all');
     setKeyword('all');
@@ -209,249 +196,328 @@ function PropertySearchComponent() {
     setRentalStatus('all');
     setGenderPreference('all');
     setPriceRange([0, 10000000]);
+    
+    router.push('/properties');
   };
-  
-  useEffect(() => {
-    setStateParam(searchParams.get('state') || 'all');
-    setKeyword(searchParams.get('keyword') || 'all');
-    setLocality(searchParams.get('locality') || 'all');
-    setTransaction(searchParams.get('transaction') || 'all');
-    setPropertyType(searchParams.get('type') || 'all');
-    setConstructionStatus(searchParams.get('constructionStatus') || 'all');
-    setRentalStatus(searchParams.get('rentalStatus') || 'all');
-    setGenderPreference(searchParams.get('gender') || 'all');
-    setPriceRange(getInitialPriceRange());
-  }, [searchParams]);
-
 
   const FilterControls = (
-    <Card className="shadow-none border-none lg:border lg:shadow-sm">
-        <CardHeader>
-            <CardTitle className="flex items-center justify-between text-lg">
-                Filters
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleReset}>
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Reset</span>
-                </Button>
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="state-select">State</Label>
-              <Select value={stateParam} onValueChange={(val) => { setStateParam(val); setKeyword('all'); }}>
-                <SelectTrigger id="state-select">
-                  <SelectValue placeholder="All States" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All States</SelectItem>
-                  {staticLocationData.map((s) => (
-                    <SelectItem key={s.name} value={s.name}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <div className="flex flex-col gap-8 pb-10">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Filter className="w-4 h-4 text-primary" />
+                </div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">Refine Search</h2>
             </div>
+            <Button variant="ghost" size="sm" onClick={handleReset} className="text-xs font-bold text-slate-400 hover:text-primary gap-1.5 transition-colors">
+                <RotateCcw className="w-3 h-3" />
+                Reset
+            </Button>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="district-select">Sub Location</Label>
-              <Select value={keyword} onValueChange={setKeyword} disabled={stateParam === 'all'}>
-                <SelectTrigger id="district-select">
-                  <SelectValue placeholder="All Sub Locations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sub Locations</SelectItem>
-                  {staticLocationData.find(s => s.name === stateParam)?.districts.map((d) => (
-                    <SelectItem key={d.name} value={d.name}>
-                      {d.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* Transaction Toggle (Segmented Control) */}
+        <div className="space-y-3">
+            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Listing Type</Label>
+            <div className="flex p-1 bg-slate-100 rounded-2xl gap-1">
+                {['all', 'Rent', 'Sale', 'Lease'].map((type) => (
+                    <button
+                        key={type}
+                        onClick={() => setTransaction(type)}
+                        className={cn(
+                            "flex-1 py-2 text-[12px] font-bold rounded-xl transition-all duration-300",
+                            transaction === type 
+                                ? "bg-white text-primary shadow-sm" 
+                                : "text-slate-500 hover:text-slate-700"
+                        )}
+                    >
+                        {type === 'all' ? 'All' : type}
+                    </button>
+                ))}
             </div>
+        </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="locality-select">Locality</Label>
-                <Select value={locality} onValueChange={setLocality} disabled={dynamicLocalities.length === 0}>
-                    <SelectTrigger id="locality-select">
-                    <SelectValue placeholder="All Localities" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="all">All Localities</SelectItem>
-                    {dynamicLocalities.map((l) => (
-                        <SelectItem key={l.name} value={l.name}>
-                        {l.name}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="transaction-type">For</Label>
-                <Select value={transaction} onValueChange={setTransaction}>
-                    <SelectTrigger id="transaction-type">
-                        <SelectValue placeholder="All" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Rent / Sale / Lease</SelectItem>
-                        <SelectItem value="Rent">Rent</SelectItem>
-                        <SelectItem value="Sale">Sale</SelectItem>
-                        <SelectItem value="Lease">Lease</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="property-type">Property Type</Label>
-                <Select value={propertyType} onValueChange={setPropertyType}>
-                    <SelectTrigger id="property-type">
-                        <SelectValue placeholder="All Types" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        {propertyTypesList.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                </Select>
+        {/* Location Section */}
+        <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+                <MapPin className="w-4 h-4 text-primary" />
+                <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Location</Label>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="construction-status">Construction Status</Label>
+            <div className="space-y-3">
+              <Select value={stateParam} onValueChange={(val) => { setStateParam(val); setKeyword('all'); }}>
+                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
+                  <SelectValue placeholder="All States" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all" className="font-bold">All States</SelectItem>
+                  {staticLocationData.map((s) => (
+                    <SelectItem key={s.name} value={s.name} className="font-semibold">{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={keyword} onValueChange={setKeyword} disabled={stateParam === 'all'}>
+                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
+                  <SelectValue placeholder="All Sub Locations" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all" className="font-bold">All Sub Locations</SelectItem>
+                  {staticLocationData.find(s => s.name === stateParam)?.districts.map((d) => (
+                    <SelectItem key={d.name} value={d.name} className="font-semibold">{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={locality} onValueChange={setLocality} disabled={dynamicLocalities.length === 0}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
+                        <SelectValue placeholder="All Localities" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                        <SelectItem value="all" className="font-bold">All Localities</SelectItem>
+                        {dynamicLocalities.map((l) => (
+                            <SelectItem key={l.name} value={l.name} className="font-semibold">{l.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
+
+        {/* Property Type Grid Chips */}
+        <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+                <LayoutGrid className="w-4 h-4 text-primary" />
+                <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Property Type</Label>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+                {['all', '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Villa', 'Independent House', 'Land', 'Office'].map((t) => (
+                    <button
+                        key={t}
+                        onClick={() => setPropertyType(t === 'Office' ? 'Commercial properties' : t)}
+                        className={cn(
+                            "px-3 py-2.5 rounded-xl text-[11px] font-black border transition-all text-center",
+                            (propertyType === t || (t === 'Office' && propertyType === 'Commercial properties'))
+                                ? "bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200" 
+                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-300"
+                        )}
+                    >
+                        {t === 'all' ? 'Everything' : t}
+                    </button>
+                ))}
+            </div>
+            {propertyType !== 'all' && !['1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Villa', 'Independent House', 'Land', 'Commercial properties'].includes(propertyType) && (
+                 <div className="mt-2 p-3 bg-primary/5 border border-primary/10 rounded-xl text-[11px] font-black text-primary flex items-center justify-between">
+                    <span>Selected: {propertyType}</span>
+                    <button onClick={() => setPropertyType('all')}><X className="w-3 h-3" /></button>
+                 </div>
+            )}
+        </div>
+
+        {/* Status Section */}
+        <div className="space-y-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Construction</Label>
               <Select value={constructionStatus} onValueChange={setConstructionStatus}>
-                <SelectTrigger id="construction-status">
-                  <SelectValue placeholder="All" />
+                <SelectTrigger className="h-10 rounded-lg border-slate-200 bg-white focus:ring-primary/20 font-bold text-xs">
+                  <SelectValue placeholder="Any Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="all">Any Status</SelectItem>
                   <SelectItem value="Ready to Move">Ready to Move</SelectItem>
                   <SelectItem value="Under Construction">Under Construction</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="rental-status">Rental Status</Label>
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Availability</Label>
               <Select value={rentalStatus} onValueChange={setRentalStatus}>
-                <SelectTrigger id="rental-status">
-                  <SelectValue placeholder="All" />
+                <SelectTrigger className="h-10 rounded-lg border-slate-200 bg-white focus:ring-primary/20 font-bold text-xs">
+                  <SelectValue placeholder="Any Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="all">Any Status</SelectItem>
                   <SelectItem value="Available">Available</SelectItem>
                   <SelectItem value="Vacating Soon">Vacating Soon</SelectItem>
                   <SelectItem value="Upcoming">Upcoming</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+        </div>
 
-            {propertyType === 'Flatmate / Co-living' && (
-                <div className="space-y-2 pt-2 border-t border-slate-100">
-                    <Label htmlFor="gender-pref">Flatmate Preference</Label>
-                    <Select value={genderPreference} onValueChange={setGenderPreference}>
-                        <SelectTrigger id="gender-pref">
-                            <SelectValue placeholder="Anyone / No Restrictions" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Anyone / All</SelectItem>
-                            <SelectItem value="Male">Looking for Male</SelectItem>
-                            <SelectItem value="Female">Looking for Female</SelectItem>
-                        </SelectContent>
-                    </Select>
+        {/* Price Range */}
+        <div className="space-y-5">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <IndianRupee className="w-4 h-4 text-primary" />
+                    <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Price Budget</Label>
                 </div>
-            )}
-
-            <div className="space-y-4 pt-2">
-                <Label>Price Range</Label>
-                <Slider
-                    min={0}
-                    max={10000000}
-                    step={50000}
-                    value={priceRange}
-                    onValueChange={(value: [number, number]) => setPriceRange(value)}
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
-                    <span>₹{priceRange[1].toLocaleString('en-IN')}{priceRange[1] === 10000000 ? '+' : ''}</span>
+                <div className="text-[11px] font-black text-primary bg-primary/5 px-2 py-1 rounded-md">
+                    Max: ₹{(priceRange[1] / 100000).toFixed(1)}L
                 </div>
             </div>
-        </CardContent>
-    </Card>
+            
+            <Slider
+                min={0}
+                max={10000000}
+                step={50000}
+                value={priceRange}
+                onValueChange={(value: [number, number]) => setPriceRange(value)}
+                className="py-2"
+            />
+            <div className="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-slate-400 uppercase">Min</span>
+                    <span className="text-[11px] font-black text-slate-800">₹{priceRange[0].toLocaleString('en-IN')}</span>
+                </div>
+                <div className="w-4 h-px bg-slate-300" />
+                <div className="flex flex-col text-right">
+                    <span className="text-[9px] font-black text-slate-400 uppercase">Max</span>
+                    <span className="text-[11px] font-black text-slate-800">₹{priceRange[1].toLocaleString('en-IN')}{priceRange[1] === 10000000 ? '+' : ''}</span>
+                </div>
+            </div>
+        </div>
+    </div>
   );
 
   return (
-    <div className="container py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="hidden lg:block lg:col-span-1 sticky top-24 h-min">
-          {FilterControls}
-        </aside>
-
-        <main className="lg:col-span-3">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-              <h1 className="text-2xl font-semibold">
-                  {isLoading ? 'Searching properties...' : `${filteredProperties.length} Properties Found`}
-              </h1>
-              
-              <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
-                  <SheetTrigger asChild>
-                      <Button variant="outline" className="lg:hidden w-full sm:w-auto">
-                          <Filter className="mr-2 h-4 w-4" />
-                          Filters
-                      </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="p-0 flex flex-col">
-                      <div className="p-4 overflow-y-auto flex-grow">
-                          {FilterControls}
-                      </div>
-                      <div className="p-4 border-t bg-background">
-                          <Button className="w-full" onClick={() => setIsFilterSheetOpen(false)}>
-                              Show {filteredProperties.length} Properties
-                          </Button>
-                      </div>
-                  </SheetContent>
-              </Sheet>
-          </div>
-          
-          {isLoading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[...Array(12)].map((_, i) => <PropertyCardSkeleton key={i} />)}
-             </div>
-          ) : filteredProperties.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {currentProperties.map((prop, index) => (
-                  <PropertyCard key={prop.id} property={prop} priority={index < 4} />
-                ))}
-              </div>
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-8">
-                  <Button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    variant="outline"
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    variant="outline"
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-             <div className="text-center py-16 border-dashed border-2 rounded-lg bg-card mt-6">
-                <h2 className="text-xl font-semibold">No Properties Found</h2>
-                <p className="text-muted-foreground mt-2">Try adjusting your filters to find what you're looking for.</p>
-                <Button variant="outline" className="mt-4" onClick={handleReset}>Clear All Filters</Button>
+    <div className="bg-[#fafbfc] min-h-screen">
+      <div className="container py-12 px-4">
+        {/* Results Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="space-y-2">
+                <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary/5 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10"
+                >
+                    <Sparkles className="w-3 h-3" />
+                    Smart Matching Active
+                </motion.div>
+                <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none">
+                    {isLoading ? (
+                        <div className="flex items-center gap-3">
+                            Discovering Spaces <div className="w-3 h-3 rounded-full bg-primary animate-ping" />
+                        </div>
+                    ) : (
+                        <><span className="text-primary">{filteredProperties.length}</span> Results Found</>
+                    )}
+                </h1>
+                <p className="text-slate-500 font-medium">Explore handpicked properties verified for quality and direct owner access.</p>
             </div>
-          )}
-        </main>
+
+            <div className="flex items-center gap-3">
+                <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" className="lg:hidden h-12 px-6 rounded-xl border-slate-200 bg-white font-bold text-slate-700 shadow-sm">
+                            <Filter className="mr-2 h-4 w-4 text-primary" />
+                            Filters
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[320px] sm:w-[400px] p-0 flex flex-col">
+                        <div className="p-6 overflow-y-auto flex-grow bg-white">
+                            {FilterControls}
+                        </div>
+                        <div className="p-6 border-t bg-slate-50">
+                            <Button className="w-full h-14 bg-slate-900 hover:bg-primary text-white font-black rounded-2xl shadow-xl shadow-slate-200 transition-all duration-300" onClick={() => setIsFilterSheetOpen(false)}>
+                                View {filteredProperties.length} Properties
+                            </Button>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Sidebar Filters */}
+          <aside className="hidden lg:block lg:col-span-3 sticky top-28 h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
+            {FilterControls}
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="lg:col-span-9">
+            {isLoading ? (
+               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {[...Array(9)].map((_, i) => <PropertyCardSkeleton key={i} />)}
+               </div>
+            ) : filteredProperties.length > 0 ? (
+              <AnimatePresence mode="popLayout">
+                <motion.div 
+                    key={transaction + propertyType + keyword}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
+                >
+                  {currentProperties.map((prop, index) => (
+                    <PropertyCard key={prop.id} property={prop} priority={index < 3} />
+                  ))}
+                </motion.div>
+                
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-3 mt-16 pt-10 border-t border-slate-100">
+                    <Button
+                      onClick={() => {
+                        setCurrentPage(prev => Math.max(prev - 1, 1));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === 1}
+                      variant="outline"
+                      className="h-12 rounded-xl font-bold px-6 border-slate-200 hover:bg-primary hover:text-white transition-all"
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex gap-1">
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    setCurrentPage(i + 1);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className={cn(
+                                    "w-12 h-12 rounded-xl font-black text-sm transition-all",
+                                    currentPage === i + 1 
+                                        ? "bg-slate-900 text-white shadow-lg shadow-slate-200" 
+                                        : "bg-white border border-slate-100 text-slate-400 hover:border-slate-300"
+                                )}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === totalPages}
+                      variant="outline"
+                      className="h-12 rounded-xl font-bold px-6 border-slate-200 hover:bg-primary hover:text-white transition-all"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </AnimatePresence>
+            ) : (
+               <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-24 border-2 border-dashed border-slate-200 rounded-[32px] bg-white mt-6 shadow-sm"
+               >
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-10 h-10 text-slate-300" />
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">No Spaces Found</h2>
+                  <p className="text-slate-500 font-medium max-w-sm mx-auto mt-2">We couldn't find any properties matching these filters. Try relaxing your search criteria.</p>
+                  <Button variant="outline" className="mt-8 h-12 px-8 rounded-xl font-black border-slate-200 hover:bg-primary hover:text-white transition-all" onClick={handleReset}>
+                    Clear All Filters
+                  </Button>
+              </motion.div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
@@ -462,9 +528,9 @@ export default function PropertiesPage() {
     <Suspense fallback={
         <div className="container py-12">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-1 hidden lg:block"><Skeleton className="h-96 w-full" /></div>
-                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[...Array(12)].map((_, i) => <PropertyCardSkeleton key={i} />)}
+                <div className="lg:col-span-1 hidden lg:block"><Skeleton className="h-96 w-full rounded-2xl" /></div>
+                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[...Array(9)].map((_, i) => <PropertyCardSkeleton key={i} />)}
                 </div>
             </div>
         </div>

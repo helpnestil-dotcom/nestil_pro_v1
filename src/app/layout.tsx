@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Poppins } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { CompareTray } from '@/components/compare-tray';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -55,6 +56,7 @@ export default function RootLayout({
             <main className="flex-grow">{children}</main>
             <Footer />
           </div>
+          <CompareTray />
           <Toaster />
         </FirebaseClientProvider>
 
