@@ -50,6 +50,12 @@ export function Footer() {
                         <SocialIcon href="#" ariaLabel="Facebook"><Facebook className="h-5 w-5" /></SocialIcon>
                         <SocialIcon href="#" ariaLabel="Youtube"><Youtube className="h-5 w-5" /></SocialIcon>
                     </div>
+                    <div className="flex flex-col gap-2 mt-6 border-t border-slate-800 pt-6">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Operating Address</span>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                            Bangalore near doorvani nagar 1st cross 560016
+                        </p>
+                    </div>
                 </div>
 
                 {/* Column 2: Quick Links */}

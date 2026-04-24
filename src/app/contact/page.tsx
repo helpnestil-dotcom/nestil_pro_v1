@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, LoaderCircle, User } from 'lucide-react';
+import { Mail, LoaderCircle, User, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -124,6 +124,13 @@ export default function ContactPage() {
                      <div className="flex items-center gap-4">
                         <WhatsappIcon />
                         <a href="https://wa.me/919492060040" target="_blank" rel="noopener noreferrer" className="text-lg hover:text-primary">+91 94920 60040</a>
+                    </div>
+                    <div className="flex items-start gap-4 pt-2">
+                        <MapPin className="h-6 w-6 text-primary shrink-0 mt-1"/>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Operating Address</span>
+                            <p className="text-lg leading-snug">Bangalore near doorvani nagar 1st cross 560016</p>
+                        </div>
                     </div>
                 </div>
             </div>
