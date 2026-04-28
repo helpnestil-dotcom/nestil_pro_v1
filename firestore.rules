@@ -88,6 +88,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // INVESTOR REQUESTS
+    match /investor_requests/{requestId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
   // SHIFTING REQUESTS
     match /homeShiftingRequests/{requestId} {
       allow create: if true; // Any customer can raise a request
