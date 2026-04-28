@@ -4,12 +4,12 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Poppins } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
 
-const poppins = Poppins({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -46,8 +46,8 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          poppins.variable,
-          "font-body antialiased"
+          jakarta.variable,
+          "font-body antialiased selection:bg-primary/20 selection:text-primary"
         )}
       >
         <FirebaseClientProvider>

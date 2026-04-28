@@ -94,6 +94,13 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // PROPERTY REQUIREMENTS (Demand Feed)
+    match /property_requirements/{reqId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
   // SHIFTING REQUESTS
     match /homeShiftingRequests/{requestId} {
       allow create: if true; // Any customer can raise a request

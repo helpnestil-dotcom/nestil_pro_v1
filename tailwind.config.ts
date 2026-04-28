@@ -18,9 +18,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-body)', 'Poppins', 'sans-serif'],
-        body: ['var(--font-body)', 'Poppins', 'sans-serif'],
-        headline: ['var(--font-body)', 'Poppins', 'sans-serif'],
+        sans: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
+        headline: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

@@ -35,6 +35,7 @@ export function Header() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/properties', label: 'Properties' },
+    { href: '/requirements', label: 'Demand Feed' },
     { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
     { href: '/shift-home', label: 'Shift Home' },
     { href: '/builders', label: 'Builders' },
@@ -42,12 +43,39 @@ export function Header() {
     { href: '/about', label: 'About' },
   ];
 
+  const mobileNavGroups = [
+    {
+      title: 'Explore',
+      links: [
+        { href: '/', label: 'Home' },
+        { href: '/properties', label: 'Properties' },
+      ]
+    },
+    {
+      title: 'Services',
+      links: [
+        { href: '/requirements', label: 'Demand Feed' },
+        { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
+        { href: '/shift-home', label: 'Shift Home' },
+        { href: '/builders', label: 'Builders' },
+      ]
+    },
+    {
+      title: 'Partner & Info',
+      links: [
+        { href: '/shift-home/login', label: 'Partner Login' },
+        { href: '/about', label: 'About' },
+      ]
+    }
+  ];
+
   const handleMobileLinkClick = () => {
     setIsMobileMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between h-[68px] px-4 md:px-10 bg-white/90 backdrop-blur-2xl border-b">
+    <header className="sticky top-0 z-50 flex flex-col bg-white/90 backdrop-blur-2xl border-b">
+      <div className="flex items-center justify-between h-[68px] px-4 md:px-10">
         {/* Left Side: Logo and Desktop Nav */}
         <div className="flex items-center gap-6">
             <NavLogo />
@@ -70,6 +98,9 @@ export function Header() {
         {/* Right Side: Actions and Mobile Menu */}
         <div className="flex items-center gap-2">
             {/* Desktop version */}
+            <Button asChild className="hidden lg:inline-flex !font-bold text-[13px] bg-gradient-to-r from-emerald-500 to-teal-500 border-0 hover:shadow-[0_8px_25px_-8px_rgba(16,185,129,0.5)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl mr-2">
+                <Link href="/post-requirement">Post a Need</Link>
+            </Button>
             <Button asChild className="hidden md:inline-flex !font-bold text-[13px] bg-gradient-to-r from-primary to-rose-600 border-0 hover:shadow-[0_8px_25px_-8px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl">
                 <Link href="/post-property">+ List Property</Link>
             </Button>
@@ -104,20 +135,35 @@ export function Header() {
                     <SheetHeader>
                         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                     </SheetHeader>
-                    <nav className="flex flex-col gap-4 mt-8">
-                        {navLinks.map(link => (
-                             <Link 
-                                key={link.href} 
-                                href={link.href} 
-                                onClick={handleMobileLinkClick}
-                                className={cn(
-                                "px-4 py-2 rounded-lg text-lg font-medium text-slate-600 transition-colors",
-                                pathname === link.href ? "bg-slate-100 text-slate-900" : "hover:bg-slate-100 hover:text-slate-900"
-                            )}>
-                                {link.label}
-                            </Link>
+                    <nav className="flex flex-col gap-6 mt-6 pb-20 overflow-y-auto max-h-[80vh] px-1">
+                        {mobileNavGroups.map((group, idx) => (
+                            <div key={idx} className="flex flex-col gap-2">
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3">{group.title}</h4>
+                                <div className="flex flex-col gap-1">
+                                    {group.links.map(link => (
+                                        <Link 
+                                            key={link.href} 
+                                            href={link.href} 
+                                            onClick={handleMobileLinkClick}
+                                            className={cn(
+                                                "px-4 py-2.5 rounded-xl text-[15px] font-semibold transition-all",
+                                                pathname === link.href 
+                                                    ? "bg-primary/10 text-primary" 
+                                                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                                            )}
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                          <div className="border-t pt-4 mt-4 space-y-2">
+                             <Button asChild className="w-full justify-start text-lg px-4 py-2 h-auto text-emerald-600" variant="ghost">
+                                <Link href="/post-requirement" onClick={handleMobileLinkClick}>
+                                    Post a Need
+                                </Link>
+                             </Button>
                              <Button asChild className="w-full justify-start text-lg px-4 py-2 h-auto" variant="ghost">
                                 <Link href="/post-property" onClick={handleMobileLinkClick}>
                                     + List Property
@@ -134,6 +180,20 @@ export function Header() {
                 </SheetContent>
             </Sheet>
         </div>
+      </div>
+
+      {/* Mobile Subheader */}
+      <div className="md:hidden flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar border-t border-slate-100 bg-slate-50/80 backdrop-blur-md">
+          <Link href="/requirements" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              Demand Feed
+          </Link>
+          <Link href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              Flatmates
+          </Link>
+          <Link href="/shift-home" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              Shift Home
+          </Link>
+      </div>
     </header>
   );
 }

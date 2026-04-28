@@ -47,6 +47,8 @@
   body {
     @apply bg-background text-foreground font-body;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   body::before {
     content: '';
@@ -57,6 +59,23 @@
     background-image: radial-gradient(circle at 1px 1px, hsla(222, 47%, 11%, 0.04) 1px, transparent 0);
     background-size: 28px 28px;
     opacity: 1;
+  }
+
+  /* Premium Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full dark:bg-slate-800;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-300 dark:bg-slate-700;
   }
 }
 

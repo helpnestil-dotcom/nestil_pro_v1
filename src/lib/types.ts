@@ -113,3 +113,25 @@ export type BuilderData = {
   rating?: number;
   ongoingProjects?: string[];
 };
+
+export type PropertyRequirement = {
+  id: string;
+  userId: string;
+  name: string;
+  state: string;
+  city: string;
+  area: string;
+  propertyType: string;
+  purpose: 'Rent' | 'Buy';
+  budget: number;
+  moveInDate: string;
+  whatsappNumber: string;
+  description: string;
+  preferences: {
+    furnished?: boolean;
+    parking?: boolean;
+    tenantType?: 'Family' | 'Bachelor' | 'Anyone';
+  };
+  status: 'active' | 'closed';
+  createdAt: Timestamp | string;
+};
