@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { Menu, Home } from 'lucide-react';
+import { Menu, Home, Building2, Activity, Users, Truck, HardHat, LogIn, Info } from 'lucide-react';
 import { UserNav } from './user-nav';
 import { useState } from 'react';
 
@@ -33,38 +33,38 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/requirements', label: 'Demand Feed' },
-    { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
-    { href: '/shift-home', label: 'Shift Home' },
-    { href: '/builders', label: 'Builders' },
-    { href: '/shift-home/login', label: 'Partner Login' },
-    { href: '/about', label: 'About' },
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/properties', label: 'Properties', icon: Building2 },
+    { href: '/requirements', label: 'Demand Feed', icon: Activity },
+    { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving', icon: Users },
+    { href: '/shift-home', label: 'Shift Home', icon: Truck },
+    { href: '/builders', label: 'Builders', icon: HardHat },
+    { href: '/shift-home/login', label: 'Partner Login', icon: LogIn },
+    { href: '/about', label: 'About', icon: Info },
   ];
 
   const mobileNavGroups = [
     {
       title: 'Explore',
       links: [
-        { href: '/', label: 'Home' },
-        { href: '/properties', label: 'Properties' },
+        { href: '/', label: 'Home', icon: Home },
+        { href: '/properties', label: 'Properties', icon: Building2 },
       ]
     },
     {
       title: 'Services',
       links: [
-        { href: '/requirements', label: 'Demand Feed' },
-        { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving' },
-        { href: '/shift-home', label: 'Shift Home' },
-        { href: '/builders', label: 'Builders' },
+        { href: '/requirements', label: 'Demand Feed', icon: Activity },
+        { href: '/properties?transaction=Rent&type=Flatmate+%2F+Co-living', label: 'Flatmates/Coliving', icon: Users },
+        { href: '/shift-home', label: 'Shift Home', icon: Truck },
+        { href: '/builders', label: 'Builders', icon: HardHat },
       ]
     },
     {
       title: 'Partner & Info',
       links: [
-        { href: '/shift-home/login', label: 'Partner Login' },
-        { href: '/about', label: 'About' },
+        { href: '/shift-home/login', label: 'Partner Login', icon: LogIn },
+        { href: '/about', label: 'About', icon: Info },
       ]
     }
   ];
@@ -79,19 +79,23 @@ export function Header() {
         {/* Left Side: Logo and Desktop Nav */}
         <div className="flex items-center gap-6">
             <NavLogo />
-            <nav className="hidden md:flex items-center gap-4">
-                {navLinks.map((link) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        className={cn(
-                            'text-sm font-medium transition-colors hover:text-primary',
-                            pathname === link.href ? 'text-primary' : 'text-foreground'
-                        )}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
+            <nav className="hidden lg:flex items-center gap-1.5 xl:gap-3">
+                {navLinks.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={cn(
+                                'flex items-center gap-1.5 text-[13px] font-bold transition-all hover:text-primary px-2 py-1.5 rounded-lg hover:bg-slate-50',
+                                pathname === link.href ? 'text-primary bg-primary/5' : 'text-slate-600'
+                            )}
+                        >
+                            <Icon className="w-4 h-4" />
+                            {link.label}
+                        </Link>
+                    )
+                })}
             </nav>
         </div>
 
@@ -140,21 +144,25 @@ export function Header() {
                             <div key={idx} className="flex flex-col gap-2">
                                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3">{group.title}</h4>
                                 <div className="flex flex-col gap-1">
-                                    {group.links.map(link => (
-                                        <Link 
-                                            key={link.href} 
-                                            href={link.href} 
-                                            onClick={handleMobileLinkClick}
-                                            className={cn(
-                                                "px-4 py-2.5 rounded-xl text-[15px] font-semibold transition-all",
-                                                pathname === link.href 
-                                                    ? "bg-primary/10 text-primary" 
-                                                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-                                            )}
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ))}
+                                    {group.links.map(link => {
+                                        const Icon = link.icon;
+                                        return (
+                                            <Link 
+                                                key={link.href} 
+                                                href={link.href} 
+                                                onClick={handleMobileLinkClick}
+                                                className={cn(
+                                                    "flex items-center gap-3 px-4 py-2.5 rounded-xl text-[15px] font-semibold transition-all",
+                                                    pathname === link.href 
+                                                        ? "bg-primary/10 text-primary" 
+                                                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                                                )}
+                                            >
+                                                <Icon className="w-5 h-5" />
+                                                {link.label}
+                                            </Link>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         ))}
@@ -184,13 +192,16 @@ export function Header() {
 
       {/* Mobile Subheader */}
       <div className="md:hidden flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar border-t border-slate-100 bg-slate-50/80 backdrop-blur-md">
-          <Link href="/requirements" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+          <Link href="/requirements" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              <Activity className="w-3.5 h-3.5" />
               Demand Feed
           </Link>
-          <Link href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+          <Link href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              <Users className="w-3.5 h-3.5" />
               Flatmates
           </Link>
-          <Link href="/shift-home" className="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+          <Link href="/shift-home" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              <Truck className="w-3.5 h-3.5" />
               Shift Home
           </Link>
       </div>

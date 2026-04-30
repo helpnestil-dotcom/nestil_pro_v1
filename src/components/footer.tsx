@@ -33,10 +33,10 @@ const WhatsappIcon = ({className}: {className?: string}) => (
 export function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800">
-        <div className="container py-16 px-4 md:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="container py-10 md:py-16 px-4 md:px-8">
+            <div className="flex flex-col lg:grid lg:grid-cols-4 gap-10 lg:gap-8">
                 {/* Column 1: Brand */}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 lg:col-span-1">
                     <Link href="/" className="flex items-center gap-2 text-2xl font-extrabold text-white tracking-tight">
                         <Home className="h-7 w-7 text-primary" />
                         <span className="lowercase">nestil.in</span>
@@ -58,31 +58,33 @@ export function Footer() {
                     </div>
                 </div>
 
-                {/* Column 2: Quick Links */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Quick Links</h3>
-                    <nav className="flex flex-col gap-3">
-                        <Link href="/properties" className="text-sm text-slate-300 hover:text-primary transition-colors">Search Properties</Link>
-                        <Link href="/post-property" className="text-sm text-slate-300 hover:text-primary transition-colors">List Your Property</Link>
-                        <Link href="/agents" className="text-sm text-slate-300 hover:text-primary transition-colors">Find Agents</Link>
-                        <Link href="/builders" className="text-sm text-slate-300 hover:text-primary transition-colors">Top Builders</Link>
-                    </nav>
-                </div>
+                <div className="grid grid-cols-2 gap-8 lg:col-span-2">
+                    {/* Column 2: Quick Links */}
+                    <div className="flex flex-col gap-4">
+                        <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Quick Links</h3>
+                        <nav className="flex flex-col gap-3">
+                            <Link href="/properties" className="text-sm text-slate-300 hover:text-primary transition-colors">Search Properties</Link>
+                            <Link href="/post-property" className="text-sm text-slate-300 hover:text-primary transition-colors">List Your Property</Link>
+                            <Link href="/agents" className="text-sm text-slate-300 hover:text-primary transition-colors">Find Agents</Link>
+                            <Link href="/builders" className="text-sm text-slate-300 hover:text-primary transition-colors">Top Builders</Link>
+                        </nav>
+                    </div>
 
-                {/* Column 3: Company */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Company</h3>
-                    <nav className="flex flex-col gap-3">
-                        <Link href="/about" className="text-sm text-slate-300 hover:text-primary transition-colors">About Us</Link>
-                        <Link href="/contact" className="text-sm text-slate-300 hover:text-primary transition-colors">Contact Support</Link>
-                        <Link href="/privacy-policy" className="text-sm text-slate-300 hover:text-primary transition-colors">Privacy Policy</Link>
-                        <Link href="/terms-of-service" className="text-sm text-slate-300 hover:text-primary transition-colors">Terms of Service</Link>
-                        <Link href="/investors" className="text-sm text-slate-300 hover:text-primary transition-colors font-semibold">Invest in Nestil</Link>
-                    </nav>
+                    {/* Column 3: Company */}
+                    <div className="flex flex-col gap-4">
+                        <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Company</h3>
+                        <nav className="flex flex-col gap-3">
+                            <Link href="/about" className="text-sm text-slate-300 hover:text-primary transition-colors">About Us</Link>
+                            <Link href="/contact" className="text-sm text-slate-300 hover:text-primary transition-colors">Contact Support</Link>
+                            <Link href="/privacy-policy" className="text-sm text-slate-300 hover:text-primary transition-colors">Privacy Policy</Link>
+                            <Link href="/terms-of-service" className="text-sm text-slate-300 hover:text-primary transition-colors">Terms of Service</Link>
+                            <Link href="/investors" className="text-sm text-slate-300 hover:text-primary transition-colors font-semibold">Invest in Nestil</Link>
+                        </nav>
+                    </div>
                 </div>
 
                 {/* Column 4: CTA */}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 lg:col-span-1">
                     <h3 className="text-white font-bold tracking-wide uppercase text-sm mb-2">Ready to sell?</h3>
                     <p className="text-sm text-slate-300 mb-2">
                         Get your property in front of thousands of buyers across India today.

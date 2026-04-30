@@ -8,10 +8,9 @@ import { Search, MapPin, Navigation, IndianRupee, Sparkles, Filter, Home, Loader
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, getCountFromServer } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import type { Property } from '@/lib/types';
 import { locationData } from '@/lib/locations';
-import { Skeleton } from './ui/skeleton';
 import { Slider } from './ui/slider';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -284,78 +283,11 @@ const SearchWidget = () => {
   );
 };
 
-const HeroStats = () => {
-    const firestore = useFirestore();
-    const [activeListings, setActiveListings] = useState<number | null>(null);
-
-    useEffect(() => {
-        const fetchCount = async () => {
-            if (!firestore) return;
-            try {
-                const propertiesCol = collection(firestore, 'properties');
-                const q = query(propertiesCol, where('listingStatus', '==', 'approved'));
-                const snapshot = await getCountFromServer(q);
-                setActiveListings(snapshot.data().count);
-            } catch (error) {
-                console.error("Error fetching active listings count:", error);
-                setActiveListings(12400); 
-            }
-        };
-        fetchCount();
-    }, [firestore]);
-
-    const formatNumber = (num: number) => {
-        return new Intl.NumberFormat('en-IN').format(num);
-    }
-    
-    return (
-        <div className="flex flex-wrap gap-x-12 gap-y-6 mt-16 min-h-[60px]">
-            <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                className="flex flex-col"
-            >
-                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">
-                    {activeListings === null ? (
-                        <Skeleton className="h-9 w-24 bg-slate-200" />
-                    ) : (
-                        `${formatNumber(activeListings)}+`
-                    )}
-                </div>
-                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Live Listings</div>
-            </motion.div>
-            
-            <div className="w-px bg-slate-200 self-stretch hidden sm:block"></div>
-            
-            <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="flex flex-col"
-            >
-                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">24/7</div>
-                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Support Ready</div>
-            </motion.div>
-
-            <div className="w-px bg-slate-200 self-stretch hidden sm:block"></div>
-
-            <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="flex flex-col"
-            >
-                <div className="text-4xl font-black text-slate-900 leading-none tracking-tighter">Direct</div>
-                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-3">Owner Access</div>
-            </motion.div>
-        </div>
-    );
-};
 
 
 export function HeroSection() {
   return (
-    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] py-24 overflow-hidden bg-[#F8FAFC]">
+    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] pt-32 pb-24 overflow-hidden bg-[#F8FAFC]">
         {/* Modern Dynamic Blobs */}
         <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-theme2/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
         <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-theme3/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
@@ -367,7 +299,7 @@ export function HeroSection() {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-10"
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-12"
             >
                 <div className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme2 opacity-75"></span>
@@ -380,7 +312,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-6 line-clamp-2"
+                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-8 line-clamp-2"
             >
               <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Homes</span> Made Simple
             </motion.h1>
@@ -389,7 +321,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-14 font-medium"
+                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-16 font-medium"
             >
               Verified owners, direct contact, zero brokerage.
             </motion.p>
@@ -400,15 +332,6 @@ export function HeroSection() {
                 transition={{ delay: 0.3 }}
             >
                 <SearchWidget />
-            </motion.div>
-            
-            <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-12 border-t border-slate-200/60 pt-8 max-w-[950px]"
-            >
-                <HeroStats />
             </motion.div>
         </div>
     </section>
