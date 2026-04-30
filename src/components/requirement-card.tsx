@@ -147,8 +147,8 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 my-5 sm:my-7 bg-slate-50/50 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border border-slate-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl" />
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 my-5 sm:my-7 bg-gradient-to-br from-slate-50 to-slate-100/80 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border border-slate-200/80 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/[0.04] rounded-full -mr-12 -mt-12 blur-2xl" />
           
           <div className="flex flex-col gap-1 sm:gap-1.5 relative z-10">
             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
