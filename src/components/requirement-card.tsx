@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2, ChevronRight, Download } from "lucide-react";
 import { PropertyRequirement } from "@/lib/types";
 import { format, fromUnixTime } from "date-fns";
 import { useRequirementFavorites } from "@/hooks/use-requirement-favorites";
@@ -47,10 +47,54 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
     }
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      toast({
+        title: "Preparing PDF...",
+        description: "Please wait a moment.",
+      });
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      
+      const cardElement = document.getElementById(`requirement-card-${requirement.id}`);
+      if (!cardElement) return;
+
+      // Temporarily hide the action buttons during capture
+      const actionButtons = cardElement.querySelector('.action-buttons');
+      if (actionButtons) (actionButtons as HTMLElement).style.display = 'none';
+
+      const canvas = await html2canvas(cardElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      if (actionButtons) (actionButtons as HTMLElement).style.display = 'flex';
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width / 2, canvas.height / 2]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save(`nestil-requirement-${requirement.name.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+      
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not generate PDF.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-slate-200 rounded-3xl group bg-white relative">
+    <Card id={`requirement-card-${requirement.id}`} className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-slate-200 rounded-3xl group bg-white relative">
       {/* Action Buttons */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+      <div className="action-buttons absolute top-4 right-4 flex flex-col gap-2 z-10">
         <button
           onClick={() => toggleFavorite(requirement.id, isFavorited)}
           className={cn(
@@ -59,14 +103,23 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
               ? "bg-red-50 border-red-100 text-red-500" 
               : "bg-white/80 border-white text-slate-400 hover:text-red-500 hover:bg-white"
           )}
+          title={isFavorited ? "Remove from favorites" : "Add to favorites"}
         >
           <Heart className={cn("w-4 h-4 transition-transform duration-300", isFavorited && "fill-current scale-110")} />
         </button>
         <button
           onClick={handleShare}
           className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
+          title="Share requirement"
         >
           <Share2 className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleDownloadPdf}
+          className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
+          title="Download as PDF"
+        >
+          <Download className="w-4 h-4" />
         </button>
       </div>
 

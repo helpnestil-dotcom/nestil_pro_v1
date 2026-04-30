@@ -53,7 +53,7 @@ export function Footer() {
                     <div className="flex flex-col gap-2 mt-6 border-t border-slate-800 pt-6">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Operating Address</span>
                         <p className="text-xs text-slate-400 leading-relaxed">
-                            Bangalore near doorvani nagar 1st cross 560016
+                            📍 Doorvani Nagar, 1st Cross, Bangalore – 560016, Karnataka, India
                         </p>
                     </div>
                 </div>

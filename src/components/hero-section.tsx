@@ -287,7 +287,7 @@ const SearchWidget = () => {
 
 export function HeroSection() {
   return (
-    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] pt-32 pb-24 overflow-hidden bg-[#F8FAFC]">
+    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] pt-16 pb-16 md:pt-20 md:pb-24 overflow-hidden bg-[#F8FAFC]">
         {/* Modern Dynamic Blobs */}
         <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-theme2/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
         <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-theme3/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
@@ -299,7 +299,7 @@ export function HeroSection() {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-12"
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-6 md:mb-12"
             >
                 <div className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme2 opacity-75"></span>
@@ -312,7 +312,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-8 line-clamp-2"
+                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-4 md:mb-8 line-clamp-2"
             >
               <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Homes</span> Made Simple
             </motion.h1>
@@ -321,7 +321,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-16 font-medium"
+                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-8 md:mb-16 font-medium"
             >
               Verified owners, direct contact, zero brokerage.
             </motion.p>
