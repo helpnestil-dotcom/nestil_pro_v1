@@ -53,7 +53,8 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
         title: "Preparing PDF...",
         description: "Please wait a moment.",
       });
-      const html2canvas = (await import('html2canvas')).default;
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default as any;
       const { jsPDF } = await import('jspdf');
       
       const cardElement = document.getElementById(`requirement-card-${requirement.id}`);
