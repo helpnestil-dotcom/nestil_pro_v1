@@ -7,6 +7,7 @@ import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -599,6 +600,18 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto">
           <div className="text-center">
+            {!editId && (
+              <div className="flex justify-center mb-8">
+                 <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
+                    <Link href="/post-requirement" className="px-6 py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-colors">
+                       Looking for Home
+                    </Link>
+                    <button type="button" className="px-6 py-2.5 text-sm font-black rounded-xl bg-white text-primary shadow-sm ring-1 ring-slate-200/50 cursor-default">
+                       List Your Property
+                    </button>
+                 </div>
+              </div>
+            )}
             <h1 className="text-2xl font-bold font-headline">{editId ? 'Edit Property' : 'Post a New Property'}</h1>
             <p className="text-muted-foreground mt-2">{editId ? 'Update the details of your property.' : 'Fill in the details below to put your property on the market.'}</p>
           </div>

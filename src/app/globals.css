@@ -5,32 +5,32 @@
 @layer base {
   :root {
     --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --foreground: 224 60% 11%;
     
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 224 60% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 224 60% 11%;
     
-    --primary: 350 96% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 349 100% 65%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 224 60% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 20% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 35%;
     
-    --accent: 25 95% 53%;
+    --accent: 251 100% 69%;
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 350 96% 60%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 349 100% 65%;
 
     --radius: 0.5rem;
   }
@@ -81,8 +81,11 @@
 
 @layer utilities {
     .glow-text {
-        @apply bg-gradient-to-r from-primary via-rose-500 to-pink-500 bg-clip-text text-transparent;
-        text-shadow: 0 0 30px hsla(350, 96%, 60%, 0.15);
+        background: linear-gradient(90deg, #FF4D6D, #7B61FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px hsla(349, 100%, 65%, 0.2);
     }
 
     .glass-card {

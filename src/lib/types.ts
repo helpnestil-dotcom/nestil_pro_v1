@@ -122,16 +122,17 @@ export type PropertyRequirement = {
   city: string;
   area: string;
   propertyType: string;
-  purpose: 'Rent' | 'Buy';
+  purpose: 'Rent' | 'Buy' | 'Sale' | 'Lease';
   budget: number;
   moveInDate: string;
   whatsappNumber: string;
   description: string;
   preferences: {
-    furnished?: boolean;
+    furnishing?: 'Furnished' | 'Semi-furnished' | 'Unfurnished';
     parking?: boolean;
     tenantType?: 'Family' | 'Bachelor' | 'Anyone';
   };
+  securityDeposit?: number;
   status: 'active' | 'closed';
   createdAt: Timestamp | string;
 };

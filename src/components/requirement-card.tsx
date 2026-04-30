@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2 } from "lucide-react";
 import { PropertyRequirement } from "@/lib/types";
 import { format, fromUnixTime } from "date-fns";
@@ -118,9 +119,9 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
                   {requirement.preferences.tenantType}
                 </span>
               )}
-              {requirement.preferences?.furnished && (
+              {requirement.preferences?.furnishing && (
                 <span className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl text-[11px] font-black text-slate-600 shadow-sm">
-                  Furnished
+                  {requirement.preferences.furnishing}
                 </span>
               )}
               {requirement.preferences?.parking && (
@@ -140,6 +141,18 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
                     {requirement.budget.toLocaleString('en-IN')}
                 </div>
             </div>
+            {requirement.securityDeposit && (
+              <>
+                <div className="h-10 w-[1px] bg-slate-100" />
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deposit</span>
+                    <div className="text-2xl font-black text-slate-900 flex items-center">
+                        <IndianRupee className="w-5 h-5 text-primary" />
+                        {requirement.securityDeposit.toLocaleString('en-IN')}
+                    </div>
+                </div>
+              </>
+            )}
             <div className="h-10 w-[1px] bg-slate-100" />
             <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Posted</span>
@@ -148,9 +161,29 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
         </div>
 
         {requirement.description && (
-          <p className="text-sm text-slate-500 font-medium mb-8 line-clamp-2 leading-relaxed italic bg-slate-50/30 p-3 rounded-xl border border-slate-50">
-            "{requirement.description}"
-          </p>
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="cursor-pointer mb-8 relative group">
+                <p className="text-sm text-slate-500 font-medium line-clamp-2 leading-relaxed italic bg-slate-50/30 p-3 rounded-xl border border-slate-50 group-hover:border-primary/20 transition-colors">
+                  "{requirement.description}"
+                </p>
+                <div className="absolute bottom-2 right-3 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  Read more
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Requirement Details</DialogTitle>
+                <DialogDescription>
+                  Additional details provided by the seeker.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="p-4 bg-slate-50 rounded-xl text-sm text-slate-700 leading-relaxed italic border border-slate-100">
+                "{requirement.description}"
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
 
         <Button 

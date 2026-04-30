@@ -355,10 +355,10 @@ const HeroStats = () => {
 
 export function HeroSection() {
   return (
-    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] py-24 overflow-hidden bg-[#fafbfc]">
+    <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] py-24 overflow-hidden bg-[#F8FAFC]">
         {/* Modern Dynamic Blobs */}
-        <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-primary/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
-        <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-blue-400/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
+        <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-theme2/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
+        <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-theme3/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
 
         {/* High-end Pattern Overlay */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"></div>
@@ -367,11 +367,11 @@ export function HeroSection() {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-slate-800 mb-10"
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-10"
             >
                 <div className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme2 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-theme2"></span>
                 </div>
                 Premium Real Estate Network
             </motion.div>
@@ -380,18 +380,18 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-black text-6xl md:text-7xl lg:text-[84px] leading-[0.95] tracking-[-0.04em] max-w-5xl text-slate-900 mb-8"
+                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-6 line-clamp-2"
             >
-              Find Your <span className="bg-gradient-to-r from-primary via-rose-500 to-indigo-600 bg-clip-text text-transparent">Perfect Space</span> <br className="hidden md:block" /> Without the Noise.
+              <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Homes</span> Made Simple
             </motion.h1>
             
             <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-xl md:text-2xl text-slate-500 max-w-3xl leading-relaxed mb-16 font-medium"
+                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-14 font-medium"
             >
-              Verified listings, direct owner contacts, and zero brokerage. Experience the most innovative property search in India.
+              Verified owners, direct contact, zero brokerage.
             </motion.p>
 
             <motion.div 

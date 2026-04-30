@@ -4,15 +4,15 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['300','400','500','600','700','800','900'],
   variable: '--font-body',
 });
 
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#3B82F6',
+  themeColor: '#0B132B',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -46,7 +46,7 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          jakarta.variable,
+          inter.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary"
         )}
       >

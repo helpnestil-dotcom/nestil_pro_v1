@@ -64,8 +64,8 @@ function DemandFeedContent() {
         {/* Purpose Toggle */}
         <div className="space-y-3">
             <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Looking To</Label>
-            <div className="flex p-1 bg-slate-100 rounded-2xl gap-1">
-                {['All', 'Rent', 'Buy'].map((type) => (
+            <div className="flex p-1 bg-slate-100 rounded-2xl gap-1 flex-wrap">
+                {['All', 'Rent', 'Sale', 'Lease', 'Buy'].map((type) => (
                     <button
                         key={type}
                         onClick={() => setPurpose(type)}

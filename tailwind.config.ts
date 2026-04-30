@@ -18,12 +18,16 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
-        body: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
-        headline: ['var(--font-body)', '"Plus Jakarta Sans"', 'sans-serif'],
+        sans: ['var(--font-body)', '"Inter"', 'sans-serif'],
+        body: ['var(--font-body)', '"Inter"', 'sans-serif'],
+        headline: ['var(--font-body)', '"Inter"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
+        theme1: '#0B132B',
+        theme2: '#FF4D6D',
+        theme3: '#7B61FF',
+        theme4: '#F8FAFC',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

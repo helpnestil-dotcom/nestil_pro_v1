@@ -127,8 +127,20 @@ export default function AdminRequirementsPage() {
                         <span>{req.propertyType}</span>
                       </div>
                       <div className="text-sm text-slate-600 mt-1">{req.area}, {req.city}</div>
-                      <div className="inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 text-xs font-bold border border-orange-100">
-                        Budget: ₹{req.budget.toLocaleString()}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
+                          Budget: ₹{req.budget.toLocaleString()}
+                        </div>
+                        {req.securityDeposit && (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
+                            Deposit: ₹{req.securityDeposit.toLocaleString()}
+                          </div>
+                        )}
+                        {req.preferences?.furnishing && req.preferences.furnishing !== 'Unfurnished' && (
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 text-xs font-bold border border-purple-100">
+                            {req.preferences.furnishing}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="py-4">
