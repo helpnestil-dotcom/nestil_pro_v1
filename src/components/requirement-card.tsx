@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2, ChevronRight, Download } from "lucide-react";
+import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2, ChevronRight, Download, PhoneCall } from "lucide-react";
 import { PropertyRequirement } from "@/lib/types";
 import { format, fromUnixTime } from "date-fns";
 import { useRequirementFavorites } from "@/hooks/use-requirement-favorites";
@@ -240,13 +240,22 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
           </Dialog>
         )}
 
-        <Button 
-          className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20 bg-[#25D366] hover:bg-[#1ebd5b] text-white border-0 text-sm sm:text-base"
-          onClick={() => window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank')}
-        >
-          <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
-          Contact via WhatsApp
-        </Button>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <Button 
+            className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20 bg-[#25D366] hover:bg-[#1ebd5b] text-white border-0 text-sm sm:text-base"
+            onClick={() => window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank')}
+          >
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
+            WhatsApp
+          </Button>
+          <Button 
+            className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white border-0 text-sm sm:text-base"
+            onClick={() => window.open(`tel:+91${requirement.whatsappNumber}`, '_self')}
+          >
+            <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
+            Call Now
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
