@@ -19,6 +19,7 @@ import { LoaderCircle, Sparkles, Send } from 'lucide-react';
 import { locationData as staticLocationData } from '@/lib/locations';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const requirementSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -248,18 +249,25 @@ export default function PostRequirementPage() {
               <div className="space-y-4 pt-4">
                 <h3 className="text-lg font-black text-slate-900 border-b pb-2">Preferences</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <Label className="font-bold text-slate-700">Furnishing</Label>
-                        <Select onValueChange={(val) => form.setValue('furnishing', val as any)} defaultValue={form.getValues('furnishing')}>
-                            <SelectTrigger className="h-[54px] rounded-xl bg-slate-50 border-slate-200">
-                                <SelectValue placeholder="Any" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Furnished">Furnished</SelectItem>
-                                <SelectItem value="Semi-furnished">Semi-furnished</SelectItem>
-                                <SelectItem value="Unfurnished">Unfurnished</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-3">
+                        <Label className="font-bold text-slate-700">Furnishing Preference</Label>
+                        <div className="flex flex-wrap gap-2">
+                            {['Any', 'Furnished', 'Semi-furnished', 'Unfurnished'].map((type) => (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => form.setValue('furnishing', type === 'Any' ? undefined : type as any)}
+                                    className={cn(
+                                        "px-4 py-2.5 rounded-xl border-2 transition-all duration-200 text-sm font-bold",
+                                        (type === 'Any' ? !form.watch('furnishing') : form.watch('furnishing') === type)
+                                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                                            : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
+                                    )}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                     <div className="flex items-center justify-between p-4 border rounded-xl bg-slate-50">
                         <Label className="font-bold text-slate-700 cursor-pointer" htmlFor="parking">Needs Parking</Label>
@@ -291,7 +299,7 @@ export default function PostRequirementPage() {
                         {form.formState.errors.name && <p className="text-red-500 text-xs">{form.formState.errors.name.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <Label className="font-bold text-slate-700">WhatsApp Number</Label>
+                        <Label className="font-bold text-slate-700">Phone / WhatsApp Number</Label>
                         <div className="flex">
                             <div className="h-12 px-3 flex items-center justify-center bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl font-bold text-slate-500">+91</div>
                             <Input {...form.register('whatsappNumber')} placeholder="9876543210" className="h-12 rounded-r-xl rounded-l-none bg-slate-50 border-slate-200 flex-1" />
