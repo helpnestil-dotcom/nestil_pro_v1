@@ -13,6 +13,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { sendAdminNotification } from '@/lib/email';
 
 export default function ShiftHomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +54,20 @@ export default function ShiftHomePage() {
         createdAt: serverTimestamp(),
         status: 'pending'
       });
+
+      // Send Email Notification to Admin
+      try {
+        await sendAdminNotification({
+          type: 'Home Shifting Request',
+          userName: formData.name,
+          userPhone: formData.phone,
+          location: `From: ${formData.source} To: ${formData.destination}`,
+          details: `Vehicle: ${formData.vehicleType}, Labours: ${formData.labourCount}, Packing: ${formData.requiresPacking}, Unpacking: ${formData.requiresUnpacking}, Details: ${formData.details}`,
+        });
+      } catch (emailError) {
+        console.error('Email notification failed but request was saved:', emailError);
+      }
+
       setIsSuccess(true);
       toast.success('Request submitted successfully! Our team will contact you soon.');
     } catch (error) {

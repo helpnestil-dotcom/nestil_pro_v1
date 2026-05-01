@@ -20,6 +20,7 @@ import { locationData as staticLocationData } from '@/lib/locations';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { sendAdminNotification } from '@/lib/email';
 
 const requirementSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -99,15 +100,29 @@ export default function PostRequirementPage() {
           tenantType: values.tenantType,
         },
         ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
-        status: 'active',
+        status: 'pending',
         createdAt: serverTimestamp(),
       };
 
       await addDoc(collection(firestore, 'property_requirements'), docData);
       
+      // Send Email Notification to Admin
+      try {
+        await sendAdminNotification({
+          type: 'Property Requirement',
+          userName: values.name,
+          userPhone: values.whatsappNumber,
+          location: `${values.area}, ${values.city}, ${values.state}`,
+          budget: `₹${values.budget}`,
+          details: values.description || 'No additional details provided.',
+        });
+      } catch (emailError) {
+        console.error('Email notification failed but post was saved:', emailError);
+      }
+      
       toast({
-        title: 'Requirement Posted! 🎉',
-        description: 'Owners and agents will contact you directly on WhatsApp.',
+        title: 'Requirement Submitted! 🎉',
+        description: 'Your requirement is under review. Owners and agents will contact you soon.',
       });
       
       router.push('/requirements');

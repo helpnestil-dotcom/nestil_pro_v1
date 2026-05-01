@@ -58,10 +58,16 @@ export default function AdminRequirementsPage() {
   const toggleStatus = async (id: string, currentStatus: string) => {
     if (!firestore) return;
     setProcessingId(id);
+    setProcessingId(id);
     try {
-      const newStatus = currentStatus === 'active' ? 'closed' : 'active';
+      let newStatus;
+      if (currentStatus === 'pending' || currentStatus === 'closed') {
+        newStatus = 'active';
+      } else {
+        newStatus = 'closed';
+      }
       await updateDoc(doc(firestore, 'property_requirements', id), { status: newStatus });
-      toast({ title: `Status changed to ${newStatus}` });
+      toast({ title: `Requirement is now ${newStatus}` });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error', description: 'Could not update status.' });
     } finally {
@@ -144,7 +150,11 @@ export default function AdminRequirementsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="py-4">
-                       <Badge variant="outline" className={req.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}>
+                       <Badge variant="outline" className={
+                         req.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                         req.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                         'bg-slate-100 text-slate-600 border-slate-200'
+                       }>
                           {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                        </Badge>
                     </TableCell>
@@ -155,7 +165,7 @@ export default function AdminRequirementsPage() {
                         disabled={processingId === req.id}
                         onClick={() => toggleStatus(req.id, req.status)}
                         className={`h-8 w-8 ${req.status === 'active' ? 'hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200' : 'hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'}`}
-                        title={req.status === 'active' ? 'Close Requirement' : 'Activate Requirement'}
+                        title={req.status === 'active' ? 'Close Requirement' : 'Approve/Activate Requirement'}
                       >
                         {processingId === req.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : (req.status === 'active' ? <XCircle className="h-4 w-4 text-orange-500" /> : <CheckCircle className="h-4 w-4 text-emerald-500" />)}
                       </Button>

@@ -53,6 +53,7 @@ import { collection, serverTimestamp, doc, getDoc, updateDoc, setDoc } from 'fir
 import { useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
 import { locationData } from '@/lib/locations';
+import { sendAdminNotification } from '@/lib/email';
 
 const amenitiesList = [
   'Balcony', 'Borewell Water', 'Car Parking', 'CCTV', 'Electricity', 'Gated Community', 
@@ -567,6 +568,20 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
             await setDoc(newPropRef, { ...propertyData, id: newPropRef.id });
             const privateRef = doc(firestore, 'propertyPrivateDetails', newPropRef.id);
             await setDoc(privateRef, privateDocData);
+
+            // Send Email Notification to Admin
+            try {
+              await sendAdminNotification({
+                type: 'Property Listing',
+                userName: values.ownerName,
+                userPhone: values.mobile,
+                location: `${values.locality}, ${values.city}, ${values.state}`,
+                budget: `₹${values.price}`,
+                details: values.description,
+              });
+            } catch (emailError) {
+              console.error('Email notification failed but post was saved:', emailError);
+            }
         }
         toast({ title: editId ? "Update Successful!" : "Submission Successful!", description: "Your property has been submitted for review. Please allow up to 60 minutes for it to be approved and visible on the site."});
         form.reset();

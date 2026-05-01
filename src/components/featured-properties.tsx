@@ -22,8 +22,9 @@ async function getFeaturedProperties(): Promise<Property[]> {
       return {
           id: doc.id,
           ...data,
-          postedAt: data.postedAt.toDate().toISOString(),
-          updatedAt: data.updatedAt.toDate().toISOString(),
+          postedAt: data.postedAt?.toDate().toISOString() || null,
+          updatedAt: data.updatedAt?.toDate().toISOString() || null,
+          adExpiry: data.adExpiry?.toDate().toISOString() || null,
       } as Property;
   });
 
