@@ -133,6 +133,6 @@ export type PropertyRequirement = {
     tenantType?: 'Family' | 'Bachelor' | 'Anyone';
   };
   securityDeposit?: number;
-  status: 'active' | 'closed';
+  status: 'active' | 'closed' | 'pending';
   createdAt: Timestamp | string;
 };
