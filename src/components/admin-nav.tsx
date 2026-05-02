@@ -25,6 +25,7 @@ export function AdminNav() {
     { href: '/admin/shifting-requests', label: 'Shifting Requests', icon: Truck },
     { href: '/admin/shifting-workers', label: 'Shifting Workers', icon: Briefcase },
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/admin/requirements', label: 'Demand Feed', icon: List },
     { href: '/admin/agents', label: 'Agents', icon: User },
     { href: '/admin/builders', label: 'Builders', icon: Shield },
   ];
