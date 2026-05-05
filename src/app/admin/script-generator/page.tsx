@@ -21,7 +21,8 @@ import {
   CheckCircle2, 
   ArrowRight,
   Copy,
-  Plus
+  Plus,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
@@ -29,7 +30,7 @@ import { cn } from '@/lib/utils';
 
 // --- Types ---
 
-type TemplateId = 'low_visibility' | 'intro_call' | 'followup' | 'feature_promo' | 'expired_listing' | 'competitor_switch';
+type TemplateId = 'low_visibility' | 'intro_call' | 'followup' | 'feature_promo' | 'expired_listing' | 'competitor_switch' | 'flatmate_intro' | 'flatmate_vibe' | 'flatmate_urgent';
 
 type Template = {
   id: TemplateId;
@@ -65,6 +66,12 @@ const TEMPLATES: Template[] = [
   { id: 'competitor_switch', icon: ArrowRight, title: 'Switch to Nestil', badge: 'SWITCH', desc: 'Convince owners on competitors to move to Nestil.', color: 'text-blue-500 bg-blue-50' },
 ];
 
+const FLATMATE_TEMPLATES: Template[] = [
+  { id: 'flatmate_intro', icon: Users, title: 'Flatmate Intro', badge: 'MATCH', desc: 'First contact for a potential flatmate match.', color: 'text-pink-500 bg-pink-50' },
+  { id: 'flatmate_vibe', icon: Sparkles, title: 'Vibe Check', badge: 'VIBE', desc: 'Detailed intro about lifestyle and expectations.', color: 'text-purple-500 bg-purple-50' },
+  { id: 'flatmate_urgent', icon: Zap, title: 'Urgent Move-In', badge: 'URGENT', desc: 'Fast-track communication for immediate needs.', color: 'text-amber-500 bg-amber-50' },
+];
+
 const TONES = ['Professional', 'Friendly', 'Urgent'];
 const LANGUAGES = [
   { id: 'english', label: '🇬🇧 English' },
@@ -83,6 +90,7 @@ export default function ScriptGeneratorPage() {
   const [agentName, setAgentName] = useState('');
   const [platform, setPlatform] = useState('');
   const [propType, setPropType] = useState('property');
+  const [outreachType, setOutreachType] = useState<'property' | 'flatmate'>('property');
   const [propLocation, setPropLocation] = useState('');
   const [contactNum, setContactNum] = useState('');
   const [generatedMsg, setGeneratedMsg] = useState('');
@@ -114,10 +122,21 @@ export default function ScriptGeneratorPage() {
     const sign = `\n\nRegards,\n${agentName || 'Team Nestil'}${contactNum ? `\n📞 ${contactNum}` : ''}`;
 
     let msg = '';
-    if (selectedTmpl === 'low_visibility') {
-      msg = `${nameStr}\n\nWe recently noticed your ${propType} advertisement on ${platStr}${locStr}. It's a great step to list online!\n\nHowever, listings on ${platStr} often receive limited visibility — meaning genuine buyers may never find yours.\n\nAt **Nestil**, we offer:\n✅ High search visibility & priority placement\n✅ Direct buyer contact — zero middlemen\n✅ Verified, serious inquiries only\n✅ Real-time analytics on your listing\n\nWe'd love to feature your ${propType}${locStr} on Nestil.${sign}`;
+    
+    if (outreachType === 'flatmate') {
+      if (selectedTmpl === 'flatmate_intro') {
+        msg = `${nameStr}\n\nI saw your post looking for a flatmate${locStr}. I'm also looking for a place and thought we might be a good match!\n\nI'm using **Nestil** to find compatible flatmates based on lifestyle and habits. Would you be open to a quick chat to see if our vibes match?${sign}`;
+      } else if (selectedTmpl === 'flatmate_vibe') {
+        msg = `${nameStr}\n\nHey! I'm interested in the flatmate opening${locStr}. A bit about me: I'm a professional, value cleanliness, and respect privacy but also enjoy an occasional weekend hangout.\n\nI found your profile on Nestil and liked the lifestyle preferences you mentioned. Let me know if you'd like to connect!${sign}`;
+      } else {
+        msg = `${nameStr}\n\nI'm looking for a flatmate${locStr} urgently and your profile looks like a great fit! I'm ready to move in as soon as possible. Can we discuss the details today?${sign}`;
+      }
     } else {
-      msg = `${nameStr}\n\nWelcome to **Nestil**! 🎉\n\nYour ${propType}${locStr} deserves the spotlight — zero middlemen, real buyers, faster results. Ready to get started?${sign}`;
+      if (selectedTmpl === 'low_visibility') {
+        msg = `${nameStr}\n\nWe recently noticed your ${propType} advertisement on ${platStr}${locStr}. It's a great step to list online!\n\nHowever, listings on ${platStr} often receive limited visibility — meaning genuine buyers may never find yours.\n\nAt **Nestil**, we offer:\n✅ High search visibility & priority placement\n✅ Direct buyer contact — zero middlemen\n✅ Verified, serious inquiries only\n✅ Real-time analytics on your listing\n\nWe'd love to feature your ${propType}${locStr} on Nestil.${sign}`;
+      } else {
+        msg = `${nameStr}\n\nWelcome to **Nestil**! 🎉\n\nYour ${propType}${locStr} deserves the spotlight — zero middlemen, real buyers, faster results. Ready to get started?${sign}`;
+      }
     }
 
     setGeneratedMsg(msg);
@@ -133,7 +152,7 @@ export default function ScriptGeneratorPage() {
       propType: propType || '—',
       location: propLocation || '—',
       contact: contactNum || '—',
-      template: TEMPLATES.find(t => t.id === selectedTmpl)?.title || '',
+      template: (outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).find(t => t.id === selectedTmpl)?.title || 'Custom',
       language: LANGUAGES.find(l => l.id === lang)?.label || '',
       tone,
       message: generatedMsg,
@@ -296,35 +315,55 @@ export default function ScriptGeneratorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Template Sidebar */}
-            <div className="lg:col-span-4 space-y-3">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Choose Template</h3>
-              {TEMPLATES.map((tmpl) => {
-                const Icon = tmpl.icon;
-                const isActive = selectedTmpl === tmpl.id;
-                return (
-                  <button
-                    key={tmpl.id}
-                    onClick={() => setSelectedTmpl(tmpl.id)}
-                    className={cn(
-                      "w-full flex items-start gap-4 p-4 rounded-2xl text-left transition-all duration-200 border",
-                      isActive 
-                        ? "bg-white border-primary shadow-xl shadow-primary/5 scale-[1.02] ring-1 ring-primary/20" 
-                        : "bg-slate-50 border-transparent hover:bg-white hover:border-slate-200"
-                    )}
-                  >
-                    <div className={cn("p-3 rounded-xl shrink-0", tmpl.color)}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{tmpl.title}</span>
-                        <Badge variant="outline" className="text-[9px] font-black tracking-widest px-1.5 py-0 border-slate-200">{tmpl.badge}</Badge>
+            <div className="lg:col-span-4 space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Mode</h3>
+                <div className="flex gap-2 p-1 bg-slate-100 rounded-2xl">
+                   <button 
+                    onClick={() => { setOutreachType('property'); setSelectedTmpl('low_visibility'); }}
+                    className={cn("flex-1 py-2 rounded-xl text-xs font-black transition-all", outreachType === 'property' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                   >
+                     Property Owner
+                   </button>
+                   <button 
+                    onClick={() => { setOutreachType('flatmate'); setSelectedTmpl('flatmate_intro'); }}
+                    className={cn("flex-1 py-2 rounded-xl text-xs font-black transition-all", outreachType === 'flatmate' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                   >
+                     Flatmate
+                   </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] px-1">Choose Template</h3>
+                {(outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).map((tmpl) => {
+                  const Icon = tmpl.icon;
+                  const isActive = selectedTmpl === tmpl.id;
+                  return (
+                    <button
+                      key={tmpl.id}
+                      onClick={() => setSelectedTmpl(tmpl.id)}
+                      className={cn(
+                        "w-full flex items-start gap-4 p-4 rounded-2xl text-left transition-all duration-200 border",
+                        isActive 
+                          ? "bg-white border-primary shadow-xl shadow-primary/5 scale-[1.02] ring-1 ring-primary/20" 
+                          : "bg-slate-50 border-transparent hover:bg-white hover:border-slate-200"
+                      )}
+                    >
+                      <div className={cn("p-3 rounded-xl shrink-0", tmpl.color)}>
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">{tmpl.desc}</p>
-                    </div>
-                  </button>
-                );
-              })}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900">{tmpl.title}</span>
+                          <Badge variant="outline" className="text-[9px] font-black tracking-widest px-1.5 py-0 border-slate-200">{tmpl.badge}</Badge>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-1">{tmpl.desc}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Generator Form & Output */}
@@ -333,43 +372,47 @@ export default function ScriptGeneratorPage() {
                 <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                    <div className="flex items-center justify-between">
                      <div className="flex items-center gap-3">
-                        <div className={cn("p-2 rounded-lg", TEMPLATES.find(t=>t.id===selectedTmpl)?.color)}>
-                           {TEMPLATES.find(t=>t.id===selectedTmpl)?.icon && (() => {
-                             const Icon = TEMPLATES.find(t=>t.id===selectedTmpl)!.icon;
+                        <div className={cn("p-2 rounded-lg", (outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).find(t=>t.id===selectedTmpl)?.color)}>
+                           {(() => {
+                             const tmpl = (outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).find(t=>t.id===selectedTmpl);
+                             if (!tmpl) return null;
+                             const Icon = tmpl.icon;
                              return <Icon className="h-4 w-4" />;
                            })()}
                         </div>
-                        <CardTitle className="text-base font-black tracking-tight">{TEMPLATES.find(t=>t.id===selectedTmpl)?.title}</CardTitle>
+                        <CardTitle className="text-base font-black tracking-tight">{(outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).find(t=>t.id===selectedTmpl)?.title}</CardTitle>
                      </div>
-                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-none font-black">{TEMPLATES.find(t=>t.id===selectedTmpl)?.badge}</Badge>
+                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-none font-black">{(outreachType === 'property' ? TEMPLATES : FLATMATE_TEMPLATES).find(t=>t.id===selectedTmpl)?.badge}</Badge>
                    </div>
                 </CardHeader>
                 <CardContent className="p-8">
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Owner Name</Label>
-                        <Input placeholder="e.g. Ramesh Garu" value={ownerName} onChange={e=>setOwnerName(e.target.value)} />
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{outreachType === 'property' ? 'Owner Name' : 'Flatmate Name'}</Label>
+                        <Input placeholder={outreachType === 'property' ? "e.g. Ramesh Garu" : "e.g. Rahul"} value={ownerName} onChange={e=>setOwnerName(e.target.value)} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Agent Name</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Name</Label>
                         <Input placeholder="e.g. Priya, Nestil" value={agentName} onChange={e=>setAgentName(e.target.value)} />
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Seen On Platform</Label>
-                        <Select value={platform} onValueChange={setPlatform}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Platform" />
-                          </SelectTrigger>
-                          <SelectContent>
-                             <SelectItem value="MagicBricks">MagicBricks</SelectItem>
-                             <SelectItem value="99acres">99acres</SelectItem>
-                             <SelectItem value="NoBroker">NoBroker</SelectItem>
-                             <SelectItem value="Facebook">Facebook</SelectItem>
-                             <SelectItem value="OLX">OLX</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
+                      {outreachType === 'property' && (
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Seen On Platform</Label>
+                          <Select value={platform} onValueChange={setPlatform}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Platform" />
+                            </SelectTrigger>
+                            <SelectContent>
+                               <SelectItem value="MagicBricks">MagicBricks</SelectItem>
+                               <SelectItem value="99acres">99acres</SelectItem>
+                               <SelectItem value="NoBroker">NoBroker</SelectItem>
+                               <SelectItem value="Facebook">Facebook</SelectItem>
+                               <SelectItem value="OLX">OLX</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      <div className={cn("space-y-2", outreachType === 'flatmate' ? "md:col-span-1" : "")}>
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Location</Label>
                         <Input placeholder="e.g. Gachibowli, Hyd" value={propLocation} onChange={e=>setPropLocation(e.target.value)} />
                       </div>
