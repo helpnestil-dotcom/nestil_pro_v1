@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 export default function MobileDashboard() {
   const { user, profile, isLoading: isProfileLoading } = useUserProfile();
   const firestore = useFirestore();
+  const isAdmin = user?.email === 'helpnestil@gmail.com';
 
   const myPropertiesQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -152,6 +153,25 @@ export default function MobileDashboard() {
              <NotificationToggle />
           </div>
           
+          </div>
+          
+          {isAdmin && (
+            <div className="border-t border-slate-100 pt-4 mt-2">
+              <Link href="/admin">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between h-12 rounded-xl text-indigo-600 font-black bg-indigo-50 border-none hover:bg-indigo-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4" />
+                    Go to Admin Console
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-indigo-400" />
+                </Button>
+              </Link>
+            </div>
+          )}
+
           <div className="border-t border-slate-100 pt-4 mt-2">
             <Button 
               variant="outline" 

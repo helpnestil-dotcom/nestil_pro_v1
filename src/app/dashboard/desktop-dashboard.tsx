@@ -17,6 +17,7 @@ import { toast } from "sonner";
 export default function DashboardPage() {
   const { user, profile, isLoading: isProfileLoading } = useUserProfile();
   const firestore = useFirestore();
+  const isAdmin = user?.email === 'helpnestil@gmail.com';
 
   // Get user's properties count
   const myPropertiesQuery = useMemoFirebase(() => {
@@ -142,9 +143,23 @@ export default function DashboardPage() {
               >
                 Send Test Notification
               </Button>
-
             </CardContent>
           </Card>
+
+          {isAdmin && (
+            <Card className="bg-indigo-50 border-indigo-200">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-bold text-indigo-600 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4" /> Admin Controls
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all">
+                  <Link href="/admin">Go to Admin Console</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 

@@ -84,28 +84,26 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        {isAdmin ? (
-          <DropdownMenuItem asChild className="cursor-pointer">
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard">
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/dashboard/profile">
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </Link>
+        </DropdownMenuItem>
+
+        {isAdmin && (
+          <DropdownMenuItem asChild className="cursor-pointer text-indigo-600 focus:text-indigo-700 focus:bg-indigo-50">
             <Link href="/admin">
               <Shield className="mr-2 h-4 w-4" />
               <span>Admin Panel</span>
             </Link>
           </DropdownMenuItem>
-        ) : (
-          <>
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href="/dashboard">
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href="/dashboard/profile">
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-          </>
         )}
 
         <DropdownMenuSeparator />
