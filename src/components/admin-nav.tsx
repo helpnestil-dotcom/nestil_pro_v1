@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { User, LogOut, LayoutGrid, List, MessageSquare, Shield, Truck, Briefcase } from 'lucide-react';
+import { User, LogOut, LayoutGrid, List, MessageSquare, Shield, Truck, Briefcase, Zap } from 'lucide-react';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,7 @@ export function AdminNav() {
     { href: '/admin/requirements', label: 'Demand Feed', icon: List },
     { href: '/admin/agents', label: 'Agents', icon: User },
     { href: '/admin/builders', label: 'Builders', icon: Shield },
+    { href: '/admin/script-generator', label: 'Script Generator', icon: Zap },
   ];
 
   return (
