@@ -48,6 +48,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://res.cloudinary.com" />
       </head>
       <body
+        suppressHydrationWarning
         className={cn(
           inter.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary"
