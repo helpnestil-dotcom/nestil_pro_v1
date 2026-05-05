@@ -32,6 +32,12 @@ export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Do not show header on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
+
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/properties', label: 'Properties', icon: Building2 },

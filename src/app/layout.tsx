@@ -4,7 +4,7 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
@@ -15,6 +15,14 @@ const inter = Inter({
   weight: ['300','400','500','600','700','800','900'],
   variable: '--font-body',
 });
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['300','400','500','600','700','800','900'],
+  variable: '--font-heading',
+});
+
 
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in India',
@@ -47,6 +55,7 @@ export default function RootLayout({
       <body
         className={cn(
           inter.variable,
+          outfit.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary"
         )}
       >

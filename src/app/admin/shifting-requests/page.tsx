@@ -70,85 +70,126 @@ export default function AdminShiftingRequestsPage() {
   if (loading) return <div className="flex justify-center p-12"><LoaderCircle className="animate-spin text-primary h-8 w-8" /></div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Truck className="h-6 w-6 text-indigo-600" /> Shifting Requests
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+             <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200">
+               <Truck className="h-6 w-6 text-white" /> 
+             </div>
+             Shifting Requests
           </h1>
-          <p className="text-muted-foreground">Manage customer queries for Home Shifting.</p>
+          <p className="text-slate-500 font-medium mt-1">Manage customer queries for Home Shifting services.</p>
+        </div>
+        <div className="flex items-center gap-2">
+           <Badge variant="outline" className="bg-white text-slate-900 border-slate-200 font-bold px-4 py-1.5 rounded-xl shadow-sm">
+             {requests.length} Total Requests
+           </Badge>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer Requests</CardTitle>
-          <CardDescription>A list of all incoming shifting inquiries.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Route</TableHead>
-                <TableHead>Vehicle & Workers</TableHead>
-                <TableHead>Date & Services</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests.map(request => (
-                <TableRow key={request.id}>
-                  <TableCell>
-                    <div className="font-medium">{request.name}</div>
-                    <div className="text-sm text-muted-foreground">{request.phone}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm"><strong>From:</strong> {request.source}</div>
-                    <div className="text-sm"><strong>To:</strong> {request.destination}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm capitalize">{request.vehicleType?.replace('_', ' ')}</div>
-                    <div className="text-xs text-muted-foreground">Labours: {request.labourCount}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{request.date}</div>
-                    <div className="text-xs text-muted-foreground">
-                        {request.requiresPacking && 'Packing, '}
-                        {request.requiresUnpacking && 'Unpacking'}
-                        {!request.requiresPacking && !request.requiresUnpacking && 'Transport Only'}
+      <div className="grid gap-6">
+        {requests.map(request => (
+          <Card key={request.id} className="border-none shadow-xl shadow-slate-200/50 overflow-hidden group hover:scale-[1.01] transition-all duration-300">
+            <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-100">
+              {/* Customer Info */}
+              <div className="p-6 md:w-1/4 bg-slate-50/50">
+                <div className="flex items-center gap-3 mb-4">
+                   <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black">
+                     {request.name.charAt(0)}
+                   </div>
+                   <div>
+                      <h3 className="font-black text-slate-900 truncate">{request.name}</h3>
+                      <p className="text-xs text-slate-500 font-bold">{request.phone}</p>
+                   </div>
+                </div>
+                <div className="space-y-2">
+                   <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-bold uppercase tracking-widest">Status</span>
+                      {getStatusBadge(request.status)}
+                   </div>
+                   <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-bold uppercase tracking-widest">Vehicle</span>
+                      <span className="font-black text-slate-700 capitalize">{request.vehicleType?.replace(/_/g, ' ')}</span>
+                   </div>
+                </div>
+              </div>
+
+              {/* Route & Details */}
+              <div className="p-6 flex-1 bg-white relative">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-6">
+                    <div className="space-y-3">
+                       <div className="relative pl-6">
+                          <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full bg-emerald-500" />
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pick Up</p>
+                          <p className="text-sm font-bold text-slate-700">{request.source}</p>
+                       </div>
+                       <div className="relative pl-6">
+                          <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full bg-rose-500" />
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Destination</p>
+                          <p className="text-sm font-bold text-slate-700">{request.destination}</p>
+                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                     {getStatusBadge(request.status)}
-                  </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    {request.status === 'pending' && (
-                        <>
-                            <Button variant="ghost" size="icon" className="text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => handleUpdateStatus(request.id, 'approved')} title="Approve & Quote Sent">
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleUpdateStatus(request.id, 'rejected')} title="Reject">
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                        </>
-                    )}
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600" onClick={() => handleDelete(request.id)} title="Delete Request">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {requests.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24">No shifting requests found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    <div className="space-y-3">
+                       <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Date & Workers</p>
+                          <p className="text-sm font-bold text-slate-700">{request.date} • {request.labourCount} Labours</p>
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Additional Services</p>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                             {request.requiresPacking && <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-[10px] border-blue-100">Packing</Badge>}
+                             {request.requiresUnpacking && <Badge variant="secondary" className="bg-violet-50 text-violet-600 text-[10px] border-violet-100">Unpacking</Badge>}
+                             {!request.requiresPacking && !request.requiresUnpacking && <Badge variant="outline" className="text-[10px]">Basic Transport</Badge>}
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {request.details && (
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Customer Details</p>
+                       <p className="text-sm text-slate-600 font-medium italic">"{request.details}"</p>
+                    </div>
+                 )}
+              </div>
+
+              {/* Actions */}
+              <div className="p-6 md:w-1/5 bg-slate-50/30 flex flex-col justify-center gap-3">
+                {request.status === 'pending' ? (
+                    <>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 shadow-lg shadow-emerald-100 transition-all" onClick={() => handleUpdateStatus(request.id, 'approved')}>
+                          <CheckCircle className="h-4 w-4 mr-2" /> Approve
+                        </Button>
+                        <Button variant="outline" className="w-full border-rose-200 text-rose-600 hover:bg-rose-50 font-bold rounded-xl h-11 transition-all" onClick={() => handleUpdateStatus(request.id, 'rejected')}>
+                          <XCircle className="h-4 w-4 mr-2" /> Reject
+                        </Button>
+                    </>
+                ) : (
+                    <div className="text-center py-4">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Final Action</p>
+                       <p className="text-sm font-bold text-slate-700 capitalize mt-1">{request.status}</p>
+                    </div>
+                )}
+                <Button variant="ghost" className="w-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 font-bold rounded-xl h-10 mt-auto" onClick={() => handleDelete(request.id)}>
+                   <Trash2 className="h-4 w-4 mr-2" /> Remove
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+        
+        {requests.length === 0 && (
+          <div className="bg-white rounded-3xl p-20 text-center shadow-xl shadow-slate-100 border-2 border-dashed border-slate-100">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Truck className="h-10 w-10 text-slate-200" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900">No requests yet</h3>
+            <p className="text-slate-500 mt-2 font-medium">When customers inquire about shifting, they will appear here.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+

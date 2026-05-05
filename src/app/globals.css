@@ -33,6 +33,9 @@
     --ring: 349 100% 65%;
 
     --radius: 0.5rem;
+
+    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Outfit', sans-serif;
   }
 
   .dark {

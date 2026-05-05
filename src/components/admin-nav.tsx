@@ -7,6 +7,8 @@ import { User, LogOut, LayoutGrid, List, MessageSquare, Shield, Truck, Briefcase
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -31,24 +33,47 @@ export function AdminNav() {
   ];
 
   return (
-    <nav className="flex flex-col gap-2">
-       {links.map((link) => (
-         <Button
-          key={link.href}
-          variant={pathname === link.href ? 'secondary' : 'ghost'}
-          className="justify-start"
-          asChild
-        >
-          <Link href={link.href}>
-            <link.icon className="mr-2 h-4 w-4" />
-            {link.label}
-          </Link>
-        </Button>
-       ))}
-      <Button variant="ghost" className="justify-start" onClick={handleLogout}>
-        <LogOut className="mr-2 h-4 w-4" />
-        Logout
-      </Button>
+    <nav className="flex flex-col gap-1.5">
+       {links.map((link) => {
+         const isActive = pathname === link.href;
+         const Icon = link.icon;
+         
+         return (
+           <Link 
+             key={link.href} 
+             href={link.href}
+             className={cn(
+               "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group",
+               isActive 
+                ? "bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]" 
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+             )}
+           >
+             <Icon className={cn(
+               "h-4 w-4 transition-colors",
+               isActive ? "text-white" : "text-slate-500 group-hover:text-primary"
+             )} />
+             {link.label}
+             {isActive && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                />
+             )}
+           </Link>
+         );
+       })}
+       
+       <div className="pt-6 mt-6 border-t border-slate-800">
+         <button 
+           onClick={handleLogout}
+           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-200"
+         >
+           <LogOut className="h-4 w-4" />
+           Sign Out
+         </button>
+       </div>
     </nav>
   );
 }
+

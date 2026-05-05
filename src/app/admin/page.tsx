@@ -333,11 +333,36 @@ export default function AdminPage() {
       return <AdminSkeleton />;
   }
 
+  const notifyUser = async (userId: string, title: string, body: string, url: string) => {
+    try {
+      await fetch('/api/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, title, body, url }),
+      });
+    } catch (error) {
+      console.error('Failed to send push notification:', error);
+    }
+  };
+
   const handleApprove = async (id: string) => {
     setProcessingPropertyId(id);
     const propRef = doc(db, 'properties', id);
     try {
       await updateDoc(propRef, { isApproved: true, listingStatus: 'approved' });
+      
+      // Get property data to notify owner
+      const propSnap = await getDoc(propRef);
+      if (propSnap.exists()) {
+        const propData = propSnap.data();
+        await notifyUser(
+          propData.ownerId,
+          "Property Approved! 🏠",
+          `Your listing "${propData.title}" is now live on Nestil Pro.`,
+          `/properties/${id}`
+        );
+      }
+
       toast({ title: "Property Approved", description: "The listing is now live." });
     } catch (error) {
       console.error("Error approving property:", error);
@@ -613,105 +638,138 @@ export default function AdminPage() {
         </DialogContent>
     </Dialog>
       
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage property listings.
-        </p>
+      <div className="mb-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
+            <p className="text-slate-500 font-medium">Real-time property moderation & system overview.</p>
+          </div>
+          <div className="flex items-center gap-3">
+             <Button onClick={handlePropertyCsvDownload} variant="outline" className="rounded-xl font-bold bg-white shadow-sm border-slate-200">
+                <Download className="w-4 h-4 mr-2" /> Export CSV
+             </Button>
+          </div>
+        </div>
       </div>
 
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Properties</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-10">
+        <Card className="border-none shadow-xl shadow-blue-500/5 bg-gradient-to-br from-white to-blue-50/30 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform"><Users className="h-12 w-12 text-blue-600" /></div>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-blue-600/70">Total Properties</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{summaryCounts.total}</div>
+                <div className="text-3xl font-black text-slate-900">{summaryCounts.total}</div>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Lifetime submissions</p>
             </CardContent>
         </Card>
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+        
+        <Card className="border-none shadow-xl shadow-emerald-500/5 bg-gradient-to-br from-white to-emerald-50/30 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform"><CheckCircle className="h-12 w-12 text-emerald-600" /></div>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-emerald-600/70">Active Listings</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{summaryCounts.active}</div>
+                <div className="text-3xl font-black text-slate-900">{summaryCounts.active}</div>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Currently visible</p>
             </CardContent>
         </Card>
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending Listings</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
+
+        <Card className="border-none shadow-xl shadow-amber-500/5 bg-gradient-to-br from-white to-amber-50/30 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform"><Clock className="h-12 w-12 text-amber-600" /></div>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-amber-600/70">Pending Approval</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{pendingProperties?.length || 0}</div>
+                <div className="text-3xl font-black text-slate-900">{pendingProperties?.length || 0}</div>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Requires review</p>
             </CardContent>
         </Card>
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Sold/Rented</CardTitle>
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+
+        <Card className="border-none shadow-xl shadow-indigo-500/5 bg-gradient-to-br from-white to-indigo-50/30 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform"><DollarSign className="h-12 w-12 text-indigo-600" /></div>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-indigo-600/70">Sold/Rented</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{summaryCounts.soldRented}</div>
+                <div className="text-3xl font-black text-slate-900">{summaryCounts.soldRented}</div>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Successful closures</p>
             </CardContent>
         </Card>
        </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Pending Approval</CardTitle>
-          <CardDescription>
-            Review and approve new property listings.
-          </CardDescription>
+
+      <Card className="mb-10 border-none shadow-xl shadow-slate-200/50 overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-black text-slate-900">Pending Approval</CardTitle>
+              <CardDescription className="font-medium text-slate-500">
+                New submissions requiring your immediate attention.
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 font-bold px-3 py-1">
+               {pendingProperties?.length || 0} Awaiting Review
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Property</TableHead>
-                <TableHead className="hidden sm:table-cell">Owner ID</TableHead>
-                <TableHead className="hidden md:table-cell">Date Added</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pendingProperties && pendingProperties.length > 0 ? (
-                pendingProperties.map((prop: Property) => (
-                  <TableRow key={prop.id}>
-                    <TableCell className="font-medium">{prop.title}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{prop.ownerId}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {formatDate(prop.dateAdded)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPreviewProperty(prop)}>
-                            <span className="sr-only">Preview</span>
-                            <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700" onClick={() => handleApprove(prop.id)} disabled={processingPropertyId === prop.id}>
-                          {processingPropertyId === prop.id ? <LoaderCircle className="mr-1 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-1 h-4 w-4" />}<span className="hidden sm:inline">Approve</span>
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => handleReject(prop.id)} disabled={processingPropertyId === prop.id}>
-                          {processingPropertyId === prop.id ? <LoaderCircle className="mr-1 h-4 w-4 animate-spin" /> : <XCircle className="mr-1 h-4 w-4" />}<span className="hidden sm:inline">Reject</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center h-24">
-                    No properties pending approval.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+        <CardContent className="p-0">
+            {pendingProperties && pendingProperties.length > 0 ? (
+                <div className="divide-y divide-slate-100">
+                    {pendingProperties.map((prop: Property) => (
+                        <div key={prop.id} className="p-6 hover:bg-slate-50/50 transition-colors flex flex-col md:flex-row items-start md:items-center gap-6 group">
+                            {/* Property Thumbnail */}
+                            <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative border-2 border-white shadow-sm">
+                                {prop.photos?.[0] ? (
+                                    <Image src={prop.photos[0]} alt={prop.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                ) : (
+                                    <Home className="w-8 h-8 text-slate-300 absolute center" />
+                                )}
+                            </div>
+
+                            {/* Property Info */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Badge className="bg-slate-900 text-[10px] h-5 px-2 uppercase font-black tracking-tighter">
+                                        {prop.listingFor}
+                                    </Badge>
+                                    <span className="text-xs font-bold text-slate-400">Added {formatDateLocal(prop.dateAdded)}</span>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 truncate group-hover:text-primary transition-colors">{prop.title}</h3>
+                                <p className="text-sm text-slate-500 font-medium flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" /> {prop.address}, {prop.city}
+                                </p>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md transition-all" onClick={() => setPreviewProperty(prop)}>
+                                    <Eye className="h-5 w-5 text-slate-400" />
+                                </Button>
+                                <Button variant="outline" className="flex-1 md:flex-none h-10 px-6 rounded-xl font-bold border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all" onClick={() => handleApprove(prop.id)} disabled={processingPropertyId === prop.id}>
+                                    {processingPropertyId === prop.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                                    Approve
+                                </Button>
+                                <Button variant="outline" className="flex-1 md:flex-none h-10 px-6 rounded-xl font-bold border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all" onClick={() => handleReject(prop.id)} disabled={processingPropertyId === prop.id}>
+                                    {processingPropertyId === prop.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />}
+                                    Reject
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="py-20 text-center">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle className="h-8 w-8 text-emerald-400" />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900">Queue is Clear!</h3>
+                    <p className="text-slate-500 text-sm">No properties are currently pending approval.</p>
+                </div>
+            )}
         </CardContent>
       </Card>
+
       
       <Card>
         <CardHeader>

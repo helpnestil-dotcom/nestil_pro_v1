@@ -5,11 +5,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { List, Heart, MessageSquare, ShieldCheck, Truck, BadgeCheck, Building2, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { NotificationToggle } from "@/components/notification-toggle";
 import { useFavorites } from "@/hooks/use-favorites";
 import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+
 
 export default function DashboardPage() {
   const { user, profile, isLoading: isProfileLoading } = useUserProfile();
@@ -39,8 +42,12 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold italic tracking-tight uppercase">Welcome, {user.displayName || user.email}!</h1>
             <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100"><Truck className="w-3 h-3 mr-1"/> Verified Worker</Badge>
           </div>
-          <p className="text-muted-foreground mb-8 text-lg">Partner Dashboard • Shifting Services</p>
+          <p className="text-muted-foreground mb-4 text-lg">Partner Dashboard • Shifting Services</p>
           
+          <div className="mb-8 max-w-md">
+            <NotificationToggle />
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-white overflow-hidden group">
               <div className="h-1 bg-indigo-500 w-full"></div>
@@ -95,8 +102,52 @@ export default function DashboardPage() {
         {profile?.role === 'Agent' && <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200"><ShieldCheck className="w-3 h-3 mr-1"/> Certified Agent</Badge>}
         {profile?.role === 'Builder' && <Badge className="bg-blue-100 text-blue-700 border-blue-200"><Building2 className="w-3 h-3 mr-1"/> Verified Builder</Badge>}
       </div>
-      <p className="text-muted-foreground mb-8">Role: <span className="font-semibold text-slate-900">{profile?.role || 'Owner'}</span> Dashboard Overview</p>
+      <p className="text-muted-foreground mb-4">Role: <span className="font-semibold text-slate-900">{profile?.role || 'Owner'}</span> Dashboard Overview</p>
       
+      <div className="mb-8 max-w-md">
+        <div className="space-y-4">
+          <NotificationToggle />
+          
+          <Card className="bg-primary/5 border-primary/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold text-primary">Notification Demo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full bg-white hover:bg-primary hover:text-white transition-all"
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/notifications/send', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        userId: user?.uid,
+                        title: "Demo Notification 🔔",
+                        body: "Great! Your push notifications are working perfectly.",
+                        url: "/dashboard"
+                      }),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                      toast.success("Test notification sent!");
+                    } else {
+                      toast.error("Failed to send: " + (data.message || "No registered devices"));
+                    }
+                  } catch (e) {
+                    toast.error("Error sending test notification");
+                  }
+                }}
+              >
+                Send Test Notification
+              </Button>
+
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="border-none shadow-md hover:shadow-xl transition-shadow duration-300">
           <CardHeader>

@@ -20,7 +20,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-body)', '"Inter"', 'sans-serif'],
         body: ['var(--font-body)', '"Inter"', 'sans-serif'],
-        headline: ['var(--font-body)', '"Inter"', 'sans-serif'],
+        heading: ['var(--font-heading)', '"Outfit"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

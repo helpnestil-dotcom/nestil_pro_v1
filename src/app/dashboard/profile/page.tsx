@@ -12,7 +12,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { updateProfile } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
+
 import { useFirestore } from '@/firebase';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { LoaderCircle, Camera, User, Building2, MapPin, Briefcase } from 'lucide-react';
@@ -22,7 +23,8 @@ import Image from 'next/image';
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short."),
-  email: z.string().email(),
+  email: z.string().email().optional().or(z.literal('')),
+
   phone: z.string().min(10, "Invalid phone number."),
   imageUrl: z.string().optional(),
   // Professional fields
@@ -124,7 +126,8 @@ export default function ProfilePage() {
       if (values.location) updateData.location = values.location;
       if (values.description) updateData.description = values.description;
 
-      await updateDoc(userDocRef, updateData);
+      await setDoc(userDocRef, updateData, { merge: true });
+
 
       toast({ title: 'Profile Updated', description: 'Your changes have been saved successfully.' });
     } catch (error: any) {
