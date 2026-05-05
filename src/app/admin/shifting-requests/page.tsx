@@ -8,8 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LoaderCircle, CheckCircle, XCircle, Trash2, Truck } from 'lucide-react';
+import { LoaderCircle, CheckCircle, XCircle, Trash2, Truck, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ShiftingRequest {
   id: string;

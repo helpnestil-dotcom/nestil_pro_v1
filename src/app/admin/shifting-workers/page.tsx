@@ -10,6 +10,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoaderCircle, CheckCircle, XCircle, Trash2, Briefcase } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { MapPin } from 'lucide-react';
+import { format, fromUnixTime } from 'date-fns';
+
+const formatDateLocal = (date: any) => {
+    if (!date) return 'N/A';
+    try {
+        if (typeof date === 'string') {
+            return format(new Date(date), 'dd/MM/yyyy');
+        }
+        if (date?.seconds) {
+            return format(fromUnixTime(date.seconds), 'dd/MM/yyyy');
+        }
+        return format(new Date(date), 'dd/MM/yyyy');
+    } catch (e) {
+        return 'N/A';
+    }
+};
 
 interface ShiftingWorker {
   id: string;
