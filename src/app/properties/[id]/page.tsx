@@ -14,6 +14,7 @@ import { PropertyContactDetails } from '@/components/property-contact-details';
 import { PropertyCard } from '@/components/property-card';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Share2 } from 'lucide-react';
+import { MobilePropertyDetails } from '@/components/mobile-property-details';
 
 const WhatsappIcon = () => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current">
@@ -102,8 +103,13 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
-      <div className="container py-8 max-w-7xl">
+    <>
+      <div className="md:hidden">
+        <MobilePropertyDetails property={property} />
+      </div>
+
+      <div className="hidden md:block bg-slate-50 min-h-screen pb-20">
+        <div className="container py-8 max-w-7xl">
         
         {/* Breadcrumb & Title */}
         <div className="mb-6">
@@ -407,6 +413,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
         )}
 
       </div>
-    </div>
+      </div>
+    </>
   );
 }

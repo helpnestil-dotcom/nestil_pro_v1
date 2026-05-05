@@ -44,26 +44,8 @@ const SearchWidget = () => {
 
   const propertiesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    let q = query(collection(firestore, 'properties'), where('listingStatus', '==', 'approved'));
-    
-    if (searchTab === 'buy') {
-        q = query(q, where('listingFor', '==', 'Sale'));
-    } else if (searchTab === 'rent') {
-        q = query(q, where('listingFor', '==', 'Rent'));
-    } else if (searchTab === 'commercial') {
-        q = query(q, where('propertyType', '==', 'Commercial properties'));
-    } else if (searchTab === 'plot') {
-        q = query(q, where('propertyType', '==', 'Plot'));
-    } else if (searchTab === 'flatmates') {
-        q = query(q, where('propertyType', '==', 'Flatmate / Co-living'));
-    }
-
-    if (district !== 'all') {
-      const altDistrict = district.endsWith(' district') ? district.replace(' district', '') : `${district} district`;
-      q = query(q, where('city', 'in', [district, altDistrict]));
-    }
-    return q;
-  }, [firestore, district, searchTab]);
+    return query(collection(firestore, 'properties'), where('listingStatus', '==', 'approved'));
+  }, [firestore]);
 
   const { data: fetchedProperties, isLoading: isQueryLoading } = useCollection<Property>(propertiesQuery);
 
@@ -71,6 +53,23 @@ const SearchWidget = () => {
     if (!fetchedProperties) return 0;
     let props = fetchedProperties;
     
+    if (searchTab === 'buy') {
+        props = props.filter(p => p.listingFor === 'Sale');
+    } else if (searchTab === 'rent') {
+        props = props.filter(p => p.listingFor === 'Rent');
+    } else if (searchTab === 'commercial') {
+        props = props.filter(p => p.propertyType === 'Commercial properties');
+    } else if (searchTab === 'plot') {
+        props = props.filter(p => p.propertyType === 'Plot');
+    } else if (searchTab === 'flatmates') {
+        props = props.filter(p => p.propertyType === 'Flatmate / Co-living');
+    }
+
+    if (district !== 'all') {
+      const altDistrict = district.endsWith(' district') ? district.replace(' district', '') : `${district} district`;
+      props = props.filter(p => p.city === district || p.city === altDistrict);
+    }
+
     // Apply client-side filters for instant count
     if (propertyType !== 'all') {
         props = props.filter(p => p.propertyType === propertyType);
@@ -79,7 +78,7 @@ const SearchWidget = () => {
     props = props.filter(p => p.price >= budgetRange[0] && p.price <= budgetRange[1]);
     
     return props.length;
-  }, [fetchedProperties, propertyType, budgetRange]);
+  }, [fetchedProperties, propertyType, budgetRange, searchTab, district]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();

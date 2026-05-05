@@ -31,6 +31,10 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Mobile Components
+import { MobileListingHeader } from '@/components/mobile-listing-header';
+import { MobilePropertyListingCard } from '@/components/mobile-property-listing-card';
+
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
     'Villa', 'Row House', 'Duplex', 'Studio Apartment', 'PG / Hostel', 'Flatmate / Co-living', 'Land', 'Plot', 'Commercial properties', 'Godowns', 'Warehouses', 'Agricultural Land'
@@ -96,18 +100,11 @@ function PropertySearchComponent() {
   }, []);
 
   const propertiesQuery = useMemo(() => {
-    let q: Query<DocumentData> = query(
+    return query(
       collection(db, 'properties'),
       where('listingStatus', '==', 'approved')
     );
-
-    if (keyword && keyword !== 'all') {
-      const altKeyword = keyword.endsWith(' district') ? keyword.replace(' district', '') : `${keyword} district`;
-      q = query(q, where('city', 'in', [keyword, altKeyword]));
-    }
-    
-    return q;
-  }, [keyword]);
+  }, []);
 
   const [serverFilteredSnapshot, isLoading, error] = useCollection(propertiesQuery);
   
@@ -137,6 +134,11 @@ function PropertySearchComponent() {
             const propState = prop.state || staticLocationData.find(s => s.districts.some(d => d.name === prop.city))?.name || 'Andhra Pradesh';
             return propState === stateParam;
         });
+    }
+
+    if (keyword && keyword !== 'all') {
+      const altKeyword = keyword.endsWith(' district') ? keyword.replace(' district', '') : `${keyword} district`;
+      result = result.filter(prop => prop.city === keyword || prop.city === altKeyword);
     }
 
     if (locality !== 'all') {
@@ -283,35 +285,56 @@ function PropertySearchComponent() {
             </div>
         </div>
 
-        {/* Property Type Grid Chips */}
+        {/* Property Type Icons */}
         <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-1">
-                <LayoutGrid className="w-4 h-4 text-primary" />
-                <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Property Type</Label>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-                {['all', '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Villa', 'Independent House', 'Land', 'Office'].map((t) => (
+            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Property Type</Label>
+            <div className="flex justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
+                {[
+                    { label: 'All', icon: Home, value: 'all' },
+                    { label: '1BHK', icon: Building2, value: '1 BHK Flat' },
+                    { label: '2BHK', icon: Building2, value: '2 BHK Flat' },
+                    { label: '3BHK+', icon: Building2, value: '3 BHK Flat' },
+                ].map((t) => (
                     <button
-                        key={t}
-                        onClick={() => setPropertyType(t === 'Office' ? 'Commercial properties' : t)}
-                        className={cn(
-                            "px-3 py-2.5 rounded-xl text-[11px] font-black border transition-all text-center",
-                            (propertyType === t || (t === 'Office' && propertyType === 'Commercial properties'))
-                                ? "bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200" 
-                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-300"
-                        )}
+                        key={t.value}
+                        onClick={() => setPropertyType(t.value)}
+                        className="flex flex-col items-center gap-2 min-w-[70px]"
                     >
-                        {t === 'all' ? 'Everything' : t}
+                        <div className={cn(
+                            "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all",
+                            propertyType === t.value 
+                                ? "bg-primary/5 border-primary text-primary" 
+                                : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
+                        )}>
+                            <t.icon className="w-6 h-6" />
+                        </div>
+                        <span className={cn(
+                            "text-[10px] font-bold",
+                            propertyType === t.value ? "text-primary" : "text-slate-400"
+                        )}>{t.label}</span>
                     </button>
                 ))}
             </div>
-            {propertyType !== 'all' && !['1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Villa', 'Independent House', 'Land', 'Commercial properties'].includes(propertyType) && (
-                 <div className="mt-2 p-3 bg-primary/5 border border-primary/10 rounded-xl text-[11px] font-black text-primary flex items-center justify-between">
-                    <span>Selected: {propertyType}</span>
-                    <button onClick={() => setPropertyType('all')}><X className="w-3 h-3" /></button>
-                 </div>
-            )}
+        </div>
+
+        {/* Furnishing */}
+        <div className="space-y-4">
+            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Furnishing</Label>
+            <div className="flex flex-wrap gap-2">
+                {['Any', 'Furnished', 'Semi Furnished', 'Unfurnished'].map((f) => (
+                    <button
+                        key={f}
+                        className={cn(
+                            "px-4 py-2 rounded-xl text-[11px] font-bold border transition-all",
+                            (f === 'Any' ? !rentalStatus : rentalStatus === f)
+                                ? "bg-primary text-white border-primary" 
+                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
+                        )}
+                    >
+                        {f}
+                    </button>
+                ))}
+            </div>
         </div>
 
         {/* Status Section */}
@@ -382,8 +405,50 @@ function PropertySearchComponent() {
   );
 
   return (
-    <div className="bg-[#fafbfc] min-h-screen">
-      <div className="container py-12 px-4">
+    <div className="bg-[#fafbfc] min-h-screen pb-24 md:pb-0">
+      {/* Mobile Listing View */}
+      <div className="md:hidden">
+        <MobileListingHeader 
+            title={transaction === 'Rent' ? 'Find Home' : 'Buy Home'} 
+            onFilterClick={() => setIsFilterSheetOpen(true)}
+        />
+        
+        <div className="px-5 py-6">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-base font-black text-slate-900">
+                    {isLoading ? 'Searching...' : `${filteredProperties.length}+ Homes Found`}
+                </h2>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Verified
+                </div>
+            </div>
+
+            <div className="space-y-4">
+                {isLoading ? (
+                    [...Array(3)].map((_, i) => <Skeleton key={i} className="h-[280px] w-full rounded-3xl" />)
+                ) : currentProperties.map((prop) => (
+                    <MobilePropertyListingCard key={prop.id} property={prop} />
+                ))}
+            </div>
+
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="w-full h-14 rounded-2xl border-primary text-primary font-black"
+                    >
+                        Load More
+                    </Button>
+                </div>
+            )}
+        </div>
+      </div>
+
+      {/* Desktop Listing View */}
+      <div className="hidden md:block container py-12 px-4">
         {/* Results Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div className="space-y-2">

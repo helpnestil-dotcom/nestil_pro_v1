@@ -4,23 +4,18 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter, Outfit } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
+import { BottomNav } from '@/components/bottom-nav';
+import { MobileHeader } from '@/components/mobile-header';
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   weight: ['300','400','500','600','700','800','900'],
   variable: '--font-body',
-});
-
-const outfit = Outfit({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['300','400','500','600','700','800','900'],
-  variable: '--font-heading',
 });
 
 
@@ -55,17 +50,26 @@ export default function RootLayout({
       <body
         className={cn(
           inter.variable,
-          outfit.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary"
         )}
       >
         <FirebaseClientProvider>
           <div className="flex flex-col min-h-screen overflow-x-hidden">
-            <Header />
+            <div className="hidden md:block">
+              <Header />
+            </div>
+            {/* The MobileHeader will be placed inside page.tsx to allow for page-specific headers if needed, 
+                but we could also place it here if it's global. Let's keep it global for now. */}
+            <div className="md:hidden">
+              {/* Mobile Header will be inside pages */}
+            </div>
             <main className="flex-grow">{children}</main>
-            <Footer />
+            <div className="hidden md:block">
+              <Footer />
+            </div>
           </div>
           <CompareTray />
+          <BottomNav />
           <Toaster />
         </FirebaseClientProvider>
 

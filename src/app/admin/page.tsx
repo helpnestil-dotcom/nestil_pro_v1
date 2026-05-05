@@ -563,7 +563,7 @@ export default function AdminPage() {
                                         {validPhotos.map((photo, index) => (
                                         <CarouselItem key={index}>
                                             <div className="aspect-video relative">
-                                                <Image src={photo} alt={`Property image ${index + 1}`} fill className="object-cover rounded-md"/>
+                                                <Image src={photo} alt={`Property image ${index + 1}`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover rounded-md"/>
                                             </div>
                                         </CarouselItem>
                                         ))}
@@ -721,7 +721,7 @@ export default function AdminPage() {
                             {/* Property Thumbnail */}
                             <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative border-2 border-white shadow-sm">
                                 {prop.photos?.[0] ? (
-                                    <Image src={prop.photos[0]} alt={prop.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <Image src={prop.photos[0]} alt={prop.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
                                     <Home className="w-8 h-8 text-slate-300 absolute center" />
                                 )}

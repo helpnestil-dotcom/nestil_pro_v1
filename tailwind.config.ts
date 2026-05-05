@@ -20,13 +20,13 @@ export default {
       fontFamily: {
         sans: ['var(--font-body)', '"Inter"', 'sans-serif'],
         body: ['var(--font-body)', '"Inter"', 'sans-serif'],
-        heading: ['var(--font-heading)', '"Outfit"', 'sans-serif'],
+        heading: ['var(--font-body)', '"Inter"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
-        theme1: '#0B132B',
-        theme2: '#FF4D6D',
-        theme3: '#7B61FF',
+        theme1: '#7C3AED', // Violet 600 (Purple Accent)
+        theme2: '#8B5CF6', // Violet 500
+        theme3: '#A78BFA', // Violet 400
         theme4: '#F8FAFC',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

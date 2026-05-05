@@ -11,6 +11,15 @@ import { DynamicTicker } from '@/components/dynamic-ticker';
 import { FeaturedAdDice } from '@/components/featured-ad-dice';
 import { RecentlyViewed } from '@/components/recently-viewed';
 
+// Mobile Components
+import { MobileHeader } from '@/components/mobile-header';
+import { CategoryCards } from '@/components/category-cards';
+import { QuickFilters } from '@/components/quick-filters';
+import { AvailableNow } from '@/components/available-now';
+import { PromoBanners } from '@/components/promo-banners';
+import { WhyNestil } from '@/components/why-nestil';
+import { Zap } from 'lucide-react';
+
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in India',
   description: 'Find your dream home instantly. Browse thousands of verified flats, independent houses, plots, and commercial properties across all major cities of India.',
@@ -75,17 +84,51 @@ function FeaturedPropertiesSkeleton() {
 export default function Home() {
   return (
     <>
-      <HeroSection />
-      <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
-        <DynamicTicker />
-      </Suspense>
-      <FeaturedAdDice />
-      <Suspense fallback={<FeaturedPropertiesSkeleton />}>
-        <FeaturedProperties />
-      </Suspense>
-      <RecentlyViewed />
-      <FlatmateSection />
-      <CtaBand />
+      <div className="md:hidden bg-white min-h-screen">
+        <MobileHeader />
+        
+        {/* Onboarding Entry Banner */}
+        <div className="px-5 mb-6">
+          <Link href="/onboarding">
+            <div className="bg-gradient-to-r from-primary to-purple-600 rounded-3xl p-5 flex items-center justify-between shadow-xl shadow-primary/20 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform"></div>
+              <div className="relative z-10 space-y-1">
+                <div className="flex items-center gap-2">
+                   <Zap className="w-4 h-4 text-white fill-white" />
+                   <h3 className="text-white font-black text-sm">New to City?</h3>
+                </div>
+                <p className="text-white/80 text-[11px] font-bold">Get a 48-hour Home Search Guide</p>
+              </div>
+              <Button size="sm" className="bg-white text-primary font-black rounded-xl text-[10px] h-8 px-4 relative z-10">
+                Start Now
+              </Button>
+            </div>
+          </Link>
+        </div>
+
+        <div className="space-y-8 py-2">
+          <CategoryCards />
+          <QuickFilters />
+          <AvailableNow />
+          <PromoBanners />
+          <WhyNestil />
+        </div>
+      </div>
+
+      {/* Desktop Home Screen */}
+      <div className="hidden md:block">
+        <HeroSection />
+        <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
+          <DynamicTicker />
+        </Suspense>
+        <FeaturedAdDice />
+        <Suspense fallback={<FeaturedPropertiesSkeleton />}>
+          <FeaturedProperties />
+        </Suspense>
+        <RecentlyViewed />
+        <FlatmateSection />
+        <CtaBand />
+      </div>
     </>
   )
 }
