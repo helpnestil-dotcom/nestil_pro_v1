@@ -73,26 +73,26 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 px-5 py-4 pb-8 md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-100 px-5 py-4 pb-8 md:hidden shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
       {isLoading || isUserLoading ? (
          <div className="flex gap-3">
              <Skeleton className="h-14 flex-1 rounded-2xl" />
              <Skeleton className="h-14 flex-1 rounded-2xl" />
          </div>
       ) : showLoginPrompt ? (
-        <Button asChild className="w-full h-14 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20">
+        <Button asChild className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all">
             <Link href={`/login?redirect=${propertyPath}`}>
                 <Lock className="mr-2 h-5 w-5" /> Login to Contact Owner
             </Link>
         </Button>
       ) : privateDetails ? (
         <div className="flex gap-3">
-            <Button asChild variant="outline" className="flex-1 h-14 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50">
+            <Button asChild variant="outline" className="flex-1 h-14 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 active:scale-[0.96] transition-all">
                <a href={`tel:${privateDetails.phone}`}>
                   <Phone className="mr-2 h-5 w-5 text-blue-500" /> Call
                </a>
             </Button>
-            <Button asChild className="flex-1 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 border-none">
+            <Button asChild className="flex-1 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 border-none active:scale-[0.96] transition-all">
                <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer">
                   <WhatsappIcon /> <span className="ml-2">WhatsApp</span>
                </a>

@@ -418,6 +418,8 @@ function PropertySearchComponent() {
         <MobileListingHeader 
             title={transaction === 'Rent' ? 'Find Home' : 'Buy Home'} 
             onFilterClick={() => setIsFilterSheetOpen(true)}
+            searchValue={keyword}
+            onSearchChange={setKeyword}
         />
         
         <div className="px-5 py-6">
@@ -482,7 +484,7 @@ function PropertySearchComponent() {
             <div className="flex items-center gap-3">
                 <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
                     <SheetTrigger asChild>
-                        <Button variant="outline" className="lg:hidden h-12 px-6 rounded-xl border-slate-200 bg-white font-bold text-slate-700 shadow-sm">
+                        <Button variant="outline" className="md:flex h-12 px-6 rounded-xl border-slate-200 bg-white font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
                             <Filter className="mr-2 h-4 w-4 text-primary" />
                             Filters
                         </Button>
@@ -504,7 +506,9 @@ function PropertySearchComponent() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-28 h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
-            {FilterControls}
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                {FilterControls}
+            </div>
           </aside>
 
           {/* Main Content Area */}

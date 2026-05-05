@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { MobilePropertyCard } from './mobile-property-card';
 import { Property } from '@/lib/types';
+import { IndianRupee, Zap } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
@@ -30,20 +31,32 @@ export function AvailableNow() {
 
   const [value, loading, error] = useCollection(getQuery());
 
-  const properties = value?.docs.slice(0, 6).map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as Property)) || [];
+  const properties = value?.docs
+    .map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Property))
+    .sort((a, b) => {
+      const dateA = a.dateAdded ? new Date(a.dateAdded).getTime() : 0;
+      const dateB = b.dateAdded ? new Date(b.dateAdded).getTime() : 0;
+      return dateB - dateA;
+    })
+    .slice(0, 6) || [];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between px-5">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">🔥</span>
-          <h2 className="text-base font-bold text-slate-900">Available Now</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between px-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-orange-100 text-orange-600 animate-pulse">
+                <Zap className="w-3.5 h-3.5 fill-current" />
+            </div>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight italic">Available Now</h2>
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-8">Freshly posted homes</p>
         </div>
-        <Button variant="link" asChild className="text-primary font-bold text-xs p-0 h-auto">
-          <Link href="/properties">View all</Link>
+        <Button variant="ghost" asChild className="text-primary font-black text-[11px] p-0 h-auto uppercase tracking-tighter hover:bg-transparent">
+          <Link href="/properties">Explore All</Link>
         </Button>
       </div>
 

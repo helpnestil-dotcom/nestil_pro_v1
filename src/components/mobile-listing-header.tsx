@@ -8,9 +8,11 @@ import { useRouter } from 'next/navigation';
 interface MobileListingHeaderProps {
   title: string;
   onFilterClick?: () => void;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
 }
 
-export function MobileListingHeader({ title, onFilterClick }: MobileListingHeaderProps) {
+export function MobileListingHeader({ title, onFilterClick, searchValue, onSearchChange }: MobileListingHeaderProps) {
   const router = useRouter();
 
   return (
@@ -38,14 +40,16 @@ export function MobileListingHeader({ title, onFilterClick }: MobileListingHeade
             <Search className="h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
           </div>
           <Input 
-            placeholder="Bellandur, Bengaluru" 
-            className="h-11 pl-10 pr-4 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-all text-sm"
+            placeholder="Search location or title..." 
+            value={searchValue === 'all' ? '' : searchValue}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className="h-11 pl-10 pr-4 rounded-xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-all text-sm font-medium"
           />
         </div>
         <Button 
           variant="outline" 
           onClick={onFilterClick}
-          className="h-11 px-4 rounded-xl border-slate-200 text-slate-600 font-bold text-xs flex items-center gap-2 hover:bg-slate-50"
+          className="h-11 px-4 rounded-xl border-slate-200 text-slate-600 font-bold text-xs flex items-center gap-2 hover:bg-slate-50 shadow-sm"
         >
           <Filter className="w-4 h-4 text-slate-400" />
           Filters
