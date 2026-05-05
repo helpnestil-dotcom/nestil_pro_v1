@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Bell, User, Search, MapPin, ChevronRight, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Bell, User, Search, MapPin, ChevronRight, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useUser } from '@/firebase';
 import { locationData } from '@/lib/locations';
 
 export function MobileHeader() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useUser();
 
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [locationView, setLocationView] = useState<'state' | 'district' | 'locality'>('state');
@@ -77,19 +80,32 @@ export function MobileHeader() {
     <header className="px-5 pt-4 pb-6 bg-white space-y-6">
       {/* Top Nav */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black text-primary tracking-tighter">nestil</h1>
+        <div className="flex items-center gap-1.5">
+          <Home className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-black text-primary tracking-tighter">nestil</h1>
+        </div>
         <div className="flex items-center gap-3">
-          <div className="relative">
+          <Link href="/dashboard" className="relative">
             <Button variant="ghost" size="icon" className="rounded-full bg-slate-50">
               <Bell className="w-5 h-5 text-slate-700" />
             </Button>
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 border-2 border-white text-[10px]">
               5
             </Badge>
-          </div>
-          <Button variant="ghost" size="icon" className="rounded-full bg-slate-50">
-            <User className="w-5 h-5 text-slate-700" />
-          </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50 overflow-hidden">
+              {user?.photoURL ? (
+                <img 
+                  src={user.photoURL} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-5 h-5 text-slate-700" />
+              )}
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -101,7 +117,7 @@ export function MobileHeader() {
         </h2>
       </div>
 
-      {/* Location Selector (Replaces Input & 'Use current location') */}
+      {/* Location Selector */}
       <div className="space-y-4">
         <Sheet open={isLocationOpen} onOpenChange={handleSheetOpenChange}>
           <SheetTrigger asChild>

@@ -49,6 +49,7 @@ export const locationData: State[] = [
   {
     name: 'Tamilnadu',
     districts: [
+      { name: 'Chennai', localities: [{ name: 'Adyar' }, { name: 'Anna Nagar' }, { name: 'T Nagar' }, { name: 'Velachery' }, { name: 'Mylapore' }, { name: 'OMR' }] },
       { name: 'Vellore', localities: [{ name: 'Vellore City' }] }
     ],
   },
@@ -56,6 +57,12 @@ export const locationData: State[] = [
     name: 'Karnataka',
     districts: [
       { name: 'Bangalore', localities: [{ name: 'Bangalore City' }] }
+    ],
+  },
+  {
+    name: 'Telangana',
+    districts: [
+      { name: 'Hyderabad', localities: [{ name: 'Gachibowli' }, { name: 'Madhapur' }, { name: 'Banjara Hills' }, { name: 'Jubilee Hills' }, { name: 'Kondapur' }, { name: 'Kukatpally' }] }
     ],
   },
 ];

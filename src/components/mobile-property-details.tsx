@@ -6,12 +6,15 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Property } from '@/lib/types';
+import { MobileContactActions } from '@/components/mobile-contact-actions';
+import { MobilePropertyCard } from '@/components/mobile-property-card';
 
 interface MobilePropertyDetailsProps {
   property: Property;
+  similarProperties?: Property[];
 }
 
-export function MobilePropertyDetails({ property }: MobilePropertyDetailsProps) {
+export function MobilePropertyDetails({ property, similarProperties = [] }: MobilePropertyDetailsProps) {
   const router = useRouter();
   const photos = property.photos || ['https://picsum.photos/seed/property/800/600'];
 
@@ -107,15 +110,31 @@ export function MobilePropertyDetails({ property }: MobilePropertyDetailsProps) 
         </div>
       </div>
 
+      {/* Similar Properties Section */}
+      {similarProperties.length > 0 && (
+        <div className="px-5 py-8 border-t border-slate-100 bg-slate-50">
+          <h2 className="text-xl font-black text-slate-900 mb-4">Similar Properties</h2>
+          <div className="flex flex-col gap-4">
+            {similarProperties.map((prop) => (
+              <MobilePropertyCard key={prop.id} property={prop} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Sticky Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 px-5 py-4 pb-8 flex gap-3 md:hidden">
-        <Button className="flex-1 h-14 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20">
-          Chat
-        </Button>
-        <Button variant="outline" className="flex-1 h-14 border-primary text-primary font-black rounded-2xl">
-          Interested
-        </Button>
-      </div>
+      <MobileContactActions 
+          propertyId={property.id || ''} 
+          isPaid={!!property.isPaid} 
+          propertyPath={`/properties/${property.id}`}
+          title={property.title || 'Property'}
+          isRent={property.listingFor === 'Rent'}
+          price={property.price || 0}
+          address={`${property.address}, ${property.city}`}
+          type={property.propertyType || ''}
+          bhk={property.bhk || ''}
+          furnishing={property.furnishing || 'N/A'}
+      />
     </div>
   );
 }

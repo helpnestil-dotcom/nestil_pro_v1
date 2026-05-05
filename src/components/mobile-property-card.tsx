@@ -28,7 +28,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
   return (
     <div className="w-full bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/50 mb-4 block">
       {/* Image Section */}
-      <div className="relative aspect-[4/3] w-full">
+      <div className="relative aspect-[16/9] w-full">
         <Image 
           src={imageUrl} 
           alt={property.title} 
@@ -68,22 +68,22 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
       </div>
 
       {/* Content Section */}
-      <div className="p-5 space-y-5 bg-white">
+      <div className="p-4 space-y-4 bg-white">
         {/* Title and Time */}
         <div className="flex justify-between items-start gap-2">
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-black text-slate-800">{property.bhk || '1 BHK'} Flat</h3>
-              <span className="text-[9px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">ID: NTL-P{property.id?.slice(0, 6).toUpperCase()}</span>
+              <h3 className="text-lg font-black text-slate-800">{property.bhk || '1 BHK'} Flat</h3>
+              <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md">ID: NTL-P{property.id?.slice(0, 6).toUpperCase()}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-sm text-slate-500 font-medium">
-              <MapPin className="w-4 h-4 text-blue-500" />
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+              <MapPin className="w-3.5 h-3.5 text-blue-500" />
               {property.address || property.city || 'Manyata, Bengaluru'}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 rounded-full shrink-0">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-[10px] text-slate-600 font-semibold">{getPostedTime(property.postedAt || property.dateAdded)}</span>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-50 rounded-full shrink-0">
+            <div className="w-1 h-1 rounded-full bg-green-500" />
+            <span className="text-[9px] text-slate-600 font-semibold">{getPostedTime(property.postedAt || property.dateAdded)}</span>
           </div>
         </div>
 
@@ -136,14 +136,14 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 pt-3">
-          <a href="tel:+919876543210" className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl border border-primary text-primary font-bold text-sm bg-white hover:bg-primary/5 transition-colors">
-            <Phone className="w-4 h-4" />
+        <div className="flex items-center gap-3 pt-1">
+          <a href="tel:+919876543210" className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border border-primary text-primary font-bold text-xs bg-white hover:bg-primary/5 transition-colors">
+            <Phone className="w-3.5 h-3.5" />
             Call Now
           </a>
-          <Link href={`/properties/${property.id}`} className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#3b82f6] text-white font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-600 transition-colors">
+          <Link href={`/properties/${property.id}`} className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-[#3b82f6] text-white font-bold text-xs shadow-lg shadow-blue-200 hover:bg-blue-600 transition-colors">
             View Details
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>

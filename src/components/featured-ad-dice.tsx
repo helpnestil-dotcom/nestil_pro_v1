@@ -18,17 +18,32 @@ export function FeaturedAdDice() {
 
     const adsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        const now = Timestamp.now();
+        // Removing complex filters/sorting to avoid requiring a composite index in Firebase
         return query(
-            collection(firestore, 'properties'),
-            where('adStatus', '==', 'approved'),
-            where('adExpiry', '>', now),
-            orderBy('adExpiry', 'desc'),
-            limit(10)
+            collection(firestore, 'properties')
         );
     }, [firestore]);
 
-    const { data: ads, isLoading } = useCollection<Property>(adsQuery);
+    const { data: allProperties, isLoading } = useCollection<Property>(adsQuery);
+
+    // Perform filtering and sorting on the client side to bypass index requirements
+    const ads = React.useMemo(() => {
+        if (!allProperties) return [];
+        const now = Timestamp.now();
+        return allProperties
+            .filter(p => {
+                if (p.adStatus !== 'approved' || !p.adExpiry) return false;
+                // Safely handle both Timestamp and potentially other date formats
+                const expirySeconds = (p.adExpiry as any)?.seconds;
+                return expirySeconds && expirySeconds > now.seconds;
+            })
+            .sort((a, b) => {
+                const aSec = (a.adExpiry as any)?.seconds || 0;
+                const bSec = (b.adExpiry as any)?.seconds || 0;
+                return bSec - aSec;
+            })
+            .slice(0, 10);
+    }, [allProperties]);
 
     useEffect(() => {
         if (ads && ads.length > 1) {

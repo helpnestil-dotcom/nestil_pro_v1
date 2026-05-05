@@ -105,7 +105,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
   return (
     <>
       <div className="md:hidden">
-        <MobilePropertyDetails property={property} />
+        <MobilePropertyDetails property={property} similarProperties={similarProperties} />
       </div>
 
       <div className="hidden md:block bg-slate-50 min-h-screen pb-20">
