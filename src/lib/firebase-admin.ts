@@ -18,6 +18,6 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminDb = admin.firestore();
-export const adminMessaging = admin.messaging();
-export const adminAuth = admin.auth();
+export const adminDb = admin.apps.length ? admin.firestore() : null as unknown as admin.firestore.Firestore;
+export const adminMessaging = admin.apps.length ? admin.messaging() : null as unknown as admin.messaging.Messaging;
+export const adminAuth = admin.apps.length ? admin.auth() : null as unknown as admin.auth.Auth;

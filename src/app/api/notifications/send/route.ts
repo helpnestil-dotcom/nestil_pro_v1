@@ -5,6 +5,10 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    if (!adminDb || !adminMessaging) {
+      return NextResponse.json({ error: 'Firebase Admin SDK not initialized. Check server environment variables.' }, { status: 500 });
+    }
+
     const { userId, title, body, url } = await req.json();
 
     if (!userId || !title || !body) {
