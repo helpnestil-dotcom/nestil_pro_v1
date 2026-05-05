@@ -311,18 +311,19 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-4 md:mb-8 line-clamp-2"
+                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-4 md:mb-8"
             >
-              <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Homes</span> Made Simple
+              Moving to a new city?<br/>
+              <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Find your home, flatmate & community</span> in one place.
             </motion.h1>
             
             <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-8 md:mb-16 font-medium"
+                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-8 md:mb-16 font-bold"
             >
-              Verified owners, direct contact, zero brokerage.
+              Verified owners, direct contact & zero brokerage.
             </motion.p>
 
             <motion.div 
