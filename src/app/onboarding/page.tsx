@@ -6,6 +6,7 @@ import { Search, MapPin, ArrowRight, Home, Building2, Users, Target, CheckCircle
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
