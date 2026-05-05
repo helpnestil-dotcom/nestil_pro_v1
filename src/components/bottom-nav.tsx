@@ -29,6 +29,7 @@ export function BottomNav() {
                 <Link
                   href={item.href}
                   className="bg-primary p-3 rounded-[18px] shadow-xl shadow-primary/40 text-white border-4 border-white active:scale-90 transition-transform"
+                  aria-label={`Post property`}
                 >
                   <Icon className="w-5 h-5" />
                 </Link>
@@ -47,6 +48,7 @@ export function BottomNav() {
                 "flex flex-col items-center gap-1.5 transition-all active:scale-95",
                 isActive ? "text-primary" : "text-slate-400"
               )}
+              aria-label={`Go to ${item.label}`}
             >
               <Icon className={cn("w-6 h-6", isActive && "fill-primary/10")} />
               <span className={cn(

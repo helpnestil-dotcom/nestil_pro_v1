@@ -15,6 +15,25 @@ import { PropertyCard } from '@/components/property-card';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Share2 } from 'lucide-react';
 import { MobilePropertyDetails } from '@/components/mobile-property-details';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const property = await getProperty(params.id);
+  if (!property) return { title: 'Property Not Found | Nestil' };
+
+  const title = `${property.bhk ? property.bhk + ' ' : ''}${property.propertyType} for ${property.listingFor} in ${property.city} | Nestil`;
+  const description = `Explore this ${property.propertyType} in ${property.address}, ${property.city}. Verified listing with zero brokerage. Area: ${property.areaSqFt} sq.ft, Price: ₹${property.price.toLocaleString('en-IN')}.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: property.photos?.[0] ? [property.photos[0]] : [],
+    },
+  };
+}
 
 const WhatsappIcon = () => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current">

@@ -21,12 +21,12 @@ import { WhyNestil } from '@/components/why-nestil';
 import { Zap } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in India',
-  description: 'Find your dream home instantly. Browse thousands of verified flats, independent houses, plots, and commercial properties across all major cities of India.',
-  keywords: 'properties in India, real estate India, buy flat in India, rent house in Bangalore, property portal India, Nestil',
+  title: 'Nestil | Buy, Rent & Sell Properties in AP, Telangana, Karnataka & TN',
+  description: 'Find your dream home instantly. Browse thousands of verified flats in Vijayawada, Hyderabad, Bangalore, and Chennai. Zero brokerage properties from direct owners.',
+  keywords: 'properties in AP, real estate Telangana, buy flat in Bangalore, rent house in Hyderabad, property in Chennai, Vijayawada real estate, Nestil',
   openGraph: {
-    title: 'Nestil | India\'s #1 Property Platform',
-    description: 'Find verified properties across every major city in India.',
+    title: 'Nestil | India\'s #1 Zero Brokerage Property Platform',
+    description: 'Find verified direct-owner properties in AP, Telangana, Karnataka, and Tamilnadu.',
     url: 'https://www.nestil.in',
     siteName: 'Nestil',
     type: 'website',

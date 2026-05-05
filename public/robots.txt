@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.nestil.in/sitemap.xml
+
+# Disallow admin and private routes
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /chat/
+Disallow: /favorites/
+Disallow: /post-property/
+Disallow: /post-requirement/
+Disallow: /login
+Disallow: /signup

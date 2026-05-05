@@ -85,16 +85,16 @@ export function MobileHeader() {
           <h1 className="text-2xl font-black text-primary tracking-tighter">nestil</h1>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="relative">
-            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50">
+          <Link href="/dashboard" className="relative" aria-label="View notifications">
+            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50" aria-label="Notifications">
               <Bell className="w-5 h-5 text-slate-700" />
             </Button>
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 border-2 border-white text-[10px]">
               5
             </Badge>
           </Link>
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50 overflow-hidden">
+          <Link href="/dashboard" aria-label="Go to profile">
+            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50 overflow-hidden" aria-label="User profile">
               {user?.photoURL ? (
                 <img 
                   src={user.photoURL} 

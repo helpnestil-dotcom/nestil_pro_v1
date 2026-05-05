@@ -20,9 +20,10 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in India',
+  title: 'Nestil | Buy, Rent & Sell Properties in India | Zero Brokerage',
   description:
-    'Search, Buy, and Sell premium real estate with zero brokerage fees on Nestil, India\'s fastest growing direct-to-owner property marketplace.',
+    'Search, Buy, and Sell premium real estate with zero brokerage on Nestil. Direct owner properties in Andhra Pradesh, Telangana, Karnataka, and Tamilnadu.',
+  keywords: 'zero brokerage properties, direct owner flats AP, houses for rent Telangana, property marketplace Bangalore, real estate Chennai, Nestil',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
