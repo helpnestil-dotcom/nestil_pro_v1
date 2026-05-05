@@ -70,6 +70,7 @@ export type Property = {
   isPaid?: boolean;
   adExpiry?: string | Timestamp | null;
   adStatus?: 'approved' | 'pending' | 'rejected' | 'none';
+  ownerName?: string;
 };
 
 export type User = {
