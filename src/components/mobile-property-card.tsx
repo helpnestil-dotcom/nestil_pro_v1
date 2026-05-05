@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { Heart, MapPin, CheckCircle2, BedDouble, Bath, Ruler, Building, Tag, Users, Phone, ChevronRight } from 'lucide-react';
+import { Heart, MapPin, CheckCircle2, BedDouble, Bath, Ruler, Building, Tag, Users, Phone, ChevronRight, Eye, Zap, Flame, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Property } from '@/lib/types';
 import Link from 'next/link';
 import { formatDistanceToNow, fromUnixTime } from 'date-fns';
+import { Button } from '@/components/ui/button';
 
 interface MobilePropertyCardProps {
   property: Property;
@@ -39,11 +40,11 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Top Left: Verified */}
+        {/* Top Left: Verified Owner Badge (Large & Prominent) */}
         <div className="absolute top-4 left-4">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e] text-white text-[11px] font-bold tracking-wide rounded-full shadow-sm">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            VERIFIED
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white text-[10px] font-black tracking-[0.15em] rounded-2xl shadow-xl shadow-emerald-500/30 border border-white/20">
+            <CheckCircle2 className="w-4 h-4" />
+            VERIFIED OWNER
           </div>
         </div>
 
@@ -55,14 +56,22 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
         </div>
 
         {/* Bottom Left over Image */}
-        <div className="absolute bottom-4 left-4 space-y-2">
-          <div className="flex items-baseline gap-1.5 text-white">
-            <span className="text-3xl font-black tracking-tight">₹{property.price?.toLocaleString('en-IN') || '30,000'}</span>
-            <span className="text-sm font-medium text-white/80">/month</span>
+        <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-baseline gap-1.5 text-white">
+              <span className="text-3xl font-black tracking-tight">₹{property.price?.toLocaleString('en-IN') || '30,000'}</span>
+              <span className="text-sm font-medium text-white/80">/month</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/60 backdrop-blur-md text-white text-[10px] font-bold rounded-full">
+              <MapPin className="w-3.5 h-3.5 text-blue-400" />
+              1.2 km from your location
+            </div>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/60 backdrop-blur-md text-white text-[11px] font-medium rounded-full">
-            <MapPin className="w-3.5 h-3.5 text-green-400" />
-            1.2 km from your location
+          <div className="flex flex-col items-end gap-1.5 pb-0.5">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500 text-white text-[9px] font-black uppercase tracking-wider rounded-xl shadow-lg animate-bounce">
+              <Eye className="w-3.5 h-3.5" />
+              {Math.floor(Math.random() * 10) + 3} viewed today
+            </div>
           </div>
         </div>
       </div>
@@ -74,16 +83,43 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-black text-slate-800">{property.bhk || '1 BHK'} Flat</h3>
-              <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md">ID: NTL-P{property.id?.slice(0, 6).toUpperCase()}</span>
+              <span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md uppercase">NTL-ID: {property.id?.slice(0, 4).toUpperCase()}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <MapPin className="w-3.5 h-3.5 text-blue-500" />
               {property.address || property.city || 'Manyata, Bengaluru'}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-50 rounded-full shrink-0">
-            <div className="w-1 h-1 rounded-full bg-green-500" />
-            <span className="text-[9px] text-slate-600 font-semibold">{getPostedTime(property.postedAt || property.dateAdded)}</span>
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-50 rounded-full shrink-0 border border-green-100">
+              <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[9px] text-green-700 font-bold uppercase tracking-tight">{getPostedTime(property.postedAt || property.dateAdded)}</span>
+            </div>
+            <div className="flex items-center gap-1 text-[9px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">
+              <Users className="w-3 h-3" />
+              {Math.floor(Math.random() * 15) + 5} people contacted
+            </div>
+          </div>
+        </div>
+
+        {/* Owner Profile Section (Trust Builder) */}
+        <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 p-0.5 overflow-hidden shadow-sm">
+              <img 
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${property.ownerName || 'owner'}`} 
+                alt="Owner" 
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Posted By</span>
+              <span className="text-xs font-black text-slate-800 leading-none">{property.ownerName || 'Verified Host'}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500">
+            <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
+            Identity Verified
           </div>
         </div>
 
@@ -119,32 +155,42 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           </div>
         </div>
 
-        {/* Badges Row */}
-        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 pt-1 px-1">
-          <div className="flex items-center gap-1.5 text-green-600">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Verified Property
+        {/* Urgency and Badges Row */}
+        <div className="flex flex-col gap-3 pt-1">
+          <div className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-pulse">
+            <Zap className="w-4 h-4 fill-current" />
+            <span className="text-[10px] font-black uppercase tracking-wide">Last booked 2 hrs ago • Only few units left!</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Tag className="w-3.5 h-3.5" />
-            {property.furnishing || 'Semi Furnished'}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5" />
-            {property.preferredTenants || 'Family Preferred'}
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3 pt-1">
-          <a href="tel:+919876543210" className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border border-primary text-primary font-bold text-xs bg-white hover:bg-primary/5 transition-colors">
-            <Phone className="w-3.5 h-3.5" />
-            Call Now
-          </a>
-          <Link href={`/properties/${property.id}`} className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-[#3b82f6] text-white font-bold text-xs shadow-lg shadow-blue-200 hover:bg-blue-600 transition-colors">
-            View Details
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+          {/* Single Action Button: View Details */}
+          <div className="pt-2">
+            <Button 
+              className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              asChild
+            >
+              <Link href={`/properties/${property.id}`}>
+                <>
+                  VIEW DETAILS
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              </Link>
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 px-1">
+            <div className="flex items-center gap-1.5 text-emerald-600">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Verified
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-slate-400" />
+              {property.furnishing || 'Semi Furnished'}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-slate-400" />
+              {property.preferredTenants || 'All Welcome'}
+            </div>
+          </div>
         </div>
       </div>
     </div>
