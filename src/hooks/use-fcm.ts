@@ -12,9 +12,17 @@ export function useFCM() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [token, setToken] = useState<string | null>(null);
+  const [isSupportedState, setIsSupportedState] = useState<boolean | null>(null);
   const [permission, setPermission] = useState<NotificationPermission>(
     typeof window !== 'undefined' ? Notification.permission : 'default'
   );
+
+  // Check support on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      isSupported().then(setIsSupportedState);
+    }
+  }, []);
 
   const saveTokenToFirestore = useCallback(async (fcmToken: string) => {
     if (!user?.uid || !firestore) return;
@@ -27,77 +35,90 @@ export function useFCM() {
         updatedAt: new Date().toISOString()
       }, { merge: true });
 
-      console.log('FCM Token saved to Firestore');
+      console.log('FCM Token successfully synced to Firestore');
     } catch (error) {
       console.error('Error saving FCM token to Firestore:', error);
     }
   }, [user?.uid, firestore]);
 
   const requestPermission = useCallback(async () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || isSupportedState === false) {
+      toast.error('Notifications are not supported on this browser.');
+      return;
+    }
 
     try {
+      console.log('Requesting notification permission...');
       const status = await Notification.requestPermission();
       setPermission(status);
 
       if (status === 'granted') {
-        const messagingSupported = await isSupported();
-        if (!messagingSupported) {
-          console.warn('Messaging not supported in this browser');
-          return;
-        }
+        // Register service worker explicitly for better reliability
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+          scope: '/'
+        });
+        console.log('Service Worker registered:', registration);
 
         const messaging = getMessaging(firebaseApp);
         const currentToken = await getToken(messaging, {
-          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration: registration
         });
 
         if (currentToken) {
           setToken(currentToken);
           await saveTokenToFirestore(currentToken);
-          toast.success('Notifications enabled!');
+          toast.success('Push notifications activated! 🔔');
         } else {
-          console.log('No registration token available. Request permission to generate one.');
+          console.warn('No registration token available. User might need to re-authorize.');
+          toast.error('Could not generate notification token.');
         }
       } else {
-        toast.error('Notification permission denied');
+        toast.error('Notification permission denied. Please enable it in browser settings.');
       }
-    } catch (error) {
-      console.error('An error occurred while retrieving token:', error);
-      toast.error('Failed to enable notifications');
+    } catch (error: any) {
+      console.error('FCM Registration Error:', error);
+      if (error.code === 'messaging/permission-blocked') {
+        toast.error('Notification permission blocked. Please reset site permissions.');
+      } else {
+        toast.error('Failed to enable notifications: ' + (error.message || 'Unknown error'));
+      }
     }
-  }, [firebaseApp, saveTokenToFirestore]);
+  }, [firebaseApp, saveTokenToFirestore, isSupportedState]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !isSupportedState) return;
 
     const setupForegroundListener = async () => {
-      const messagingSupported = await isSupported();
-      if (!messagingSupported) return;
-
       const messaging = getMessaging(firebaseApp);
       
       // Auto-save token if permission already granted
       if (Notification.permission === 'granted' && user?.uid) {
-        getToken(messaging, { vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY })
-          .then(currentToken => {
-            if (currentToken) {
-              setToken(currentToken);
-              saveTokenToFirestore(currentToken);
-            }
-          })
-          .catch(err => console.error('Auto-save token failed:', err));
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const currentToken = await getToken(messaging, { 
+            vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+            serviceWorkerRegistration: registration
+          });
+          
+          if (currentToken) {
+            setToken(currentToken);
+            saveTokenToFirestore(currentToken);
+          }
+        } catch (err) {
+          console.error('FCM Auto-save failed:', err);
+        }
       }
 
       const unsubscribe = onMessage(messaging, (payload) => {
-
-        console.log('Message received in foreground: ', payload);
-        toast(payload.notification?.title || 'Nestil Pro', {
+        console.log('Push message received (foreground):', payload);
+        toast(payload.notification?.title || 'Nestil Update', {
           description: payload.notification?.body,
           action: payload.data?.url ? {
             label: 'View',
             onClick: () => window.open(payload.data?.url, '_blank')
-          } : undefined
+          } : undefined,
+          duration: 10000,
         });
       });
 
@@ -110,12 +131,12 @@ export function useFCM() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [firebaseApp]);
+  }, [firebaseApp, user?.uid, isSupportedState, saveTokenToFirestore]);
 
   return {
     token,
     permission,
     requestPermission,
-    isSupported: typeof window !== 'undefined' ? !!('serviceWorker' in navigator && 'PushManager' in window) : false
+    isSupported: isSupportedState ?? (typeof window !== 'undefined' ? !!('serviceWorker' in navigator && 'PushManager' in window) : false)
   };
 }

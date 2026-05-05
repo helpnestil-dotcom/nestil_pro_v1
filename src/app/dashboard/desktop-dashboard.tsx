@@ -109,42 +109,44 @@ export default function DashboardPage() {
         <div className="space-y-4">
           <NotificationToggle />
           
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-primary">Notification Demo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full bg-white hover:bg-primary hover:text-white transition-all"
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/notifications/send', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        userId: user?.uid,
-                        title: "Demo Notification 🔔",
-                        body: "Great! Your push notifications are working perfectly.",
-                        url: "/dashboard"
-                      }),
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                      toast.success("Test notification sent!");
-                    } else {
-                      toast.error("Failed to send: " + (data.message || "No registered devices"));
+          {isAdmin && (
+            <Card className="bg-primary/5 border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-bold text-primary">Notification Demo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full bg-white hover:bg-primary hover:text-white transition-all"
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/notifications/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          userId: user?.uid,
+                          title: "Demo Notification 🔔",
+                          body: "Great! Your push notifications are working perfectly.",
+                          url: "/dashboard"
+                        }),
+                      });
+                      const data = await response.json();
+                      if (data.success) {
+                        toast.success("Test notification sent!");
+                      } else {
+                        toast.error("Failed to send: " + (data.message || "No registered devices"));
+                      }
+                    } catch (e) {
+                      toast.error("Error sending test notification");
                     }
-                  } catch (e) {
-                    toast.error("Error sending test notification");
-                  }
-                }}
-              >
-                Send Test Notification
-              </Button>
-            </CardContent>
-          </Card>
+                  }}
+                >
+                  Send Test Notification
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {isAdmin && (
             <Card className="bg-indigo-50 border-indigo-200">
