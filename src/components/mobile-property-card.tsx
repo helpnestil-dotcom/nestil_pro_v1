@@ -5,6 +5,7 @@ import { Heart, MapPin, CheckCircle2, BedDouble, Bath, Ruler, Building, Tag, Use
 import { cn } from '@/lib/utils';
 import { Property } from '@/lib/types';
 import Link from 'next/link';
+import { useFavorites } from '@/hooks/use-favorites';
 import { formatDistanceToNow, fromUnixTime } from 'date-fns';
 import { Button } from '@/components/ui/button';
 
@@ -13,6 +14,9 @@ interface MobilePropertyCardProps {
 }
 
 export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const isFavorited = favoriteIds.has(property.id);
+
   const imageUrl = property.photos?.[0] || 'https://picsum.photos/seed/property/400/300';
   
   const getPostedTime = (dateInput: any) => {
@@ -44,8 +48,18 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
 
         {/* Top Right: Heart */}
         <div className="absolute top-4 right-4">
-          <button className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-red-500 shadow-lg hover:scale-105 transition-transform">
-            <Heart className="w-5 h-5" />
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFavorite(property.id, isFavorited);
+            }}
+            className={cn(
+              "h-10 w-10 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90",
+              isFavorited ? "bg-red-500 text-white" : "bg-white text-red-500 hover:scale-105"
+            )}
+          >
+            <Heart className={cn("w-5 h-5", isFavorited && "fill-current")} />
           </button>
         </div>
 
