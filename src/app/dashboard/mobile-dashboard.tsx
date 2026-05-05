@@ -153,8 +153,6 @@ export default function MobileDashboard() {
              <NotificationToggle />
           </div>
           
-          </div>
-          
           {isAdmin && (
             <div className="border-t border-slate-100 pt-4 mt-2">
               <Link href="/admin">
