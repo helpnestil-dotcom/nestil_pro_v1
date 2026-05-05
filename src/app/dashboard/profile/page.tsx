@@ -18,8 +18,8 @@ import { useFirestore } from '@/firebase';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { LoaderCircle, Camera, User, Building2, MapPin, Briefcase } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
+import FlatmateProfileForm from '@/components/flatmate-profile-form';
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is too short."),
@@ -324,6 +324,15 @@ export default function ProfilePage() {
           </div>
         </form>
       </Form>
+
+      {/* Flatmate Matching Profile Section */}
+      <div className="mt-12 pt-12 border-t border-slate-200">
+        <div className="mb-8">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Flatmate Matching Profile</h2>
+            <p className="text-slate-500 mt-2 font-medium">Complete these details to get discovered by potential flatmates in the discovery feed.</p>
+        </div>
+        <FlatmateProfileForm />
+      </div>
     </div>
   );
 }

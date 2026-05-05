@@ -82,6 +82,22 @@ export type User = {
   role: 'Owner' | 'Agent' | 'Builder' | 'Worker' | 'Visitor';
   listings: number;
   imageUrl?: string;
+  flatmateProfile?: FlatmateProfile;
+};
+
+export type FlatmateProfile = {
+  gender: 'Male' | 'Female' | 'Other';
+  age: number;
+  occupation: string;
+  budget: string;
+  location: string;
+  diet: 'Veg' | 'Non-Veg' | 'Vegan';
+  smoking: 'No' | 'Occasionally' | 'Yes';
+  drinking: 'No' | 'Occasionally' | 'Yes';
+  pets: 'No' | 'Yes';
+  moveInDate: string;
+  about: string;
+  isSearching: boolean;
 };
 
 export type AgentData = {
