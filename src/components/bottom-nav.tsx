@@ -25,12 +25,12 @@ export function BottomNav() {
           
           if (item.isCenter) {
             return (
-              <div key={item.href} className="relative -top-6 flex flex-col items-center">
+              <div key={item.href} className="relative -top-4 flex flex-col items-center">
                 <Link
                   href={item.href}
-                  className="bg-primary p-4 rounded-[22px] shadow-xl shadow-primary/40 text-white border-4 border-white active:scale-90 transition-transform"
+                  className="bg-primary p-3 rounded-[18px] shadow-xl shadow-primary/40 text-white border-4 border-white active:scale-90 transition-transform"
                 >
-                  <Icon className="w-6 h-6" />
+                  <Icon className="w-5 h-5" />
                 </Link>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
                   {item.label}
