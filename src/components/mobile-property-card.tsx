@@ -40,13 +40,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Top Left: Verified Owner Badge (Large & Prominent) */}
-        <div className="absolute top-4 left-4">
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white text-[10px] font-black tracking-[0.15em] rounded-2xl shadow-xl shadow-emerald-500/30 border border-white/20">
-            <CheckCircle2 className="w-4 h-4" />
-            VERIFIED OWNER
-          </div>
-        </div>
+
 
         {/* Top Right: Heart */}
         <div className="absolute top-4 right-4">
@@ -62,10 +56,7 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
               <span className="text-3xl font-black tracking-tight">₹{property.price?.toLocaleString('en-IN') || '30,000'}</span>
               <span className="text-sm font-medium text-white/80">/month</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/60 backdrop-blur-md text-white text-[10px] font-bold rounded-full">
-              <MapPin className="w-3.5 h-3.5 text-blue-400" />
-              1.2 km from your location
-            </div>
+
           </div>
           <div className="flex flex-col items-end gap-1.5 pb-0.5">
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-500 text-white text-[9px] font-black uppercase tracking-wider rounded-xl shadow-lg animate-bounce">
