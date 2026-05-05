@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Search, Plus, MessageCircle, User } from 'lucide-react';
+import { Home, ClipboardList, Plus, Truck, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -10,9 +10,9 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
-    { icon: Search, label: 'Search', href: '/properties' },
+    { icon: ClipboardList, label: 'Demand Feed', href: '/requirements' },
     { icon: Plus, label: 'Post', href: '/post-property', isCenter: true },
-    { icon: MessageCircle, label: 'Chat', href: '/chat' },
+    { icon: Truck, label: 'Shift Home', href: '/shift-home' },
     { icon: User, label: 'Profile', href: '/dashboard' },
   ];
 

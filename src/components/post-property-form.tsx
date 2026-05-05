@@ -144,12 +144,12 @@ const formSchema = z.object({
 
 
 const FormSection = ({ title, description, children, className }: { title: string; description?: string; children: React.ReactNode, className?: string }) => (
-    <Card className={className}>
-        <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+    <Card className={cn("border-none shadow-md md:border md:shadow-sm rounded-[32px] md:rounded-xl overflow-hidden bg-white", className)}>
+        <CardHeader className="bg-slate-50/50 md:bg-transparent border-b border-slate-100 md:border-none pb-3 md:pb-6 px-5 md:px-6">
+        <CardTitle className="text-lg md:text-2xl font-black text-slate-800">{title}</CardTitle>
+        {description && <CardDescription className="text-xs md:text-sm">{description}</CardDescription>}
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 md:space-y-6 pt-4 md:pt-6 px-5 md:px-6">
         {children}
         </CardContent>
     </Card>
@@ -611,28 +611,39 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
     }
 
   return (
-    <div className="container py-12">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto">
-          <div className="text-center">
-            {!editId && (
-              <div className="flex justify-center mb-8">
-                 <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
-                    <Link href="/post-requirement" className="px-6 py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-colors">
-                       Looking for Home
-                    </Link>
-                    <button type="button" className="px-6 py-2.5 text-sm font-black rounded-xl bg-white text-primary shadow-sm ring-1 ring-slate-200/50 cursor-default">
-                       List Your Property
-                    </button>
-                 </div>
-              </div>
-            )}
-            <h1 className="text-2xl font-bold font-headline">{editId ? 'Edit Property' : 'Post a New Property'}</h1>
-            <p className="text-muted-foreground mt-2">{editId ? 'Update the details of your property.' : 'Fill in the details below to put your property on the market.'}</p>
-          </div>
+    <div className="bg-slate-50 md:bg-transparent min-h-screen pb-24 md:pb-0">
+      {/* Mobile Hero */}
+      <div className="md:hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-900 pt-12 pb-20 px-5 rounded-b-[40px] shadow-lg relative overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative z-10">
+           <h1 className="text-2xl font-black text-white tracking-tight">{editId ? 'Edit Property' : 'Post a New Property'}</h1>
+           <p className="text-indigo-100 text-sm mt-2">{editId ? 'Update your property details' : 'List your property on Nestil in just 2 minutes.'}</p>
+        </div>
+      </div>
+
+      <div className="md:container md:py-12 px-4 -mt-12 md:mt-0 relative z-20">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 md:space-y-8 max-w-4xl mx-auto">
+            
+            <div className="text-center hidden md:block">
+              {!editId && (
+                <div className="flex justify-center mb-8">
+                   <div className="inline-flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
+                      <Link href="/post-requirement" className="px-6 py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-colors">
+                         Looking for Home
+                      </Link>
+                      <button type="button" className="px-6 py-2.5 text-sm font-black rounded-xl bg-white text-primary shadow-sm ring-1 ring-slate-200/50 cursor-default">
+                         List Your Property
+                      </button>
+                   </div>
+                </div>
+              )}
+              <h1 className="text-2xl font-bold font-headline">{editId ? 'Edit Property' : 'Post a New Property'}</h1>
+              <p className="text-muted-foreground mt-2">{editId ? 'Update the details of your property.' : 'Fill in the details below to put your property on the market.'}</p>
+            </div>
 
           <FormSection title="Basic Information" description="Start with the essential details about your property.">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <FormField control={form.control} name="propertyType" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Property Type</FormLabel>
@@ -738,7 +749,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
           </FormSection>
 
           <FormSection title="Location Details" description="Accurate location helps attract the right tenants or buyers.">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <FormField control={form.control} name="state" render={({ field }) => (
                     <FormItem>
                         <FormLabel>State</FormLabel>
@@ -1341,6 +1352,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
           </Button>
         </form>
       </Form>
+      </div>
     </div>
   );
 }

@@ -37,6 +37,7 @@ const requirementSchema = z.object({
   furnishing: z.enum(['Furnished', 'Semi-furnished', 'Unfurnished']).optional(),
   parking: z.boolean().default(false),
   tenantType: z.enum(['Family', 'Bachelor', 'Anyone']).default('Anyone'),
+  professionStatus: z.enum(['Salaried', 'Business', 'Student', 'Other']).default('Salaried'),
 });
 
 export default function PostRequirementPage() {
@@ -62,6 +63,7 @@ export default function PostRequirementPage() {
       furnishing: undefined,
       parking: false,
       tenantType: 'Anyone',
+      professionStatus: 'Salaried',
     },
   });
 
@@ -99,6 +101,7 @@ export default function PostRequirementPage() {
           parking: values.parking,
           tenantType: values.tenantType,
         },
+        professionStatus: values.professionStatus,
         ...(values.securityDeposit ? { securityDeposit: values.securityDeposit } : {}),
         status: 'pending',
         createdAt: serverTimestamp(),
@@ -260,10 +263,10 @@ export default function PostRequirementPage() {
                 </div>
               </div>
 
-              {/* Preferences */}
+              {/* Preferences & Details */}
               <div className="space-y-4 pt-4">
-                <h3 className="text-lg font-black text-slate-900 border-b pb-2">Preferences</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <h3 className="text-lg font-black text-slate-900 border-b pb-2">Preferences & Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                         <Label className="font-bold text-slate-700">Furnishing Preference</Label>
                         <div className="flex flex-wrap gap-2">
@@ -298,6 +301,20 @@ export default function PostRequirementPage() {
                                 <SelectItem value="Anyone">Anyone</SelectItem>
                                 <SelectItem value="Family">Family</SelectItem>
                                 <SelectItem value="Bachelor">Bachelor</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="font-bold text-slate-700">Profession Status</Label>
+                        <Select onValueChange={(val) => form.setValue('professionStatus', val as 'Salaried' | 'Business' | 'Student' | 'Other')} defaultValue="Salaried">
+                            <SelectTrigger className="h-[54px] rounded-xl bg-slate-50 border-slate-200">
+                                <SelectValue placeholder="Select profession" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Salaried">Salaried</SelectItem>
+                                <SelectItem value="Business">Business</SelectItem>
+                                <SelectItem value="Student">Student</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

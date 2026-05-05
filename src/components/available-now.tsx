@@ -2,6 +2,7 @@
 
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { collection, query, where, limit, orderBy } from 'firebase/firestore';
+import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { MobilePropertyCard } from './mobile-property-card';
@@ -10,15 +11,26 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 export function AvailableNow() {
-  const [value, loading, error] = useCollection(
-    query(
-      collection(db, 'properties'),
-      where('listingStatus', '==', 'approved'),
-      limit(6)
-    )
-  );
+  const searchParams = useSearchParams();
+  const city = searchParams.get('city');
 
-  const properties = value?.docs.map(doc => ({
+  const getQuery = () => {
+    let q = query(
+      collection(db, 'properties'),
+      where('listingStatus', '==', 'approved')
+    );
+    
+    if (city) {
+      q = query(q, where('city', '==', city));
+    }
+    
+    // Removing limit(6) to avoid requiring a composite index in Firebase
+    return q;
+  };
+
+  const [value, loading, error] = useCollection(getQuery());
+
+  const properties = value?.docs.slice(0, 6).map(doc => ({
     id: doc.id,
     ...doc.data()
   } as Property)) || [];
@@ -35,10 +47,10 @@ export function AvailableNow() {
         </Button>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto no-scrollbar px-5 pb-2">
+      <div className="flex flex-col gap-4 px-5 pb-2">
         {loading ? (
             [...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="flex-shrink-0 w-[240px] h-[300px] rounded-2xl" />
+                <Skeleton key={i} className="w-full h-[300px] rounded-2xl" />
             ))
         ) : properties.length > 0 ? (
             properties.map((p) => (

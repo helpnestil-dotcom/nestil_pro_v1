@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { MapPin, Calendar, IndianRupee, MessageCircle, User, Info, Heart, Share2, ChevronRight, Download, PhoneCall } from "lucide-react";
 import { PropertyRequirement } from "@/lib/types";
-import { format, fromUnixTime } from "date-fns";
+import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { useRequirementFavorites } from "@/hooks/use-requirement-favorites";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -16,8 +16,12 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
 
   const getDate = (createdAt: any) => {
     if (!createdAt) return "Recently";
-    if (typeof createdAt === 'string') return format(new Date(createdAt), "MMM d, yyyy");
-    if (createdAt.seconds) return format(fromUnixTime(createdAt.seconds), "MMM d, yyyy");
+    try {
+      if (typeof createdAt === 'string') return formatDistanceToNow(new Date(createdAt), { addSuffix: true });
+      if (createdAt.seconds) return formatDistanceToNow(fromUnixTime(createdAt.seconds), { addSuffix: true });
+    } catch {
+      return "Recently";
+    }
     return "Recently";
   };
 
@@ -134,6 +138,9 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
               <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
                 {requirement.propertyType}
               </Badge>
+              <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md ml-auto border border-slate-100">
+                ID: NTL-R{requirement.id?.slice(0, 6).toUpperCase()}
+              </span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors">
               Needs {requirement.propertyType} in {requirement.area}

@@ -85,7 +85,9 @@ export default function Home() {
   return (
     <>
       <div className="md:hidden bg-white min-h-screen">
-        <MobileHeader />
+        <Suspense fallback={<div className="h-20 bg-white" />}>
+          <MobileHeader />
+        </Suspense>
         
         {/* Onboarding Entry Banner */}
         <div className="px-5 mb-6">
@@ -109,7 +111,9 @@ export default function Home() {
         <div className="space-y-8 py-2">
           <CategoryCards />
           <QuickFilters />
-          <AvailableNow />
+          <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl mx-5" />}>
+            <AvailableNow />
+          </Suspense>
           <PromoBanners />
           <WhyNestil />
         </div>
