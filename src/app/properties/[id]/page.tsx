@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Share2 } from 'lucide-react';
 import { MobilePropertyDetails } from '@/components/mobile-property-details';
 import { getWatermarkedImageUrl } from '@/lib/utils';
+import { PropertyViewTracker } from '@/components/property-view-tracker';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -128,6 +129,14 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
 
   return (
     <>
+      {/* Fire GA4 qualify_lead event on page view */}
+      <PropertyViewTracker
+        propertyId={property.id}
+        propertyType={property.propertyType}
+        city={property.city}
+        price={property.price}
+        listingFor={property.listingFor}
+      />
       <div className="md:hidden">
         <MobilePropertyDetails property={property} similarProperties={similarProperties} />
       </div>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { trackQualifyLead, trackCloseConvertLead } from '@/lib/analytics';
 
 const WhatsappIcon = () => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current">
@@ -50,6 +51,8 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
         const docSnap = await getDoc(privateDocRef);
         if (docSnap.exists()) {
           setPrivateDetails(docSnap.data() as PropertyOwner);
+          // Fire qualify_lead — user has revealed owner contact info
+          trackQualifyLead({ propertyId });
         } else {
           setPrivateDetails(null);
         }
@@ -99,12 +102,12 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
             </div>
             <div className="grid grid-cols-2 gap-2">
                 <Button asChild size="lg">
-                    <a href={`tel:${privateDetails.phone}`}>
+                    <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone' })}>
                         <Phone className="mr-2 h-5 w-5" /> Call
                     </a>
                 </Button>
                 <Button asChild size="lg" variant="accent">
-                    <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                    <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp' })}>
                         <WhatsappIcon /> WhatsApp
                     </a>
                 </Button>

@@ -8,6 +8,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Phone, Lock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { trackQualifyLead, trackCloseConvertLead } from '@/lib/analytics';
 
 const WhatsappIcon = () => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current">
@@ -49,6 +50,12 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
         const docSnap = await getDoc(privateDocRef);
         if (docSnap.exists()) {
           setPrivateDetails(docSnap.data() as PropertyOwner);
+          // Fire qualify_lead when contact details are revealed
+          trackQualifyLead({
+            propertyId,
+            city: (docSnap.data() as any)?.city,
+            price,
+          });
         } else {
           setPrivateDetails(null);
         }
@@ -88,12 +95,12 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
       ) : privateDetails ? (
         <div className="flex gap-3">
             <Button asChild variant="outline" className="flex-1 h-14 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 active:scale-[0.96] transition-all">
-               <a href={`tel:${privateDetails.phone}`}>
+               <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone', price })}>
                   <Phone className="mr-2 h-5 w-5 text-blue-500" /> Call
                </a>
             </Button>
             <Button asChild className="flex-1 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 border-none active:scale-[0.96] transition-all">
-               <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer">
+               <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp', price })}>
                   <WhatsappIcon /> <span className="ml-2">WhatsApp</span>
                </a>
             </Button>
