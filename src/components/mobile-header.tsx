@@ -105,27 +105,23 @@ export function MobileHeader() {
           <Home className="w-6 h-6 text-primary" />
           <h1 className="text-2xl font-bold font-heading text-primary tracking-tighter">nestil</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="relative" aria-label="View notifications">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100" aria-label="Notifications">
-              <Bell className="w-5 h-5 text-slate-700" />
-            </Button>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="relative h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors" aria-label="View notifications">
+            <Bell className="w-5 h-5 text-slate-700" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 border-2 border-white text-[10px] font-bold">
               5
             </Badge>
           </Link>
-          <Link href="/dashboard" aria-label="Go to profile">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 overflow-hidden" aria-label="User profile">
-              {user?.photoURL ? (
-                <img 
-                  src={user.photoURL} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="w-5 h-5 text-slate-700" />
-              )}
-            </Button>
+          <Link href="/dashboard" className="h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 overflow-hidden flex items-center justify-center transition-colors" aria-label="Go to profile">
+            {user?.photoURL ? (
+              <img 
+                src={user.photoURL} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-5 h-5 text-slate-700" />
+            )}
           </Link>
         </div>
       </div>

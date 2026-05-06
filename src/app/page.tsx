@@ -105,9 +105,9 @@ export default function Home() {
                 </div>
                 <p className="text-white/80 text-[11px] font-bold">Get a 48-hour Home Search Guide</p>
               </div>
-              <Button size="sm" className="bg-white text-primary font-black rounded-xl text-[10px] h-8 px-4 relative z-10">
+              <div className="inline-flex items-center justify-center bg-white text-primary font-black rounded-xl text-[10px] h-8 px-4 relative z-10 transition-colors">
                 Start Now
-              </Button>
+              </div>
             </div>
           </Link>
         </div>
