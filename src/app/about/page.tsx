@@ -1,5 +1,21 @@
-
+import type { Metadata } from 'next';
 import { Home, Goal, Target } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'About Nestil | Zero Brokerage Property Marketplace in India',
+  description: 'Learn about Nestil — India\'s trusted hyper-local property marketplace. We connect renters, buyers, and owners directly with zero brokerage, covering Bangalore, Hyderabad, Vijayawada, and beyond.',
+  keywords: 'about Nestil, zero brokerage property, local real estate India, direct owner property platform',
+  openGraph: {
+    title: 'About Nestil | Zero Brokerage Property Marketplace',
+    description: 'Nestil connects renters, buyers, and owners directly — no middlemen, zero brokerage, pan-India coverage.',
+    url: 'https://www.nestil.in/about',
+    siteName: 'Nestil',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://www.nestil.in/about',
+  },
+};
 
 export default function AboutPage() {
   return (

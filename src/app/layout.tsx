@@ -26,14 +26,52 @@ const poppins = Poppins({
 
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in India | Zero Brokerage',
-  description:
-    'Search, Buy, and Sell premium real estate with zero brokerage on Nestil. Direct owner properties in Bangalore, Karnataka.',
-  keywords: 'zero brokerage properties, direct owner flats Bangalore, houses for rent Karnataka, property marketplace Bangalore, Nestil',
+  title: {
+    default: 'Nestil | Buy, Rent & Sell Properties | Zero Brokerage',
+    template: '%s | Nestil',
+  },
+  description: 'Search, buy, and rent premium real estate with zero brokerage on Nestil. Direct owner properties in Bangalore, Hyderabad, Vijayawada, and across India.',
+  keywords: 'zero brokerage properties, direct owner flats Bangalore, houses for rent Karnataka, property marketplace India, Nestil, buy flat Bangalore',
+  metadataBase: new URL('https://www.nestil.in'),
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
-    apple: '/web-app-manifest-192x192.png',
+    apple: '/apple-touch-icon.png',
+    other: [{ rel: 'icon', url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }],
+  },
+  openGraph: {
+    title: 'Nestil | India\'s #1 Zero Brokerage Property Platform',
+    description: 'Find verified direct-owner properties across India with zero brokerage.',
+    url: 'https://www.nestil.in',
+    siteName: 'Nestil',
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.nestil.in/web-app-manifest-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'Nestil - Zero Brokerage Property Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nestil | Zero Brokerage Properties India',
+    description: 'Buy, rent and sell properties directly from owners across India with zero brokerage.',
+    images: ['https://www.nestil.in/web-app-manifest-512x512.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://www.nestil.in',
   },
 };
 

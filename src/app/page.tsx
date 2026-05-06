@@ -21,15 +21,19 @@ import { WhyNestil } from '@/components/why-nestil';
 import { Zap } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in AP, Telangana, Karnataka & TN',
-  description: 'Find your dream home instantly. Browse thousands of verified flats in Vijayawada, Hyderabad, Bangalore, and Chennai. Zero brokerage properties from direct owners.',
-  keywords: 'properties in AP, real estate Telangana, buy flat in Bangalore, rent house in Hyderabad, property in Chennai, Vijayawada real estate, Nestil',
+  title: 'Nestil | Buy, Rent & Sell Properties in Bangalore | Zero Brokerage',
+  description: 'Find your dream home instantly. Browse verified flats and houses in Bangalore with zero brokerage. Direct owner properties — no middlemen, no hidden fees.',
+  keywords: 'properties Bangalore, rent flat Bangalore, buy house Karnataka, zero brokerage property, direct owner listings, Nestil',
   openGraph: {
     title: 'Nestil | India\'s #1 Zero Brokerage Property Platform',
-    description: 'Find verified direct-owner properties in AP, Telangana, Karnataka, and Tamilnadu.',
+    description: 'Find verified direct-owner properties in Bangalore with zero brokerage.',
     url: 'https://www.nestil.in',
     siteName: 'Nestil',
     type: 'website',
+    images: [{ url: 'https://www.nestil.in/web-app-manifest-512x512.png', width: 512, height: 512, alt: 'Nestil' }],
+  },
+  alternates: {
+    canonical: 'https://www.nestil.in',
   },
 };
 
