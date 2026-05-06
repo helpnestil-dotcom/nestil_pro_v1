@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { Menu, Home, Building2, Activity, Users, Truck, HardHat, LogIn, Info } from 'lucide-react';
+import { Menu, Home, Building2, Activity, Users, Truck, HardHat, LogIn, Info, Shield } from 'lucide-react';
 import { UserNav } from './user-nav';
 import { useState } from 'react';
+import { useUser } from '@/firebase';
 
 const NavLogo = () => (
     <Link href="/" className="flex items-center gap-2 text-2xl font-bold font-heading tracking-tight">
@@ -31,6 +32,8 @@ const WhatsappIcon = ({className}: {className?: string}) => (
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useUser();
+  const isAdmin = user?.email === 'helpnestil@gmail.com';
 
   // Do not show header on admin pages
   if (pathname?.startsWith('/admin')) {
@@ -80,8 +83,8 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col bg-white/90 backdrop-blur-2xl border-b">
-      <div className="flex items-center justify-between h-[68px] px-4 md:px-10">
+    <header className="sticky top-0 z-50 flex flex-col bg-[#FCF8F5] px-4 md:px-6 pt-4 pb-4 gap-4">
+      <div className="flex items-center justify-between h-[68px] px-5 md:px-8 bg-white rounded-2xl shadow-sm border border-slate-100/50">
         {/* Left Side: Logo and Desktop Nav */}
         <div className="flex items-center gap-6">
             <NavLogo />
@@ -173,6 +176,14 @@ export function Header() {
                             </div>
                         ))}
                          <div className="border-t pt-4 mt-4 space-y-2">
+                             {isAdmin && (
+                               <Button asChild className="w-full justify-start text-lg px-4 py-2 h-auto text-indigo-600 bg-indigo-50/50" variant="ghost">
+                                  <Link href="/admin" onClick={handleMobileLinkClick}>
+                                      <Shield className="mr-2 h-5 w-5" />
+                                      Admin Panel
+                                  </Link>
+                               </Button>
+                             )}
                              <Button asChild className="w-full justify-start text-lg px-4 py-2 h-auto text-emerald-600" variant="ghost">
                                 <Link href="/post-requirement" onClick={handleMobileLinkClick}>
                                     Post a Need
@@ -197,17 +208,17 @@ export function Header() {
       </div>
 
       {/* Mobile Subheader */}
-      <div className="md:hidden flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar border-t border-slate-100 bg-slate-50/80 backdrop-blur-md">
-          <Link href="/requirements" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+      <div className="md:hidden flex items-center gap-3 px-1 overflow-x-auto no-scrollbar">
+          <Link href="/requirements" className="flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
               <Activity className="w-3.5 h-3.5" />
               Demand Feed
           </Link>
-          <Link href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
-              <Users className="w-3.5 h-3.5" />
+          <Link href="/properties?transaction=Rent&type=Flatmate+%2F+Co-living" className="flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              <Users className="w-4 h-4 text-primary" />
               Flatmates
           </Link>
-          <Link href="/shift-home" className="flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-extrabold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
-              <Truck className="w-3.5 h-3.5" />
+          <Link href="/shift-home" className="flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm hover:border-primary hover:text-primary transition-all">
+              <Truck className="w-4 h-4 text-primary" />
               Shift Home
           </Link>
       </div>

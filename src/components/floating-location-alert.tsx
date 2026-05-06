@@ -22,6 +22,7 @@ export function FloatingLocationAlert() {
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const { localitiesByCity, isLoading: locationsLoading } = useLocationHierarchy();
   const { user, profile } = useUserProfile();
@@ -42,6 +43,45 @@ export function FloatingLocationAlert() {
     if (!searchQuery) return displayLocalities;
     return displayLocalities.filter(loc => loc.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [displayLocalities, searchQuery]);
+
+  // Effect to check if user has existing alerts and handle delay
+  React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const checkExistingAlerts = async () => {
+      if (!user || !firestore) {
+        setIsVisible(false);
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(firestore, 'property_requirements'),
+          where('userId', '==', user.uid),
+          where('isAlert', '==', true),
+          where('status', '==', 'active')
+        );
+        const snap = await getDocs(q);
+        
+        // If they don't have any active alerts, show the button after 5 seconds
+        if (snap.empty && !hasSaved) {
+          timeoutId = setTimeout(() => {
+            setIsVisible(true);
+          }, 5000); // 5 seconds delay
+        } else {
+          setIsVisible(false); // Hide if they already have alerts
+        }
+      } catch (error) {
+        console.error("Error checking existing alerts:", error);
+      }
+    };
+
+    checkExistingAlerts();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [user, firestore, hasSaved]);
 
   const toggleLocation = (location: string) => {
     if (selectedLocations.includes(location)) {
@@ -111,11 +151,12 @@ export function FloatingLocationAlert() {
       }
 
       setHasSaved(true);
+      setIsVisible(false); // Immediately hide the button
       toast({
         title: 'Alerts Activated! 🔔',
         description: `You will now receive notifications for ${selectedLocations.length} locations.`,
       });
-      setTimeout(() => setIsOpen(false), 2000);
+      setIsOpen(false);
     } catch (error) {
       console.error("Error saving alerts:", error);
       toast({ title: 'Failed to save', description: 'Please try again later.', variant: 'destructive' });
@@ -124,7 +165,7 @@ export function FloatingLocationAlert() {
     }
   };
 
-  if (hasSaved) return null;
+  if (hasSaved || !isVisible) return null;
 
   return (
     <>

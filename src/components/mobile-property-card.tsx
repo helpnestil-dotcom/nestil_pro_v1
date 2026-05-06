@@ -140,8 +140,8 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
               <span className="text-xs font-bold text-slate-800 leading-none">{property.ownerName || 'Verified Host'}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-[9px] font-bold text-primary px-2 py-1 bg-primary/5 rounded-lg border border-primary/10">
-            <CheckCircle2 className="w-3 h-3" />
+          <div className="flex items-center gap-1 text-[10px] font-bold text-violet-600 px-2.5 py-1 bg-violet-50 rounded-full border border-violet-200 shadow-sm">
+            <CheckCircle2 className="w-3.5 h-3.5" />
             VERIFIED
           </div>
         </div>

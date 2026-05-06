@@ -97,11 +97,12 @@ export default function RootLayout({
         className={cn(
           inter.variable,
           poppins.variable,
-          "font-body antialiased selection:bg-primary/20 selection:text-primary"
+          "font-body antialiased selection:bg-primary/20 selection:text-primary bg-[#FCF8F5]"
         )}
       >
         <FirebaseClientProvider>
-          <div className="flex flex-col min-h-screen overflow-x-hidden">
+          {/* Main App Container with Curved Corners */}
+          <div className="flex flex-col min-h-[100dvh] overflow-x-hidden bg-white rounded-[32px] shadow-2xl ring-1 ring-slate-100 max-w-full mx-auto relative">
             <div className="hidden md:block">
               <Header />
             </div>

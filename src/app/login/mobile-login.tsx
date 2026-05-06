@@ -164,8 +164,8 @@ function LoginFormComponent() {
             By continuing, you agree to Nestil's <Link href="/terms-of-service" className="text-primary font-bold hover:underline">Terms of Service</Link> and <Link href="/privacy-policy" className="text-primary font-bold hover:underline">Privacy Policy</Link>.
           </p>
 
-          <div className="pt-2 text-center">
-            <Link href="/admin/login" className="text-[10px] font-black text-slate-300 hover:text-slate-400 transition-colors uppercase tracking-[0.2em]">
+          <div className="pt-4 pb-6 text-center">
+            <Link href="/admin/login" className="text-[10px] font-black text-slate-400 hover:text-slate-500 transition-colors uppercase tracking-[0.2em] underline decoration-slate-200 underline-offset-4">
               Staff Admin Portal
             </Link>
           </div>

@@ -47,6 +47,15 @@ const WhatsappIcon = () => (
     </svg>
 );
 
+// Safe date parser to handle Firestore Timestamps, strings, or missing dates
+const parseDate = (dateVal: any) => {
+  if (!dateVal) return null;
+  if (typeof dateVal === 'string') return new Date(dateVal).toISOString();
+  if (typeof dateVal.toDate === 'function') return dateVal.toDate().toISOString();
+  if (dateVal.seconds) return new Date(dateVal.seconds * 1000).toISOString();
+  return null;
+};
+
 // This function gets called at build time on the server.
 async function getProperty(id: string): Promise<Property | null> {
   const docRef = doc(db, 'properties', id);
@@ -60,8 +69,8 @@ async function getProperty(id: string): Promise<Property | null> {
   const property: Property = {
     id: docSnap.id,
     ...data,
-    postedAt: data.postedAt.toDate().toISOString(),
-    updatedAt: data.updatedAt.toDate().toISOString(),
+    postedAt: parseDate(data.postedAt) || new Date().toISOString(),
+    updatedAt: parseDate(data.updatedAt) || new Date().toISOString(),
   } as Property;
 
   return property;
@@ -84,8 +93,8 @@ async function getSimilarProperties(property: Property): Promise<Property[]> {
               similar.push({
                  id: docSnap.id,
                  ...data,
-                 postedAt: data.postedAt.toDate().toISOString(),
-                 updatedAt: data.updatedAt.toDate().toISOString(),
+                 postedAt: parseDate(data.postedAt),
+                 updatedAt: parseDate(data.updatedAt),
               } as Property);
           }
       });

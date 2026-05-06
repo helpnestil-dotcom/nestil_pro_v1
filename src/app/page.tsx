@@ -129,7 +129,6 @@ export default function Home() {
         <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
           <DynamicTicker />
         </Suspense>
-        <FeaturedAdDice />
         <Suspense fallback={<FeaturedPropertiesSkeleton />}>
           <FeaturedProperties />
         </Suspense>

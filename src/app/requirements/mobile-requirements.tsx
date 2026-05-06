@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useMemo, useEffect } from 'react';
 import { useRequirements } from '@/hooks/use-requirements';
 import { RequirementCard, RequirementCardSkeleton } from '@/components/requirement-card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ function DemandFeedContent() {
   const [locality, setLocality] = useState('all');
   const [purpose, setPurpose] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { requirements, isLoading } = useRequirements({ 
     state: stateParam,
@@ -33,7 +35,16 @@ function DemandFeedContent() {
     setKeyword('all');
     setLocality('all');
     setPurpose('All');
+    setCurrentPage(1);
   };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stateParam, keyword, locality, purpose]);
+
+  const totalPages = Math.ceil(activeRequirements.length / itemsPerPage);
+  const paginatedRequirements = activeRequirements.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const dynamicLocalities = useMemo(() => {
     if (!activeRequirements) return [];
@@ -206,10 +217,37 @@ function DemandFeedContent() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
             >
-              {activeRequirements.map((req) => (
+              {paginatedRequirements.map((req) => (
                 <RequirementCard key={req.id} requirement={req} />
               ))}
             </motion.div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6 pb-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="rounded-xl font-bold text-xs"
+                >
+                  Previous
+                </Button>
+                <span className="text-xs font-bold text-slate-500">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="rounded-xl font-bold text-xs"
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </AnimatePresence>
         ) : (
           <motion.div 

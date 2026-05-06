@@ -8,6 +8,11 @@ import { cn } from '@/lib/utils';
 export function BottomNav() {
   const pathname = usePathname();
 
+  // Hide on login page and admin pages
+  if (pathname === '/login' || pathname?.startsWith('/admin') || pathname === '/user-login') {
+    return null;
+  }
+
   const navItems = [
     { icon: Home, label: 'Home', href: '/' },
     { icon: ClipboardList, label: 'Demands', href: '/requirements' },
