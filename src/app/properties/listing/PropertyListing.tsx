@@ -153,17 +153,17 @@ function PropertySearchComponent() {
     });
 
     return {
-      states: Array.from(hierarchy.states).sort(),
-      citiesByState: Object.fromEntries(Object.entries(hierarchy.citiesByState).map(([k, v]) => [k, Array.from(v as any).sort()])),
-      localitiesByCity: Object.fromEntries(Object.entries(hierarchy.localitiesByCity).map(([k, v]) => [k, Array.from(v as any).sort()])),
-      nearbyByLocality: Object.fromEntries(Object.entries(hierarchy.nearbyByLocality).map(([k, v]) => [k, Array.from(v as any).sort()]))
+      states: Array.from(hierarchy.states).sort() as string[],
+      citiesByState: Object.fromEntries(Object.entries(hierarchy.citiesByState).map(([k, v]) => [k, Array.from(v as any).sort()])) as Record<string, string[]>,
+      localitiesByCity: Object.fromEntries(Object.entries(hierarchy.localitiesByCity).map(([k, v]) => [k, Array.from(v as any).sort()])) as Record<string, string[]>,
+      nearbyByLocality: Object.fromEntries(Object.entries(hierarchy.nearbyByLocality).map(([k, v]) => [k, Array.from(v as any).sort()])) as Record<string, string[]>
     };
   }, [propertiesFromQuery]);
 
-  const availableStates = locationHierarchy.states;
-  const availableCities = stateParam !== 'all' ? (locationHierarchy.citiesByState[stateParam] || []) : [];
-  const availableLocalities = keyword !== 'all' ? (locationHierarchy.localitiesByCity[keyword] || []) : [];
-  const availableNearby = locality !== 'all' ? (locationHierarchy.nearbyByLocality[locality] || []) : [];
+  const availableStates: string[] = locationHierarchy.states;
+  const availableCities: string[] = stateParam !== 'all' ? (locationHierarchy.citiesByState[stateParam] || []) : [];
+  const availableLocalities: string[] = keyword !== 'all' ? (locationHierarchy.localitiesByCity[keyword] || []) : [];
+  const availableNearby: string[] = locality !== 'all' ? (locationHierarchy.nearbyByLocality[locality] || []) : [];
   
   const filteredProperties = useMemo(() => {
     if (!propertiesFromQuery) return [];
