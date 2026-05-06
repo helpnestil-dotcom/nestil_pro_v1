@@ -8,11 +8,15 @@ import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { useRequirementFavorites } from "@/hooks/use-requirement-favorites";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/firebase/provider";
+import { useRouter } from "next/navigation";
 
 export function RequirementCard({ requirement }: { requirement: PropertyRequirement }) {
   const { favoriteIds, toggleFavorite } = useRequirementFavorites();
   const isFavorited = favoriteIds.has(requirement.id);
   const { toast } = useToast();
+  const { user } = useUser();
+  const router = useRouter();
 
   const getDate = (createdAt: any) => {
     if (!createdAt) return "Recently";
@@ -250,14 +254,36 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <Button 
             className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20 bg-[#25D366] hover:bg-[#1ebd5b] text-white border-0 text-sm sm:text-base"
-            onClick={() => window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank')}
+            onClick={() => {
+              if (!user) {
+                toast({
+                  title: "Authentication Required",
+                  description: "Please login to contact the seeker.",
+                  variant: "destructive"
+                });
+                router.push('/login');
+                return;
+              }
+              window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank');
+            }}
           >
             <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
             WhatsApp
           </Button>
           <Button 
             className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white border-0 text-sm sm:text-base"
-            onClick={() => window.open(`tel:+91${requirement.whatsappNumber}`, '_self')}
+            onClick={() => {
+              if (!user) {
+                toast({
+                  title: "Authentication Required",
+                  description: "Please login to contact the seeker.",
+                  variant: "destructive"
+                });
+                router.push('/login');
+                return;
+              }
+              window.open(`tel:+91${requirement.whatsappNumber}`, '_self');
+            }}
           >
             <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
             Call Now

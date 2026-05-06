@@ -18,7 +18,19 @@ export const locationData: State[] = [
   {
     name: 'Karnataka',
     districts: [
-      { name: 'Bangalore', localities: [{ name: 'Bellandur' }, { name: 'Koramangala' }, { name: 'Indiranagar' }, { name: 'HSR Layout' }, { name: 'Whitefield' }, { name: 'Electronic City' }] }
+      { 
+        name: 'Bangalore', 
+        localities: [
+          { name: 'Whitefield' }, { name: 'Marathahalli' }, { name: 'Bellandur' }, 
+          { name: 'Sarjapur Road' }, { name: 'KR Puram' }, { name: 'BTM Layout' }, 
+          { name: 'Jayanagar' }, { name: 'JP Nagar' }, { name: 'Electronic City' }, 
+          { name: 'Bannerghatta Road' }, { name: 'Yelahanka' }, { name: 'Hebbal' }, 
+          { name: 'Devanahalli' }, { name: 'Manyata Tech Park' }, { name: 'MG Road' }, 
+          { name: 'Brigade Road' }, { name: 'Indiranagar' }, { name: 'Ulsoor' }, 
+          { name: 'Rajajinagar' }, { name: 'Vijayanagar' }, { name: 'Yeshwanthpur' }, 
+          { name: 'Hoskote' }
+        ] 
+      }
     ],
   }
 ];

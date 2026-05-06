@@ -98,7 +98,7 @@ export function MobileHeader() {
     : 'Select city, area or landmark';
 
   return (
-    <header className="px-4 pt-4 pb-6 bg-[#FCF8F5] space-y-6">
+    <header className="px-4 pt-4 pb-6 bg-[#FCF8F5] space-y-6 rounded-t-[32px]">
       {/* Top Nav inside a floating white box */}
       <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100/50">
         <div className="flex items-center gap-1.5">

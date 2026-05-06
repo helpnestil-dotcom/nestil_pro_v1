@@ -26,10 +26,18 @@ export function useLocationHierarchy() {
   }, [firestore]);
 
   const hierarchy = useMemo(() => {
+    const defaultLocalities = [
+      "Whitefield", "Marathahalli", "Bellandur", "Sarjapur Road", "KR Puram", 
+      "BTM Layout", "Jayanagar", "JP Nagar", "Electronic City", "Bannerghatta Road", 
+      "Yelahanka", "Hebbal", "Devanahalli", "Manyata Tech Park", "MG Road", 
+      "Brigade Road", "Indiranagar", "Ulsoor", "Rajajinagar", "Vijayanagar", 
+      "Yeshwanthpur", "Hoskote"
+    ];
+
     const data: any = {
-      states: new Set<string>(),
-      citiesByState: {} as Record<string, Set<string>>,
-      localitiesByCity: {} as Record<string, Set<string>>,
+      states: new Set<string>(['Karnataka']),
+      citiesByState: { 'Karnataka': new Set<string>(['Bangalore']) } as Record<string, Set<string>>,
+      localitiesByCity: { 'Bangalore': new Set<string>(defaultLocalities) } as Record<string, Set<string>>,
       nearbyByLocality: {} as Record<string, Set<string>>
     };
 

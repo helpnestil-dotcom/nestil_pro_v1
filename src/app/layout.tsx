@@ -102,7 +102,7 @@ export default function RootLayout({
       >
         <FirebaseClientProvider>
           {/* Main App Container with Curved Corners */}
-          <div className="flex flex-col min-h-[100dvh] overflow-x-hidden bg-white rounded-[32px] shadow-2xl ring-1 ring-slate-100 max-w-full mx-auto relative">
+          <div className="flex flex-col min-h-[100dvh] overflow-hidden bg-white rounded-[32px] shadow-2xl ring-1 ring-slate-100 max-w-full mx-auto relative">
             <div className="hidden md:block">
               <Header />
             </div>

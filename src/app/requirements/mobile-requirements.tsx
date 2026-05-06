@@ -62,7 +62,7 @@ function DemandFeedContent() {
   return (
     <div className="bg-white min-h-screen pb-28">
       {/* Mobile Hero */}
-      <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 px-5 pt-14 pb-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 px-5 pt-14 pb-8 text-white relative overflow-hidden rounded-t-[32px]">
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16" />
         
@@ -296,8 +296,16 @@ function DemandFeedContent() {
 export default function RequirementsPage() {
   return (
     <Suspense fallback={
-      <div className="px-5 pt-20 space-y-4">
-        {[...Array(4)].map((_, i) => <RequirementCardSkeleton key={i} />)}
+      <div className="bg-white min-h-screen">
+        <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 px-5 pt-14 pb-32 text-white relative rounded-t-[32px]">
+           <div className="animate-pulse space-y-4">
+              <div className="h-8 w-32 bg-white/20 rounded-full" />
+              <div className="h-12 w-48 bg-white/20 rounded-xl" />
+           </div>
+        </div>
+        <div className="px-5 -mt-20 space-y-4 relative z-10">
+          {[...Array(3)].map((_, i) => <RequirementCardSkeleton key={i} />)}
+        </div>
       </div>
     }>
       <DemandFeedContent />
