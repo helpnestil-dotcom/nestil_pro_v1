@@ -39,15 +39,15 @@ export function CategoryCards() {
           key={cat.title} 
           href={cat.href}
           className={cn(
-            "flex flex-col items-center text-center p-4 rounded-2xl transition-all hover:scale-[1.02] border border-transparent hover:border-slate-100",
+            "flex flex-col items-center text-center p-3 rounded-2xl transition-all active:scale-95 border border-transparent shadow-sm",
             cat.bgColor
           )}
         >
-          <div className={cn("p-2 rounded-xl bg-white shadow-sm mb-3", cat.iconColor)}>
-            <cat.icon className="w-6 h-6" />
+          <div className={cn("p-2.5 rounded-2xl bg-white shadow-sm mb-3", cat.iconColor)}>
+            <cat.icon className="w-5 h-5" />
           </div>
-          <h3 className="text-[11px] font-bold text-slate-800 leading-tight mb-1">{cat.title}</h3>
-          <p className="text-[9px] text-slate-500 font-medium leading-tight">{cat.description}</p>
+          <h3 className="text-[10px] font-bold font-heading text-slate-800 leading-tight mb-1">{cat.title}</h3>
+          <p className="text-[8px] text-slate-400 font-medium leading-tight">{cat.description}</p>
         </Link>
       ))}
     </div>

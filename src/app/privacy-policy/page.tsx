@@ -73,7 +73,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <p>
                 Nestil Support<br/>
-                Vijayawada, Andhra Pradesh<br/>
+                Bangalore, Karnataka<br/>
                 helpnestil@gmail.com
             </p>
           </div>

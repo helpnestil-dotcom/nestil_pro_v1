@@ -13,6 +13,7 @@ import type { Property } from '@/lib/types';
 import { locationData } from '@/lib/locations';
 import { Slider } from './ui/slider';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -21,17 +22,38 @@ const propertyTypesList = [
 
 const SearchWidget = () => {
   const router = useRouter();
-  const [propertiesFromQuery, setPropertiesFromQuery] = useState<Property[]>([]);
   const firestore = useFirestore();
+  const { states, citiesByState, localitiesByCity, isLoading: isLoadingLocs } = useLocationHierarchy();
 
   const [searchTab, setSearchTab] = useState('buy');
   const [state, setState] = useState('all');
   const [district, setDistrict] = useState('all');
+  const [locality, setLocality] = useState('all');
   const [propertyType, setPropertyType] = useState('all');
   
   // Budget as a range [min, max]
   const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 100000000]); // Default max 10Cr
   const [isLocating, setIsLocating] = useState(false);
+
+  useEffect(() => {
+    // Sync with global user location
+    const handleLocationSync = () => {
+      try {
+        const locationJson = localStorage.getItem('userLocation');
+        if (locationJson) {
+          const loc = JSON.parse(locationJson);
+          if (loc.state) setState(loc.state);
+          if (loc.district) setDistrict(loc.district);
+          if (loc.locality) setLocality(loc.locality);
+        }
+      } catch (error) {
+        console.error("Could not sync location", error);
+      }
+    };
+    handleLocationSync();
+    window.addEventListener('location-changed', handleLocationSync);
+    return () => window.removeEventListener('location-changed', handleLocationSync);
+  }, []);
 
   useEffect(() => {
     // Reset budget range when tab changes
@@ -65,9 +87,16 @@ const SearchWidget = () => {
         props = props.filter(p => p.propertyType === 'Flatmate / Co-living');
     }
 
+    if (state !== 'all') {
+        props = props.filter(p => p.state === state);
+    }
+
     if (district !== 'all') {
-      const altDistrict = district.endsWith(' district') ? district.replace(' district', '') : `${district} district`;
-      props = props.filter(p => p.city === district || p.city === altDistrict);
+      props = props.filter(p => p.city === district);
+    }
+
+    if (locality !== 'all') {
+        props = props.filter(p => p.address === locality || p.subLocality === locality);
     }
 
     // Apply client-side filters for instant count
@@ -78,7 +107,7 @@ const SearchWidget = () => {
     props = props.filter(p => p.price >= budgetRange[0] && p.price <= budgetRange[1]);
     
     return props.length;
-  }, [fetchedProperties, propertyType, budgetRange, searchTab, district]);
+  }, [fetchedProperties, propertyType, budgetRange, searchTab, state, district, locality]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -89,6 +118,10 @@ const SearchWidget = () => {
 
     if (district && district !== 'all') {
       params.set('keyword', district);
+    }
+
+    if (locality && locality !== 'all') {
+        params.set('locality', locality);
     }
 
     if (searchTab === 'buy') {
@@ -120,8 +153,7 @@ const SearchWidget = () => {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 // In a real app, we would use reverse geocoding here.
-                // For now, we'll simulate finding "Bangalore" if the user is in a certain range, 
-                // or just show a message.
+                // For now, we'll simulate finding "Bangalore"
                 setTimeout(() => {
                     setState('Karnataka');
                     setDistrict('Bangalore');
@@ -156,7 +188,7 @@ const SearchWidget = () => {
                         <TabsTrigger 
                             key={tab} 
                             value={tab} 
-                            className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md min-w-[100px] whitespace-nowrap font-black text-[13px] uppercase tracking-wider transition-all duration-300"
+                            className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md min-w-[100px] whitespace-nowrap font-bold font-heading text-[12px] uppercase tracking-wider transition-all duration-300"
                         >
                             {tab === 'buy' ? 'Buy' : tab === 'rent' ? 'Rent' : tab === 'flatmates' ? 'Flatmates' : tab === 'commercial' ? 'Office' : 'Plots'}
                         </TabsTrigger>
@@ -166,34 +198,49 @@ const SearchWidget = () => {
             
             <div className="flex flex-col gap-6">
                 {/* Main Filter Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Location Selectors */}
-                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="relative group/select">
                             <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">State</label>
-                            <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); }}>
+                            <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); setLocality('all'); }}>
                                 <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                    <SelectValue placeholder="Select State" />
+                                    <SelectValue placeholder={isLoadingLocs ? "Loading..." : "Select State"} />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
-                                    <SelectItem value="all" className="font-bold text-primary italic">All of India</SelectItem>
-                                    {locationData.map((s) => (
-                                        <SelectItem key={s.name} value={s.name} className="font-semibold">{s.name}</SelectItem>
+                                    <SelectItem value="all" className="font-bold text-primary italic">All Regions</SelectItem>
+                                    {states.map((s) => (
+                                        <SelectItem key={s} value={s} className="font-semibold">{s}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
                         
                         <div className="relative group/select">
-                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Sub Location</label>
-                            <Select value={district} onValueChange={setDistrict} disabled={state === 'all'}>
+                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">City</label>
+                            <Select value={district} onValueChange={(val) => { setDistrict(val); setLocality('all'); }} disabled={state === 'all'}>
                                 <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                    <SelectValue placeholder="Choose District" />
+                                    <SelectValue placeholder="Choose City" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
                                     <SelectItem value="all" className="font-bold text-primary italic">Entire State</SelectItem>
-                                    {locationData.find(s => s.name === state)?.districts.map((d) => (
-                                        <SelectItem key={d.name} value={d.name} className="font-semibold">{d.name}</SelectItem>
+                                    {(citiesByState[state] || []).map((c) => (
+                                        <SelectItem key={c} value={c} className="font-semibold">{c}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="relative group/select">
+                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Area / Street</label>
+                            <Select value={locality} onValueChange={setLocality} disabled={district === 'all'}>
+                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                    <SelectValue placeholder="Locality" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                    <SelectItem value="all" className="font-bold text-primary italic">All Areas</SelectItem>
+                                    {(localitiesByCity[district] || []).map((l) => (
+                                        <SelectItem key={l} value={l} className="font-semibold">{l}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -270,9 +317,9 @@ const SearchWidget = () => {
                     
                     <Button 
                         onClick={handleSearch} 
-                        className="w-full sm:w-56 h-16 bg-slate-900 hover:bg-primary text-white font-black text-lg rounded-2xl shadow-xl shadow-slate-200 hover:shadow-primary/30 transform transition-all duration-300 group/search"
+                        className="w-full sm:w-56 h-16 bg-slate-900 hover:bg-primary text-white font-bold font-heading text-lg rounded-2xl shadow-xl shadow-slate-200 hover:shadow-primary/30 transform transition-all duration-300 group/search"
                     >
-                        <Search className="mr-3 h-6 w-6 transform group-hover/search:scale-110 transition-transform" /> 
+                        <Search className="mr-3 h-5 w-5 transform group-hover/search:scale-110 transition-transform" /> 
                         Search Now
                     </Button>
                 </div>
@@ -298,11 +345,11 @@ export function HeroSection() {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[12px] font-black uppercase tracking-[0.25em] text-theme1 mb-6 md:mb-12"
+                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-6 md:mb-10"
             >
                 <div className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme2 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-theme2"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                 </div>
                 Premium Real Estate Network
             </motion.div>
@@ -311,19 +358,19 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-black text-[38px] md:text-[64px] lg:text-[72px] leading-[1.05] tracking-[-0.02em] max-w-4xl text-theme1 mb-4 md:mb-8"
+                className="font-bold font-heading text-[42px] md:text-[68px] lg:text-[76px] leading-[1.1] tracking-[-0.03em] max-w-4xl text-slate-900 mb-6"
             >
               Moving to a new city?<br/>
-              <span style={{ background: 'linear-gradient(90deg, #FF4D6D, #7B61FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Find your home, flatmate & community</span> in one place.
+              <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Find your home, flatmate & community</span> in one place.
             </motion.h1>
             
             <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-[18px] md:text-[22px] text-[#64748B] max-w-2xl leading-relaxed mb-8 md:mb-16 font-bold"
+                className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed mb-10 md:mb-14 font-medium"
             >
-              Verified owners, direct contact & zero brokerage.
+              Verified owners, direct contact & zero brokerage. Your complete 48-hour home search guide.
             </motion.p>
 
             <motion.div 

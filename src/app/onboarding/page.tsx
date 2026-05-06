@@ -9,10 +9,20 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const router = useRouter();
+  
+  const { localitiesByCity, nearbyByLocality, isLoading: isLocationsLoading } = useLocationHierarchy();
   
   // Form State
   const [officeLocation, setOfficeLocation] = useState('');
@@ -23,6 +33,19 @@ export default function OnboardingPage() {
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
+
+  // Dynamically compute nearby areas based on database
+  const suggestedAreas = officeLocation ? (nearbyByLocality[officeLocation] || []) : [];
+  
+  // Create display objects for the suggestions. If no nearby places are tagged in DB, just show the selected location.
+  const displayAreas = suggestedAreas.length > 0 
+    ? suggestedAreas.slice(0, 4).map((area, idx) => ({
+        name: area,
+        time: `${10 + (idx * 5)} min`,
+        rent: 'Check Listings',
+        bestMatch: idx === 0
+      }))
+    : officeLocation ? [{ name: officeLocation, time: '0 min', rent: 'Check Listings', bestMatch: true }] : [];
 
   return (
     <div className="min-h-screen bg-white md:bg-slate-50 flex items-center justify-center">
@@ -38,8 +61,8 @@ export default function OnboardingPage() {
               exit={{ opacity: 0, x: -20 }}
               className="p-8 pt-20 flex flex-col items-center text-center space-y-10"
             >
-              <h1 className="text-3xl font-black text-primary tracking-tighter">nestil</h1>
-              <div className="space-y-4">
+              <h1 className="text-3xl font-black text-primary tracking-tighter relative z-10">nestil</h1>
+              <div className="space-y-4 relative z-10">
                 <h2 className="text-2xl font-extrabold text-slate-900 leading-tight">
                   Find your perfect home in a new city in 48 hours
                 </h2>
@@ -48,11 +71,11 @@ export default function OnboardingPage() {
                 </p>
               </div>
               
-              <div className="relative w-full aspect-square max-w-[240px]">
-                 <Image src="https://img.icons8.com/illustrations/external-fauzidea-flat-fauzidea/256/external-traveler-holidays-fauzidea-flat-fauzidea.png" fill sizes="100vw" className="object-contain" alt="Welcome" />
+              <div className="relative w-full aspect-square max-w-[280px]">
+                 <Image src="/family-onboarding.png" fill sizes="(max-width: 768px) 100vw, 300px" className="object-contain relative z-10 drop-shadow-xl" alt="Family holding a cardboard roof" priority />
               </div>
 
-              <div className="w-full space-y-3">
+              <div className="w-full space-y-3 relative z-10">
                 <Button 
                     onClick={nextStep}
                     className="w-full h-14 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 text-sm"
@@ -85,26 +108,66 @@ export default function OnboardingPage() {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
                   <Search className="h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                 </div>
-                <Input 
-                  placeholder="Bellandur, Bangalore" 
-                  value={officeLocation}
-                  onChange={(e) => setOfficeLocation(e.target.value)}
-                  className="h-14 pl-12 pr-4 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-primary focus-visible:bg-white transition-all text-base font-bold"
-                />
+                <Select value={officeLocation} onValueChange={setOfficeLocation} disabled={isLocationsLoading}>
+                  <SelectTrigger className="h-14 pl-12 pr-4 rounded-2xl border-slate-200 bg-slate-50/50 focus:ring-primary focus:bg-white transition-all text-base font-bold w-full">
+                    <SelectValue placeholder={isLocationsLoading ? "Loading areas..." : "Select Office Area (e.g. Bellandur)"} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl shadow-xl max-h-[300px]">
+                    {(localitiesByCity['Bangalore'] || []).map(loc => (
+                        <SelectItem key={loc} value={loc} className="font-bold">{loc}</SelectItem>
+                    ))}
+                    {(!localitiesByCity['Bangalore'] || localitiesByCity['Bangalore'].length === 0) && !isLocationsLoading && (
+                        <div className="p-4 text-center text-sm text-slate-500 font-medium">No areas found.</div>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="w-full aspect-[4/3] rounded-3xl bg-slate-100 relative overflow-hidden border border-slate-200 shadow-inner">
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative">
-                        <MapPin className="w-10 h-10 text-primary animate-bounce fill-primary/20" />
-                        <div className="w-4 h-4 bg-primary/20 rounded-full blur-sm mx-auto -mt-2" />
-                    </div>
+              <div className="w-full aspect-[4/3] rounded-3xl bg-slate-100 relative overflow-hidden shadow-inner group cursor-default">
+                 {/* Premium Map Background */}
+                 <Image 
+                    src="/blue-pin-map.png" 
+                    fill 
+                    className={cn(
+                        "object-cover transition-transform duration-700 ease-out", 
+                        officeLocation ? "scale-105 opacity-100" : "scale-100 opacity-60 grayscale-[50%]"
+                    )} 
+                    alt="Map Background" 
+                    sizes="(max-width: 768px) 100vw, 400px" 
+                 />
+                 
+                 {/* Dark overlay when selected */}
+                 <div className={cn(
+                     "absolute inset-0 transition-opacity duration-500",
+                     officeLocation ? "bg-primary/10" : "bg-transparent"
+                 )} />
+
+                 {/* Animated Info Card */}
+                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-20">
+                    <motion.div 
+                        initial={false}
+                        animate={officeLocation ? { y: 0, scale: 1 } : { y: 10, scale: 0.9 }}
+                        className="relative z-10 flex flex-col items-center"
+                    >
+                        {/* Glassmorphism Location Tag */}
+                        <AnimatePresence>
+                            {officeLocation && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 5 }}
+                                    className="px-4 py-2 bg-white/90 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl flex items-center gap-2"
+                                >
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                    <span className="text-sm font-black text-slate-800">{officeLocation}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
                  </div>
-                 {/* Dummy Map Overlay */}
-                 <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'url("https://www.google.com/maps/vt/pb=!1m4!1m3!1i13!2i5945!3i3694!2m3!1e0!2sm!3i636043180!3m17!2sen!3sUS!5e18!12m4!1e68!2m2!1sset!2sRoadmap!12m3!1e37!2m1!1ssmartmaps!12m3!1e12!2b1!4b1!45m2!1e0!2i81!50m1!1e2!51m26!1i4111425!2i4111429!2i4111463!4i1!5i1!7i20!8i240!12i12!13i50!17i200!18i15!20i25!22i1!23i1!25i1!26i2!27i1!28i1!48m1!1e1!61m1!1e1!67m1!1e1!102m1!1e1!120m4!2m3!1e1!2e1!3f1!127m1!1e1")' }} />
               </div>
 
               <Button 
@@ -132,12 +195,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-3">
-                {[
-                    { name: 'Bellandur', time: '15 min', rent: '₹8K - ₹15K', bestMatch: true },
-                    { name: 'Whitefield', time: '25 min', rent: '₹7K - ₹14K' },
-                    { name: 'Marathahalli', time: '20 min', rent: '₹7K - ₹15K' },
-                    { name: 'Koramangala', time: '30 min', rent: '₹10K - ₹18K' },
-                ].map((area) => (
+                {displayAreas.map((area) => (
                     <div key={area.name} className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-white shadow-sm hover:border-primary transition-all cursor-pointer">
                         <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -153,6 +211,11 @@ export default function OnboardingPage() {
                         <ArrowRight className="w-4 h-4 text-slate-300" />
                     </div>
                 ))}
+                {displayAreas.length === 0 && (
+                    <div className="p-4 text-center text-sm text-slate-500 font-medium bg-slate-50 rounded-2xl border border-slate-100">
+                        No nearby areas found for this location yet. We'll show you listings directly in {officeLocation}!
+                    </div>
+                )}
               </div>
 
               <Button 

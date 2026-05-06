@@ -351,16 +351,29 @@ export default function AdminPage() {
     try {
       await updateDoc(propRef, { isApproved: true, listingStatus: 'approved' });
       
-      // Get property data to notify owner
+      // Get property data to notify owner and matched users
       const propSnap = await getDoc(propRef);
       if (propSnap.exists()) {
-        const propData = propSnap.data();
+        const propData = { id, ...propSnap.data() } as Property;
+        
+        // Notify Owner
         await notifyUser(
           propData.ownerId,
           "Property Approved! 🏠",
           `Your listing "${propData.title}" is now live on Nestil Pro.`,
           `/properties/${id}`
         );
+
+        // Notify Matched Users (Real-time Alerts)
+        try {
+          await fetch('/api/notifications/trigger-match', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(propData),
+          });
+        } catch (matchError) {
+          console.error('Failed to trigger matching notifications:', matchError);
+        }
       }
 
       toast({ title: "Property Approved", description: "The listing is now live." });

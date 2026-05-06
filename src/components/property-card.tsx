@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Heart, ExternalLink, Flag, Wrench, Building2, Users, Key, Armchair, Calendar, IndianRupee, Tag, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { cn, getWatermarkedImageUrl } from '@/lib/utils';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useEngagement } from '@/hooks/use-engagement';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,8 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
   };
   
   const rawPhotos = property.photos && property.photos.length > 0 ? property.photos : [];
-  const imageUrl = rawPhotos.length > 0 
-    ? (typeof rawPhotos[0] === 'string' ? rawPhotos[0] : (rawPhotos[0] as any).url) 
-    : 'https://picsum.photos/seed/property/600/400';
+  const photos = rawPhotos.length > 0 ? rawPhotos.map(p => getWatermarkedImageUrl(p)) : ['https://picsum.photos/seed/property/600/400'];
+  const imageUrl = photos[0];
 
   const formatPrice = (p: number) => {
     if (p >= 10000000) {

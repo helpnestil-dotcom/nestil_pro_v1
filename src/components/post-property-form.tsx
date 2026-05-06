@@ -200,7 +200,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       rentalStatus: undefined,
       title: '',
       description: '',
-      state: 'Andhra Pradesh',
+      state: 'Karnataka',
       city: '',
       locality: '',
       subLocality: '',

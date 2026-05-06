@@ -8,26 +8,46 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useUser } from '@/firebase';
-import { locationData } from '@/lib/locations';
+import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
+
+type Location = {
+  state: string;
+  district: string;
+  locality: string;
+  subLocality?: string;
+  nearby?: string;
+};
 
 export function MobileHeader() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useUser();
 
+  const { states, citiesByState, localitiesByCity, isLoading } = useLocationHierarchy();
+
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [locationView, setLocationView] = useState<'state' | 'district' | 'locality'>('state');
+  
   const [selectedState, setSelectedState] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   
-  const initialCity = searchParams.get('city');
-  const initialLocality = searchParams.get('locality');
-  const [selectedLocation, setSelectedLocation] = useState(
-    initialCity ? `${initialLocality || 'All Areas'}, ${initialCity}` : ''
-  );
+  const [savedLocation, setSavedLocation] = useState<Location | null>(null);
 
-  const currentStateObj = locationData.find(s => s.name === selectedState);
-  const currentDistrictObj = currentStateObj?.districts.find(d => d.name === selectedDistrict);
+  useEffect(() => {
+    const handleLocationUpdate = () => {
+      try {
+        const locationJson = localStorage.getItem('userLocation');
+        if (locationJson) {
+          setSavedLocation(JSON.parse(locationJson));
+        }
+      } catch (error) {
+        console.error("Could not parse location", error);
+      }
+    };
+    handleLocationUpdate();
+    window.addEventListener('location-changed', handleLocationUpdate);
+    return () => window.removeEventListener('location-changed', handleLocationUpdate);
+  }, []);
 
   const handleStateSelect = (stateName: string) => {
     setSelectedState(stateName);
@@ -40,18 +60,15 @@ export function MobileHeader() {
   };
 
   const handleLocalitySelect = (localityName: string) => {
-    setSelectedLocation(`${localityName}, ${selectedDistrict}`);
+    const newLoc: Location = {
+      state: selectedState,
+      district: selectedDistrict,
+      locality: localityName === 'All Areas' ? '' : localityName,
+    };
+    
+    localStorage.setItem('userLocation', JSON.stringify(newLoc));
+    window.dispatchEvent(new CustomEvent('location-changed'));
     setIsLocationOpen(false);
-
-    // Update URL params
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('city', selectedDistrict);
-    if (localityName && !localityName.includes('All Areas')) {
-      params.set('locality', localityName);
-    } else {
-      params.delete('locality');
-    }
-    router.push(`/?${params.toString()}`);
 
     setTimeout(() => {
       setLocationView('state');
@@ -76,25 +93,29 @@ export function MobileHeader() {
     }
   };
 
+  const displayLocation = savedLocation 
+    ? `${savedLocation.locality ? savedLocation.locality + ', ' : ''}${savedLocation.district || 'Select Location'}`
+    : 'Select city, area or landmark';
+
   return (
     <header className="px-5 pt-4 pb-6 bg-white space-y-6">
       {/* Top Nav */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Home className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-black text-primary tracking-tighter">nestil</h1>
+          <h1 className="text-2xl font-bold font-heading text-primary tracking-tighter">nestil</h1>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="relative" aria-label="View notifications">
-            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50" aria-label="Notifications">
+            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50/80" aria-label="Notifications">
               <Bell className="w-5 h-5 text-slate-700" />
             </Button>
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 border-2 border-white text-[10px]">
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 border-2 border-white text-[10px] font-bold">
               5
             </Badge>
           </Link>
           <Link href="/dashboard" aria-label="Go to profile">
-            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50 overflow-hidden" aria-label="User profile">
+            <Button variant="ghost" size="icon" className="rounded-full bg-slate-50/80 overflow-hidden" aria-label="User profile">
               {user?.photoURL ? (
                 <img 
                   src={user.photoURL} 
@@ -111,8 +132,8 @@ export function MobileHeader() {
 
       {/* Greeting & Title */}
       <div className="space-y-1">
-        <p className="text-slate-500 font-medium">Hi, Welcome 👋</p>
-        <h2 className="text-2xl font-bold text-slate-900 leading-tight">
+        <p className="text-slate-400 text-sm font-semibold tracking-wide">Hi, Welcome 👋</p>
+        <h2 className="text-2xl font-bold font-heading text-slate-900 leading-tight">
           Find your next home,<br />faster in 48hrs.
         </h2>
       </div>
@@ -125,18 +146,18 @@ export function MobileHeader() {
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
               </div>
-              <div className="min-h-[56px] pl-12 pr-12 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100 transition-all text-base flex flex-col justify-center">
-                {selectedLocation ? (
+              <div className="min-h-[56px] pl-12 pr-12 py-3 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 hover:border-primary/30 transition-all text-base flex flex-col justify-center">
+                {savedLocation ? (
                   <>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-tight">Selected Location</span>
-                    <span className="font-bold text-slate-800 leading-tight truncate">{selectedLocation}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 leading-tight">Location</span>
+                    <span className="font-bold text-slate-800 leading-tight truncate">{displayLocation}</span>
                   </>
                 ) : (
-                  <span className="text-slate-500 font-medium">Select city, area or landmark</span>
+                  <span className="text-slate-400 font-medium tracking-tight">Select city, area or landmark</span>
                 )}
               </div>
               <div className="absolute inset-y-0 right-4 flex items-center">
-                <MapPin className="h-5 w-5 text-slate-400" />
+                <MapPin className="h-5 w-5 text-primary/40" />
               </div>
             </div>
           </SheetTrigger>
@@ -154,44 +175,47 @@ export function MobileHeader() {
             </SheetHeader>
             
             <div className="flex-1 overflow-y-auto pb-10">
-              {locationView === 'state' && locationData.map(state => (
+              {isLoading && (
+                  <div className="p-8 text-center text-slate-500 font-medium">Loading locations...</div>
+              )}
+              
+              {!isLoading && locationView === 'state' && states.map(state => (
                 <button 
-                  key={state.name}
-                  onClick={() => handleStateSelect(state.name)} 
+                  key={state}
+                  onClick={() => handleStateSelect(state)} 
                   className="flex items-center justify-between w-full p-5 border-b border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors text-left"
                 >
-                  <span className="font-semibold text-slate-700">{state.name}</span>
+                  <span className="font-semibold text-slate-700">{state}</span>
                   <ChevronRight className="w-5 h-5 text-slate-300" />
                 </button>
               ))}
 
-              {locationView === 'district' && currentStateObj?.districts.map(dist => (
+              {!isLoading && locationView === 'district' && (citiesByState[selectedState] || []).map(dist => (
                 <button 
-                  key={dist.name}
-                  onClick={() => handleDistrictSelect(dist.name)} 
+                  key={dist}
+                  onClick={() => handleDistrictSelect(dist)} 
                   className="flex items-center justify-between w-full p-5 border-b border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors text-left"
                 >
-                  <span className="font-semibold text-slate-700">{dist.name}</span>
+                  <span className="font-semibold text-slate-700">{dist}</span>
                   <ChevronRight className="w-5 h-5 text-slate-300" />
                 </button>
               ))}
 
-              {locationView === 'locality' && currentDistrictObj?.localities.map(loc => (
+              {!isLoading && locationView === 'locality' && (localitiesByCity[selectedDistrict] || []).map(loc => (
                 <button 
-                  key={loc.name}
-                  onClick={() => handleLocalitySelect(loc.name)} 
+                  key={loc}
+                  onClick={() => handleLocalitySelect(loc)} 
                   className="flex items-center justify-between w-full p-5 border-b border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors text-left"
                 >
-                  <span className="font-semibold text-slate-700">{loc.name}</span>
+                  <span className="font-semibold text-slate-700">{loc}</span>
                 </button>
               ))}
 
-              {locationView === 'locality' && (!currentDistrictObj?.localities || currentDistrictObj.localities.length === 0) && (
-                <div className="p-8 text-center text-slate-500 font-medium">
-                  No specific localities available.
+              {!isLoading && locationView === 'locality' && (
+                <div className="p-8 text-center text-slate-500 font-medium border-t border-slate-100">
                   <Button 
                     variant="outline" 
-                    className="mt-4 w-full h-12 rounded-xl"
+                    className="w-full h-12 rounded-xl"
                     onClick={() => handleLocalitySelect('All Areas')}
                   >
                     Select entire {selectedDistrict}
@@ -202,6 +226,7 @@ export function MobileHeader() {
           </SheetContent>
         </Sheet>
       </div>
+
     </header>
   );
 }

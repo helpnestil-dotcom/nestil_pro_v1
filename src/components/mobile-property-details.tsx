@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import { BedDouble, Bath, Expand, MapPin, Share2, Heart, ArrowLeft, CheckCircle2, Tag, Copy } from 'lucide-react';
+import { BedDouble, Bath, Expand, MapPin, Share2, Heart, ArrowLeft, CheckCircle2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { cn, getWatermarkedImageUrl } from '@/lib/utils';
 import { Property } from '@/lib/types';
 import { MobileContactActions } from '@/components/mobile-contact-actions';
 import { MobilePropertyCard } from '@/components/mobile-property-card';
@@ -16,7 +18,11 @@ interface MobilePropertyDetailsProps {
 
 export function MobilePropertyDetails({ property, similarProperties = [] }: MobilePropertyDetailsProps) {
   const router = useRouter();
-  const photos = property.photos || ['https://picsum.photos/seed/property/800/600'];
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const photos = (property.photos && property.photos.length > 0) 
+    ? property.photos.map(p => getWatermarkedImageUrl(p)) 
+    : ['https://picsum.photos/seed/property/800/600'];
 
   return (
     <div className="bg-slate-50 min-h-screen pb-32">

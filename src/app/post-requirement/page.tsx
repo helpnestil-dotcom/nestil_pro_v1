@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,6 +46,48 @@ export default function PostRequirementPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dbLocations, setDbLocations] = useState<any>({ states: [], citiesByState: {}, areasByCity: {} });
+  const [isLoadingLocations, setIsLoadingLocations] = useState(true);
+
+  useEffect(() => {
+    async function fetchLocations() {
+      if (!firestore) return;
+      try {
+        const snapshot = await getDocs(query(collection(firestore, 'properties'), where('listingStatus', '==', 'approved')));
+        const hierarchy: any = { states: new Set(), citiesByState: {}, areasByCity: {} };
+        
+        snapshot.docs
+          .filter(doc => {
+            const d = doc.data();
+            return (d.state === 'Karnataka' || d.city === 'Bangalore') || (!d.state && d.city === 'Bangalore');
+          })
+          .forEach(doc => {
+          const data = doc.data();
+          const state = 'Karnataka';
+          const city = 'Bangalore';
+          const area = data.address || data.subLocality || '';
+
+          hierarchy.states.add(state);
+          if (!hierarchy.citiesByState[state]) hierarchy.citiesByState[state] = new Set();
+          hierarchy.citiesByState[state].add(city);
+
+          if (!hierarchy.areasByCity[city]) hierarchy.areasByCity[city] = new Set();
+          if (area) hierarchy.areasByCity[city].add(area);
+        });
+
+        setDbLocations({
+          states: Array.from(hierarchy.states).sort(),
+          citiesByState: Object.fromEntries(Object.entries(hierarchy.citiesByState).map(([k, v]) => [k, Array.from(v as any).sort()])),
+          areasByCity: Object.fromEntries(Object.entries(hierarchy.areasByCity).map(([k, v]) => [k, Array.from(v as any).sort()]))
+        });
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      } finally {
+        setIsLoadingLocations(false);
+      }
+    }
+    fetchLocations();
+  }, [firestore]);
 
   const form = useForm<z.infer<typeof requirementSchema>>({
     resolver: zodResolver(requirementSchema),
@@ -212,12 +254,15 @@ export default function PostRequirementPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                         <Label className="font-bold text-slate-700">State</Label>
-                        <Select onValueChange={(val) => { form.setValue('state', val); form.setValue('city', ''); form.setValue('area', ''); }} defaultValue={form.getValues('state')}>
+                        <Select onValueChange={(val) => { form.setValue('state', val); form.setValue('city', ''); form.setValue('area', ''); }} value={form.watch('state')}>
                             <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-200">
-                                <SelectValue placeholder="Select state" />
+                                <SelectValue placeholder={isLoadingLocations ? "Loading..." : "Select state"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {staticLocationData.map(s => (
+                                {dbLocations.states.map((s: string) => (
+                                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                                ))}
+                                {dbLocations.states.length === 0 && !isLoadingLocations && staticLocationData.map(s => (
                                     <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -231,8 +276,8 @@ export default function PostRequirementPage() {
                                 <SelectValue placeholder="Select city" />
                             </SelectTrigger>
                             <SelectContent>
-                                {availableDistricts.map(d => (
-                                    <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
+                                {(dbLocations.citiesByState[watchedState] || []).map((c: string) => (
+                                    <SelectItem key={c} value={c}>{c}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -240,7 +285,17 @@ export default function PostRequirementPage() {
                     </div>
                     <div className="space-y-2">
                         <Label className="font-bold text-slate-700">Preferred Area</Label>
-                        <Input {...form.register('area')} placeholder="e.g., Bellandur" className="h-12 rounded-xl bg-slate-50 border-slate-200" />
+                        <Select onValueChange={(val) => form.setValue('area', val)} value={form.watch('area')} disabled={!form.watch('city')}>
+                            <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-200">
+                                <SelectValue placeholder="Select area" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(dbLocations.areasByCity[form.watch('city')] || []).map((a: string) => (
+                                    <SelectItem key={a} value={a}>{a}</SelectItem>
+                                ))}
+                                <SelectItem value="Any">Any Area in {form.watch('city')}</SelectItem>
+                            </SelectContent>
+                        </Select>
                         {form.formState.errors.area && <p className="text-red-500 text-xs">{form.formState.errors.area.message}</p>}
                     </div>
                 </div>

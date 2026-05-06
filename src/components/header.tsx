@@ -10,7 +10,7 @@ import { UserNav } from './user-nav';
 import { useState } from 'react';
 
 const NavLogo = () => (
-    <Link href="/" className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+    <Link href="/" className="flex items-center gap-2 text-2xl font-bold font-heading tracking-tight">
         <Home className="h-7 w-7 text-primary" />
         <span className="lowercase">nestil.in</span>
     </Link>
@@ -93,7 +93,7 @@ export function Header() {
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                'flex items-center gap-1.5 text-[13px] font-bold transition-all hover:text-primary px-2 py-1.5 rounded-lg hover:bg-slate-50',
+                                'flex items-center gap-1.5 text-[13px] font-semibold transition-all hover:text-primary px-3 py-2 rounded-xl hover:bg-slate-50',
                                 pathname === link.href ? 'text-primary bg-primary/5' : 'text-slate-600'
                             )}
                         >
@@ -108,10 +108,10 @@ export function Header() {
         {/* Right Side: Actions and Mobile Menu */}
         <div className="flex items-center gap-2">
             {/* Desktop version */}
-            <Button asChild className="hidden lg:inline-flex !font-bold text-[13px] bg-gradient-to-r from-emerald-500 to-teal-500 border-0 hover:shadow-[0_8px_25px_-8px_rgba(16,185,129,0.5)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl mr-2">
+            <Button asChild className="hidden lg:inline-flex font-bold font-heading text-[13px] bg-emerald-500 hover:bg-emerald-600 border-0 hover:shadow-lg hover:shadow-emerald-500/20 hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl mr-1">
                 <Link href="/post-requirement">Post a Need</Link>
             </Button>
-            <Button asChild className="hidden md:inline-flex !font-bold text-[13px] bg-gradient-to-r from-primary to-rose-600 border-0 hover:shadow-[0_8px_25px_-8px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl">
+            <Button asChild className="hidden md:inline-flex font-bold font-heading text-[13px] bg-primary hover:bg-primary/90 border-0 hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transform transition-all duration-300 text-white rounded-xl">
                 <Link href="/post-property">+ List Property</Link>
             </Button>
             

@@ -15,6 +15,7 @@ import { PropertyCard } from '@/components/property-card';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Share2 } from 'lucide-react';
 import { MobilePropertyDetails } from '@/components/mobile-property-details';
+import { getWatermarkedImageUrl } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -22,7 +23,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   if (!property) return { title: 'Property Not Found | Nestil' };
 
   const title = `${property.bhk ? property.bhk + ' ' : ''}${property.propertyType} for ${property.listingFor} in ${property.city} | Nestil`;
-  const description = `Explore this ${property.propertyType} in ${property.address}, ${property.city}. Verified listing with zero brokerage. Area: ${property.areaSqFt} sq.ft, Price: ₹${property.price.toLocaleString('en-IN')}.`;
+  const description = `Explore this ${property.propertyType} in ${property.address}, ${property.city}. Verified listing with zero brokerage. Area: ${property.areaSqFt || 0} sq.ft, Price: ₹${(property.price || 0).toLocaleString('en-IN')}.`;
+
+  const photoUrl = property.photos?.[0] 
+    ? (typeof property.photos[0] === 'string' ? property.photos[0] : (property.photos[0] as any).url)
+    : undefined;
 
   return {
     title,
@@ -30,7 +35,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title,
       description,
-      images: property.photos?.[0] ? [property.photos[0]] : [],
+      images: photoUrl ? [photoUrl] : [],
     },
   };
 }
@@ -114,7 +119,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.city}, ${property.pincode}`)}`;
 
   const rawPhotos = property.photos && property.photos.length > 0 ? property.photos : [];
-  const propertyPhotos = rawPhotos.map((p: any) => typeof p === 'string' ? p : p.url).filter(Boolean);
+  const propertyPhotos = rawPhotos.map((p: any) => getWatermarkedImageUrl(typeof p === 'string' ? p : p.url)).filter(Boolean);
   
   // Final fallback if no valid photos found
   if (propertyPhotos.length === 0) {

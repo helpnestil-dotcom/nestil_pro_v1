@@ -4,7 +4,7 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter } from 'next/font/google';
+import { Inter, Poppins } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
@@ -14,16 +14,22 @@ import { MobileHeader } from '@/components/mobile-header';
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['300','400','500','600','700','800','900'],
   variable: '--font-body',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-heading',
 });
 
 
 export const metadata: Metadata = {
   title: 'Nestil | Buy, Rent & Sell Properties in India | Zero Brokerage',
   description:
-    'Search, Buy, and Sell premium real estate with zero brokerage on Nestil. Direct owner properties in Andhra Pradesh, Telangana, Karnataka, and Tamilnadu.',
-  keywords: 'zero brokerage properties, direct owner flats AP, houses for rent Telangana, property marketplace Bangalore, real estate Chennai, Nestil',
+    'Search, Buy, and Sell premium real estate with zero brokerage on Nestil. Direct owner properties in Bangalore, Karnataka.',
+  keywords: 'zero brokerage properties, direct owner flats Bangalore, houses for rent Karnataka, property marketplace Bangalore, Nestil',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.ico',
@@ -52,6 +58,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn(
           inter.variable,
+          poppins.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary"
         )}
       >

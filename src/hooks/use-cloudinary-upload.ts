@@ -51,8 +51,16 @@ export function useCloudinaryUpload() {
 
         const data = await response.json();
         console.log("Upload successful:", data.secure_url);
+        
+        // Inject watermark transformation into the Cloudinary URL
+        let finalUrl = data.secure_url;
+        if (finalUrl && finalUrl.includes('/upload/')) {
+          const watermark = 'l_text:Arial_60_bold:nestil.in,co_white,o_60,g_center';
+          finalUrl = finalUrl.replace('/upload/', `/upload/${watermark}/`);
+        }
+
         return { 
-            url: data.secure_url,
+            url: finalUrl,
             publicId: data.public_id
         };
       });

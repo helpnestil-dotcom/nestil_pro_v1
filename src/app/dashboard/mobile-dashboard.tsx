@@ -40,12 +40,12 @@ export default function MobileDashboard() {
         
         <div className="relative z-10 flex items-start justify-between">
           <div>
-            <p className="text-white/70 text-sm font-medium mb-1">Welcome back,</p>
-            <h1 className="text-2xl font-black text-white tracking-tight">{user.displayName || user.email?.split('@')[0]}</h1>
+            <p className="text-white/60 text-sm font-medium mb-1">Welcome back,</p>
+            <h1 className="text-2xl font-bold font-heading text-white tracking-tight">{user.displayName || user.email?.split('@')[0]}</h1>
             
             <div className="mt-3 flex items-center gap-2">
               <span className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase",
+                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase",
                 profile?.role === 'Worker' ? "bg-indigo-500/20 text-indigo-200 border border-indigo-400/30" :
                 profile?.role === 'Agent' ? "bg-emerald-500/20 text-emerald-200 border border-emerald-400/30" :
                 profile?.role === 'Builder' ? "bg-blue-500/20 text-blue-200 border border-blue-400/30" :
@@ -78,18 +78,18 @@ export default function MobileDashboard() {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-[32px] p-6 shadow-xl shadow-primary/10 border border-slate-100 flex items-center justify-between">
+          <div className="bg-white rounded-3xl p-6 shadow-xl shadow-primary/5 border border-slate-100 flex items-center justify-between">
             <div>
-              <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase mb-1">
+              <p className="text-slate-400 text-[10px] font-bold tracking-widest uppercase mb-1">
                 {profile?.role === 'Builder' ? 'Active Projects' : 'My Properties'}
               </p>
               {isLoading ? (
                 <Skeleton className="h-10 w-16 mt-1" />
               ) : (
-                <h2 className="text-4xl font-black text-slate-800">{propertiesCount}</h2>
+                <h2 className="text-4xl font-bold font-heading text-slate-800">{propertiesCount}</h2>
               )}
             </div>
-            <Link href="/dashboard/my-properties" className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95">
+            <Link href="/dashboard/my-properties" className="w-14 h-14 bg-primary/5 rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95">
                <ChevronRight className="w-6 h-6 text-primary" />
             </Link>
           </div>

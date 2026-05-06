@@ -38,9 +38,9 @@ export const metadata: Metadata = {
   keywords: 'flats for rent Bangalore, apartments for sale Hyderabad, direct owner properties AP, real estate Chennai, Nestil properties',
 };
 
-// Mobile Components
 import { MobileListingHeader } from '@/components/mobile-listing-header';
 import { MobilePropertyListingCard } from '@/components/mobile-property-listing-card';
+import { QuickAlertToggle } from '@/components/quick-alert-toggle';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -79,6 +79,7 @@ function PropertySearchComponent() {
   const [genderPreference, setGenderPreference] = useState(searchParams.get('gender') || 'all');
   const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
   const [headerLocation, setHeaderLocation] = useState<Location | null>(null);
+  const [nearbyParam, setNearbyParam] = useState(searchParams.get('nearby') || 'all');
   
   const [currentPage, setCurrentPage] = useState(1);
   const propertiesPerPage = 12;
@@ -120,16 +121,49 @@ function PropertySearchComponent() {
       return serverFilteredSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Property));
   }, [serverFilteredSnapshot]);
 
-  const dynamicLocalities = useMemo(() => {
-    if (!propertiesFromQuery) return [];
-    const localitySet = new Set<string>();
-    propertiesFromQuery.forEach(prop => {
-        if (prop.address) {
-            localitySet.add(prop.address);
-        }
+  // Dynamic Hierarchical Location Data
+  const locationHierarchy = useMemo(() => {
+    const hierarchy: any = {
+      states: new Set<string>(),
+      citiesByState: {} as Record<string, Set<string>>,
+      localitiesByCity: {} as Record<string, Set<string>>,
+      nearbyByLocality: {} as Record<string, Set<string>>
+    };
+
+    propertiesFromQuery
+      .filter(p => (p.state === 'Karnataka' || p.city === 'Bangalore') || (!p.state && p.city === 'Bangalore'))
+      .forEach(prop => {
+      const state = 'Karnataka';
+      const city = 'Bangalore';
+      const locality = prop.address || prop.subLocality || '';
+      const nearby = prop.nearbyPlaces?.map(p => p.name) || [];
+
+      hierarchy.states.add(state);
+      
+      if (!hierarchy.citiesByState[state]) hierarchy.citiesByState[state] = new Set();
+      hierarchy.citiesByState[state].add(city);
+
+      if (!hierarchy.localitiesByCity[city]) hierarchy.localitiesByCity[city] = new Set();
+      if (locality) hierarchy.localitiesByCity[city].add(locality);
+
+      if (locality) {
+        if (!hierarchy.nearbyByLocality[locality]) hierarchy.nearbyByLocality[locality] = new Set();
+        nearby.forEach((n: string) => hierarchy.nearbyByLocality[locality].add(n));
+      }
     });
-    return Array.from(localitySet).sort().map(name => ({ name }));
+
+    return {
+      states: Array.from(hierarchy.states).sort(),
+      citiesByState: Object.fromEntries(Object.entries(hierarchy.citiesByState).map(([k, v]) => [k, Array.from(v as any).sort()])),
+      localitiesByCity: Object.fromEntries(Object.entries(hierarchy.localitiesByCity).map(([k, v]) => [k, Array.from(v as any).sort()])),
+      nearbyByLocality: Object.fromEntries(Object.entries(hierarchy.nearbyByLocality).map(([k, v]) => [k, Array.from(v as any).sort()]))
+    };
   }, [propertiesFromQuery]);
+
+  const availableStates = locationHierarchy.states;
+  const availableCities = stateParam !== 'all' ? (locationHierarchy.citiesByState[stateParam] || []) : [];
+  const availableLocalities = keyword !== 'all' ? (locationHierarchy.localitiesByCity[keyword] || []) : [];
+  const availableNearby = locality !== 'all' ? (locationHierarchy.nearbyByLocality[locality] || []) : [];
   
   const filteredProperties = useMemo(() => {
     if (!propertiesFromQuery) return [];
@@ -138,7 +172,7 @@ function PropertySearchComponent() {
 
     if (stateParam !== 'all') {
         result = result.filter(prop => {
-            const propState = prop.state || staticLocationData.find(s => s.districts.some(d => d.name === prop.city))?.name || 'Andhra Pradesh';
+            const propState = prop.state || staticLocationData.find(s => s.districts.some(d => d.name === prop.city))?.name || 'Karnataka';
             return propState === stateParam;
         });
     }
@@ -149,7 +183,10 @@ function PropertySearchComponent() {
     }
 
     if (locality !== 'all') {
-        result = result.filter(prop => prop.address === locality);
+        result = result.filter(prop => prop.address === locality || prop.subLocality === locality);
+    }
+    if (nearbyParam !== 'all') {
+        result = result.filter(prop => prop.nearbyPlaces?.some(p => p.name === nearbyParam));
     }
     if (transaction !== 'all') {
         result = result.filter(prop => prop.listingFor === transaction);
@@ -177,15 +214,20 @@ function PropertySearchComponent() {
     });
 
     return result;
-  }, [propertiesFromQuery, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
+  }, [propertiesFromQuery, stateParam, keyword, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
   useEffect(() => {
     setLocality('all');
+    setNearbyParam('all');
   }, [keyword]);
+
+  useEffect(() => {
+    setNearbyParam('all');
+  }, [locality]);
   
   useEffect(() => {
     setCurrentPage(1);
-  }, [keyword, stateParam, locality, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
+  }, [keyword, stateParam, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
   const currentProperties = useMemo(() => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -204,6 +246,7 @@ function PropertySearchComponent() {
     setConstructionStatus('all');
     setRentalStatus('all');
     setGenderPreference('all');
+    setNearbyParam('all');
     setPriceRange([0, 100000000]);
     
     router.push('/properties');
@@ -254,38 +297,50 @@ function PropertySearchComponent() {
             </div>
             
             <div className="space-y-3">
-              <Select value={stateParam} onValueChange={(val) => { setStateParam(val); setKeyword('all'); }}>
+              <Select value={stateParam} onValueChange={(val) => { setStateParam(val); setKeyword('all'); setLocality('all'); setNearbyParam('all'); }}>
                 <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   <SelectItem value="all" className="font-bold">All States</SelectItem>
-                  {staticLocationData.map((s) => (
-                    <SelectItem key={s.name} value={s.name} className="font-semibold">{s.name}</SelectItem>
+                  {availableStates.map((s) => (
+                    <SelectItem key={s} value={s} className="font-semibold">{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={keyword} onValueChange={setKeyword} disabled={stateParam === 'all'}>
+              <Select value={keyword} onValueChange={(val) => { setKeyword(val); setLocality('all'); setNearbyParam('all'); }} disabled={stateParam === 'all'}>
                 <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
-                  <SelectValue placeholder="All Sub Locations" />
+                  <SelectValue placeholder="All Cities" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  <SelectItem value="all" className="font-bold">All Sub Locations</SelectItem>
-                  {staticLocationData.find(s => s.name === stateParam)?.districts.map((d) => (
-                    <SelectItem key={d.name} value={d.name} className="font-semibold">{d.name}</SelectItem>
+                  <SelectItem value="all" className="font-bold">All Cities</SelectItem>
+                  {availableCities.map((c) => (
+                    <SelectItem key={c} value={c} className="font-semibold">{c}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={locality} onValueChange={setLocality} disabled={dynamicLocalities.length === 0}>
+              <Select value={locality} onValueChange={(val) => { setLocality(val); setNearbyParam('all'); }} disabled={availableLocalities.length === 0}>
                     <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
-                        <SelectValue placeholder="All Localities" />
+                        <SelectValue placeholder="All Localities / Streets" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
                         <SelectItem value="all" className="font-bold">All Localities</SelectItem>
-                        {dynamicLocalities.map((l) => (
-                            <SelectItem key={l.name} value={l.name} className="font-semibold">{l.name}</SelectItem>
+                        {availableLocalities.map((l) => (
+                            <SelectItem key={l} value={l} className="font-semibold">{l}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select value={nearbyParam} onValueChange={setNearbyParam} disabled={availableNearby.length === 0}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white/50 focus:ring-primary/20 hover:border-primary/30 transition-all font-bold">
+                        <SelectValue placeholder="All Nearby Locations" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                        <SelectItem value="all" className="font-bold">All Nearby Locations</SelectItem>
+                        {availableNearby.map((n) => (
+                            <SelectItem key={n} value={n} className="font-semibold">{n}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -506,8 +561,19 @@ function PropertySearchComponent() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-28 h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                {FilterControls}
+            <div className="space-y-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    {FilterControls}
+                </div>
+                
+                <QuickAlertToggle 
+                    city={keyword}
+                    state={stateParam}
+                    area={locality}
+                    propertyType={propertyType}
+                    purpose={transaction}
+                    budget={priceRange[1]}
+                />
             </div>
           </aside>
 
@@ -580,17 +646,28 @@ function PropertySearchComponent() {
                <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-24 border-2 border-dashed border-slate-200 rounded-[32px] bg-white mt-6 shadow-sm"
+                    className="text-center py-20 px-6 border-2 border-dashed border-slate-200 rounded-[32px] bg-white mt-6 shadow-sm flex flex-col items-center"
                >
-                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                     <Search className="w-10 h-10 text-slate-300" />
                   </div>
                   <h2 className="text-2xl font-black text-slate-800 tracking-tight">No Spaces Found</h2>
-                  <p className="text-slate-500 font-medium max-w-sm mx-auto mt-2">We couldn't find any properties matching these filters. Try relaxing your search criteria.</p>
-                  <Button variant="outline" className="mt-8 h-12 px-8 rounded-xl font-black border-slate-200 hover:bg-primary hover:text-white transition-all" onClick={handleReset}>
+                  <p className="text-slate-500 font-medium max-w-sm mx-auto mt-2">We couldn't find any properties matching these filters. Try relaxing your search criteria or get notified when one matches.</p>
+                  
+                  <QuickAlertToggle 
+                    className="max-w-sm mt-8 text-left"
+                    city={keyword}
+                    state={stateParam}
+                    area={locality}
+                    propertyType={propertyType}
+                    purpose={transaction}
+                    budget={priceRange[1]}
+                  />
+
+                  <Button variant="link" className="mt-6 text-slate-400 font-bold" onClick={handleReset}>
                     Clear All Filters
                   </Button>
-              </motion.div>
+               </motion.div>
             )}
           </main>
         </div>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Heart, MapPin, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getWatermarkedImageUrl } from '@/lib/utils';
 import { Property } from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ interface MobilePropertyListingCardProps {
 }
 
 export function MobilePropertyListingCard({ property }: MobilePropertyListingCardProps) {
-  const imageUrl = property.photos?.[0] || 'https://picsum.photos/seed/property/400/300';
+  const imageUrl = getWatermarkedImageUrl(property.photos?.[0]) || 'https://picsum.photos/seed/property/400/300';
   
   return (
     <Link href={`/properties/${property.id}`} className="block">

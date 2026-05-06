@@ -24,25 +24,27 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { locationData as staticLocationData, type State, type District } from '@/lib/locations';
 
+import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
+
 type Location = {
   state: string;
   district: string;
   locality: string;
   subLocality?: string;
+  nearby?: string;
 };
 
 export function LocationSelector({ className }: { className?: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
 
-  const [districts, setDistricts] = useState<District[]>([]);
+  const { states, citiesByState, localitiesByCity, nearbyByLocality, isLoading } = useLocationHierarchy();
 
-  const [locationData] = useState<State[]>(staticLocationData);
-
-  const [selectedState, setSelectedState] = useState<State | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+  const [selectedState, setSelectedState] = useState<string>('');
+  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
   const [selectedLocality, setSelectedLocality] = useState<string>('');
   const [selectedSubLocality, setSelectedSubLocality] = useState<string>('');
+  const [selectedNearby, setSelectedNearby] = useState<string>('');
 
   const [savedLocation, setSavedLocation] = useState<Location | null>(null);
   const { toast } = useToast();
@@ -51,7 +53,6 @@ export function LocationSelector({ className }: { className?: string }) {
 
   useEffect(() => {
     setIsMounted(true);
-
     const handleLocationUpdate = () => {
       try {
         const locationJson = localStorage.getItem('userLocation');
@@ -60,9 +61,9 @@ export function LocationSelector({ className }: { className?: string }) {
           setSavedLocation(parsedLocation);
         } else {
           const defaultLocation: Location = {
-            state: 'Andhra Pradesh',
-            district: 'NTR district',
-            locality: 'Vijayawada',
+            state: 'Karnataka',
+            district: 'Bangalore',
+            locality: 'Bellandur',
             subLocality: '',
           };
           localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
@@ -75,43 +76,41 @@ export function LocationSelector({ className }: { className?: string }) {
     };
 
     handleLocationUpdate();
-
     window.addEventListener('location-changed', handleLocationUpdate);
-
-    return () => {
-      window.removeEventListener('location-changed', handleLocationUpdate);
-    };
+    return () => window.removeEventListener('location-changed', handleLocationUpdate);
   }, []);
 
   const handleStateChange = (stateName: string) => {
-    const state = locationData.find((s) => s.name === stateName);
-    if (state) {
-      setSelectedState(state);
-      setDistricts(state.districts);
-      setSelectedDistrict(null);
-      setSelectedLocality('');
-      setSelectedSubLocality('');
-      setStep(2);
-    }
+    setSelectedState(stateName);
+    setSelectedDistrict('');
+    setSelectedLocality('');
+    setSelectedSubLocality('');
+    setSelectedNearby('');
+    setStep(2);
   };
 
   const handleDistrictChange = (districtName: string) => {
-    const district = districts.find((d) => d.name === districtName);
-    if (district) {
-      setSelectedDistrict(district);
-      setSelectedLocality('');
-      setSelectedSubLocality('');
-      setStep(3);
-    }
+    setSelectedDistrict(districtName);
+    setSelectedLocality('');
+    setSelectedSubLocality('');
+    setSelectedNearby('');
+    setStep(3);
+  };
+
+  const handleLocalityChange = (localityName: string) => {
+    setSelectedLocality(localityName);
+    setSelectedNearby('');
+    setStep(4);
   };
 
   const saveLocation = () => {
     if (selectedState && selectedDistrict && selectedLocality) {
       const newLocation: Location = {
-        state: selectedState.name,
-        district: selectedDistrict.name,
+        state: selectedState,
+        district: selectedDistrict,
         locality: selectedLocality,
         subLocality: selectedSubLocality,
+        nearby: selectedNearby,
       };
       localStorage.setItem('userLocation', JSON.stringify(newLocation));
       window.dispatchEvent(new CustomEvent('location-changed'));
@@ -125,26 +124,19 @@ export function LocationSelector({ className }: { className?: string }) {
   
   const openModal = () => {
       if (savedLocation) {
-        const state = locationData.find(s => s.name === savedLocation.state);
-        if (state) {
-            setSelectedState(state);
-            setDistricts(state.districts);
-            const district = state.districts.find(d => d.name === savedLocation.district);
-            if (district) {
-                setSelectedDistrict(district);
-                setStep(3);
-            } else {
-                setStep(2);
-            }
-            setSelectedLocality(savedLocation.locality || '');
-            setSelectedSubLocality(savedLocation.subLocality || '');
-        }
+        setSelectedState(savedLocation.state);
+        setSelectedDistrict(savedLocation.district);
+        setSelectedLocality(savedLocation.locality || '');
+        setSelectedSubLocality(savedLocation.subLocality || '');
+        setSelectedNearby(savedLocation.nearby || '');
+        setStep(savedLocation.nearby ? 4 : (savedLocation.locality ? 3 : 2));
       } else {
         setStep(1);
-        setSelectedState(null);
-        setSelectedDistrict(null);
+        setSelectedState('');
+        setSelectedDistrict('');
         setSelectedLocality('');
         setSelectedSubLocality('');
+        setSelectedNearby('');
       }
       setIsModalOpen(true);
   }
@@ -153,8 +145,8 @@ export function LocationSelector({ className }: { className?: string }) {
     if (!isMounted || !savedLocation) {
       return 'Select Location';
     }
-    const { district, locality, subLocality } = savedLocation;
-    const mainPart = [subLocality, locality].filter(Boolean).join(', ');
+    const { district, locality, subLocality, nearby } = savedLocation;
+    const mainPart = [nearby, subLocality, locality].filter(Boolean).join(', ');
     return mainPart ? `${mainPart}, ${district}` : district;
   }, [isMounted, savedLocation]);
 
@@ -176,49 +168,38 @@ export function LocationSelector({ className }: { className?: string }) {
       </Button>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] rounded-[32px]">
           <DialogHeader>
-            <DialogTitle>Select Your Location</DialogTitle>
-            <DialogDescription>
-              Choose your location to get personalized property listings.
+            <DialogTitle className="text-2xl font-black text-slate-800">Select Your Location</DialogTitle>
+            <DialogDescription className="font-medium text-slate-500">
+              Pick a location as per our database listings.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label className="text-right">State</label>
-              <Select
-                onValueChange={handleStateChange}
-                value={selectedState?.name || ''}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a state" />
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">State</label>
+              <Select onValueChange={handleStateChange} value={selectedState}>
+                <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-200">
+                  <SelectValue placeholder={isLoading ? "Loading..." : "Select a state"} />
                 </SelectTrigger>
-                <SelectContent>
-                  {locationData.map((state) => (
-                    <SelectItem key={state.name} value={state.name}>
-                      {state.name}
-                    </SelectItem>
+                <SelectContent className="rounded-2xl">
+                  {states.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
             {step >= 2 && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <label className="text-right">District</label>
-                <Select
-                  onValueChange={handleDistrictChange}
-                  value={selectedDistrict?.name || ''}
-                  disabled={!selectedState}
-                >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a district" />
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">City / District</label>
+                <Select onValueChange={handleDistrictChange} value={selectedDistrict} disabled={!selectedState}>
+                  <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-200">
+                    <SelectValue placeholder="Select a city" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {districts.map((district) => (
-                      <SelectItem key={district.name} value={district.name}>
-                        {district.name}
-                      </SelectItem>
+                  <SelectContent className="rounded-2xl">
+                    {(citiesByState[selectedState] || []).map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -226,38 +207,45 @@ export function LocationSelector({ className }: { className?: string }) {
             )}
 
             {step >= 3 && (
-              <>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="locality-input" className="text-right">Locality</label>
-                  <Input
-                      id="locality-input"
-                      value={selectedLocality}
-                      onChange={(e) => setSelectedLocality(e.target.value)}
-                      className="col-span-3"
-                      placeholder="Enter locality"
-                      disabled={!selectedDistrict}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="sublocality-input" className="text-right">Sub-locality</label>
-                  <Input
-                      id="sublocality-input"
-                      value={selectedSubLocality}
-                      onChange={(e) => setSelectedSubLocality(e.target.value)}
-                      className="col-span-3"
-                      placeholder="Street, Colony (Optional)"
-                      disabled={!selectedDistrict}
-                  />
-                </div>
-              </>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Street / Locality</label>
+                <Select onValueChange={handleLocalityChange} value={selectedLocality} disabled={!selectedDistrict}>
+                  <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-200">
+                    <SelectValue placeholder="Select a street" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    {(localitiesByCity[selectedDistrict] || []).map((l) => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {step >= 4 && (nearbyByLocality[selectedLocality] || []).length > 0 && (
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Nearby Locations</label>
+                <Select onValueChange={setSelectedNearby} value={selectedNearby} disabled={!selectedLocality}>
+                  <SelectTrigger className="h-12 rounded-2xl bg-slate-50 border-slate-200">
+                    <SelectValue placeholder="Select a nearby spot" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    {(nearbyByLocality[selectedLocality] || []).map((n) => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                    <SelectItem value="all">Anywhere Nearby</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
           <DialogFooter>
             <Button
+              className="w-full h-12 rounded-2xl font-black text-lg bg-slate-900 hover:bg-primary shadow-xl shadow-primary/20 transition-all"
               onClick={saveLocation}
               disabled={!selectedState || !selectedDistrict || !selectedLocality}
             >
-              Save location
+              Set My Location
             </Button>
           </DialogFooter>
         </DialogContent>
