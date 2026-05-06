@@ -30,13 +30,6 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
 
       setIsLoading(true);
 
-      if (!isPaid) {
-        setShowLoginPrompt(false);
-        setPrivateDetails(null);
-        setIsLoading(false);
-        return;
-      }
-      
       if (!user) {
         setShowLoginPrompt(true);
         setPrivateDetails(null);

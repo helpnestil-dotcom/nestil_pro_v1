@@ -31,13 +31,6 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
 
       setIsLoading(true);
 
-      if (!isPaid) {
-        setShowLoginPrompt(false);
-        setPrivateDetails(null);
-        setIsLoading(false);
-        return;
-      }
-      
       if (!user) {
         setShowLoginPrompt(true);
         setPrivateDetails(null);

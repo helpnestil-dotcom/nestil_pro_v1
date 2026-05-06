@@ -40,14 +40,25 @@ export async function POST(req: NextRequest) {
       if (reqData.budget < price) continue;
 
       // Match Purpose/ListingFor
-      // Rent/Sale/Lease etc should align
-      if (reqData.purpose.toLowerCase() !== listingFor.toLowerCase()) continue;
+      // Rent/Sale/Lease etc should align, unless the requirement says 'All'
+      if (reqData.purpose && reqData.purpose.toLowerCase() !== 'all' && reqData.purpose.toLowerCase() !== listingFor.toLowerCase()) {
+          continue;
+      }
 
-      // Optional: Match Area (If area is specified in requirement, it should match property area)
-      if (reqData.area && area && !area.toLowerCase().includes(reqData.area.toLowerCase()) && !reqData.area.toLowerCase().includes(area.toLowerCase())) {
-        // Not a strong match, but maybe still notify if city matches? 
-        // For now, let's be strict or lenient? 
-        // Let's be lenient if city matches but area is different, but prioritize area.
+      // Match Area (If area is specified in requirement, it must match property area)
+      if (reqData.area && reqData.area.toLowerCase() !== 'all') {
+        const reqArea = reqData.area.toLowerCase();
+        
+        // If property has no area data, it cannot match a specific area request
+        if (!area) {
+            continue;
+        }
+
+        const propArea = area.toLowerCase();
+        // If the property area is completely different from the requested area, skip it.
+        if (!propArea.includes(reqArea) && !reqArea.includes(propArea)) {
+            continue;
+        }
       }
 
       // 3. Get User FCM Tokens

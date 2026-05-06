@@ -32,15 +32,10 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Verified Properties for Rent & Sale | Zero Brokerage | Nestil',
-  description: 'Explore thousands of verified direct-owner properties in Bangalore, Hyderabad, Vijayawada, and Chennai. Filter by BHK, budget, and location.',
-  keywords: 'flats for rent Bangalore, apartments for sale Hyderabad, direct owner properties AP, real estate Chennai, Nestil properties',
-};
-
 import { MobileListingHeader } from '@/components/mobile-listing-header';
 import { MobilePropertyListingCard } from '@/components/mobile-property-listing-card';
 import { QuickAlertToggle } from '@/components/quick-alert-toggle';
+import { FloatingLocationAlert } from '@/components/floating-location-alert';
 
 const propertyTypesList = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -671,6 +666,10 @@ function PropertySearchComponent() {
             )}
           </main>
         </div>
+      </div>
+      
+      <div className="md:hidden">
+        <FloatingLocationAlert />
       </div>
     </div>
   );

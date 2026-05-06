@@ -65,7 +65,7 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
             ))}
           </CarouselContent>
         </Carousel>
-        <div className="absolute bottom-4 left-5 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-black uppercase rounded-lg shadow-sm">
+        <div className="absolute bottom-14 left-5 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/90 backdrop-blur-sm text-white text-[10px] font-black uppercase rounded-lg shadow-sm">
           <CheckCircle2 className="w-3.5 h-3.5" />
           Verified
         </div>
