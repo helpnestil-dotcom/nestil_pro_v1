@@ -11,8 +11,8 @@ export function CategoryCards() {
       description: 'Flats, Apartments, Houses for Rent',
       icon: Home,
       href: '/properties?category=residential',
-      bgColor: 'bg-indigo-50',
-      iconColor: 'text-indigo-600',
+      bgColor: 'bg-[#F0F9F8]',
+      iconColor: 'text-[#2CB6A2]',
     },
     {
       title: 'Find Flatmate',

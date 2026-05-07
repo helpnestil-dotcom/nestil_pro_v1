@@ -49,12 +49,12 @@ export function AvailableNow() {
       <div className="flex items-center justify-between px-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-orange-100 text-orange-600 animate-pulse">
-                <Zap className="w-3.5 h-3.5 fill-current" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-teal-50 text-[#2CB6A2] shadow-sm">
+                <Zap className="w-4 h-4 fill-current" />
             </div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight italic">Available Now</h2>
+            <h2 className="text-xl font-black text-slate-900 tracking-tighter">Available Now</h2>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-8">Freshly posted homes</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-10">Freshly posted homes</p>
         </div>
         <Button variant="ghost" asChild className="text-primary font-black text-[11px] p-0 h-auto uppercase tracking-tighter hover:bg-transparent">
           <Link href="/properties">Explore All</Link>
@@ -67,8 +67,8 @@ export function AvailableNow() {
                 <Skeleton key={i} className="w-full h-[300px] rounded-2xl" />
             ))
         ) : properties.length > 0 ? (
-            properties.map((p) => (
-                <MobilePropertyCard key={p.id} property={p} />
+            properties.map((p, index) => (
+                <MobilePropertyCard key={p.id} property={p} index={index} />
             ))
         ) : (
             <div className="py-10 text-center w-full text-slate-400 text-xs font-bold">

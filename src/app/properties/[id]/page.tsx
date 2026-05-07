@@ -21,9 +21,9 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const property = await getProperty(params.id);
-  if (!property) return { title: 'Property Not Found | Nestil' };
+  if (!property) return { title: 'Property Not Found' };
 
-  const title = `${property.bhk ? property.bhk + ' ' : ''}${property.propertyType} for ${property.listingFor} in ${property.city} | Nestil`;
+  const title = `${property.bhk ? property.bhk + ' ' : ''}${property.propertyType} for ${property.listingFor} in ${property.city}`;
   const description = `Explore this ${property.propertyType} in ${property.address}, ${property.city}. Verified listing with zero brokerage. Area: ${property.areaSqFt || 0} sq.ft, Price: ₹${(property.price || 0).toLocaleString('en-IN')}.`;
 
   const photoUrl = property.photos?.[0] 
@@ -123,6 +123,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
   }
   
   const similarProperties = await getSimilarProperties(property);
+  const isPG = property.listingFor === 'PG' || property.propertyType === 'PG / Hostel' || property.propertyType === 'Flatmate / Co-living';
 
   const mapUrl = property.googleMapsLink 
     ? property.googleMapsLink 
@@ -263,12 +264,14 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                         <p className="font-extrabold text-xl text-slate-800 leading-none">{property.baths || '-'}</p>
                          <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Baths</p>
                     </div>
-                    <div className="flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0">
-                        <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1"><Expand className="h-5 w-5" /></div>
-                        <p className="font-extrabold text-xl text-slate-800 leading-none">{(property.areaSqFt || 0).toLocaleString('en-IN')}</p>
-                         <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Sq. Ft.</p>
-                    </div>
-                    <div className="flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0">
+                    {!isPG && (
+                      <div className="flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0">
+                          <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1"><Expand className="h-5 w-5" /></div>
+                          <p className="font-extrabold text-xl text-slate-800 leading-none">{(property.areaSqFt || 0).toLocaleString('en-IN')}</p>
+                           <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Sq. Ft.</p>
+                      </div>
+                    )}
+                    <div className={cn("flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0", isPG && "col-span-2")}>
                         <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mb-1"><Building className="h-5 w-5" /></div>
                         <p className="font-extrabold text-xl text-slate-800 leading-none text-center">
                            {property.floor && property.totalFloors ? `${property.floor}/${property.totalFloors}` : (property.floor || '-')}
@@ -301,6 +304,18 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                                 <div className="flex justify-between border-b border-slate-50 pb-2">
                                     <span className="text-slate-500 font-medium">Non-Veg Food</span>
                                     <span className="font-bold text-slate-800">{property.nonVegAllowed ? 'Allowed' : 'Not Allowed'}</span>
+                                </div>
+                             )}
+                             {property.foodType && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                    <span className="text-slate-500 font-medium">Food Type</span>
+                                    <span className="font-bold text-slate-800">{property.foodType}</span>
+                                </div>
+                             )}
+                             {!isPG && property.facing && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                    <span className="text-slate-500 font-medium">Facing</span>
+                                    <span className="font-bold text-slate-800">{property.facing}</span>
                                 </div>
                              )}
                              {property.propertyType === 'Flatmate / Co-living' && property.flatmateGenderPreference && (

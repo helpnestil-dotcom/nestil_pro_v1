@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,8 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/firebase/provider";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
-export function RequirementCard({ requirement }: { requirement: PropertyRequirement }) {
+export function RequirementCard({ requirement, index = 0 }: { requirement: PropertyRequirement; index?: number }) {
   const { favoriteIds, toggleFavorite } = useRequirementFavorites();
   const isFavorited = favoriteIds.has(requirement.id);
   const { toast } = useToast();
@@ -101,196 +104,206 @@ export function RequirementCard({ requirement }: { requirement: PropertyRequirem
   };
 
   return (
-    <Card id={`requirement-card-${requirement.id}`} className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-slate-200 rounded-3xl group bg-white relative">
-      {/* Action Buttons */}
-      <div className="action-buttons absolute top-4 right-4 flex flex-col gap-2 z-10">
-        <button
-          onClick={() => toggleFavorite(requirement.id, isFavorited)}
-          className={cn(
-            "p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-sm border",
-            isFavorited 
-              ? "bg-red-50 border-red-100 text-red-500" 
-              : "bg-white/80 border-white text-slate-400 hover:text-red-500 hover:bg-white"
-          )}
-          title={isFavorited ? "Remove from favorites" : "Add to favorites"}
-        >
-          <Heart className={cn("w-4 h-4 transition-transform duration-300", isFavorited && "fill-current scale-110")} />
-        </button>
-        <button
-          onClick={handleShare}
-          className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
-          title="Share requirement"
-        >
-          <Share2 className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleDownloadPdf}
-          className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
-          title="Download as PDF"
-        >
-          <Download className="w-4 h-4" />
-        </button>
-      </div>
-
-      <CardContent className="p-5 sm:p-7">
-        <div className="flex justify-between items-start mb-4 sm:mb-5">
-          <div className="pr-10 sm:pr-12"> {/* Space for buttons */}
-            <div className="flex items-center gap-2 mb-2 sm:mb-3">
-              <Badge variant={requirement.purpose === 'Rent' ? 'default' : 'secondary'} className="rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
-                {requirement.purpose}
-              </Badge>
-              <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
-                {requirement.propertyType}
-              </Badge>
-              <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md ml-auto border border-slate-100">
-                ID: NTL-R{requirement.id?.slice(0, 6).toUpperCase()}
-              </span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors">
-              Needs {requirement.propertyType} in {requirement.area}
-            </h3>
-            <div className="flex items-center gap-1.5 text-slate-500 mt-2 sm:mt-3 text-xs sm:text-sm font-bold">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
-              </div>
-              {requirement.area}, {requirement.city}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 my-5 sm:my-7 bg-gradient-to-br from-slate-50 to-slate-100/80 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border border-slate-200/80 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/[0.04] rounded-full -mr-12 -mt-12 blur-2xl" />
-          
-          <div className="flex flex-col gap-1 sm:gap-1.5 relative z-10">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
-              <User className="w-3 h-3 text-primary" /> Seeker
-            </span>
-            <span className="font-black text-sm sm:text-base text-slate-800">{requirement.name}</span>
-          </div>
-          <div className="flex flex-col gap-1 sm:gap-1.5 relative z-10">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
-              <Calendar className="w-3 h-3 text-primary" /> Move In
-            </span>
-            <span className="font-black text-sm sm:text-base text-slate-800">{requirement.moveInDate}</span>
-          </div>
-          
-          <div className="flex flex-col gap-2 col-span-2 relative z-10 mt-1 sm:mt-2">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
-              <Info className="w-3 h-3 text-primary" /> Preferences
-            </span>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {requirement.preferences?.tenantType && (
-                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
-                  {requirement.preferences.tenantType}
-                </span>
-              )}
-              {requirement.preferences?.furnishing && (
-                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
-                  {requirement.preferences.furnishing}
-                </span>
-              )}
-              {requirement.preferences?.parking && (
-                <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
-                  Parking
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-5 sm:mb-7">
-            <div className="flex flex-col">
-                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</span>
-                <div className="text-xl sm:text-2xl font-black text-slate-900 flex items-center">
-                    <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    {requirement.budget.toLocaleString('en-IN')}
-                </div>
-            </div>
-            {requirement.securityDeposit && (
-              <>
-                <div className="h-8 sm:h-10 w-[1px] bg-slate-100" />
-                <div className="flex flex-col">
-                    <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Deposit</span>
-                    <div className="text-xl sm:text-2xl font-black text-slate-900 flex items-center">
-                        <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                        {requirement.securityDeposit.toLocaleString('en-IN')}
-                    </div>
-                </div>
-              </>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: [0.21, 1.02, 0.73, 1] }}
+    >
+      <Card id={`requirement-card-${requirement.id}`} className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-slate-200 rounded-3xl group bg-white relative">
+        {/* Action Buttons */}
+        <div className="action-buttons absolute top-4 right-4 flex flex-col gap-2 z-10">
+          <button
+            onClick={() => toggleFavorite(requirement.id, isFavorited)}
+            className={cn(
+              "p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-sm border",
+              isFavorited 
+                ? "bg-red-50 border-red-100 text-red-500" 
+                : "bg-white/80 border-white text-slate-400 hover:text-red-500 hover:bg-white"
             )}
-            <div className="h-8 sm:h-10 w-[1px] bg-slate-100" />
-            <div className="flex flex-col text-right">
-                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Posted</span>
-                <span className="text-xs sm:text-sm font-black text-slate-600">{getDate(requirement.createdAt)}</span>
-            </div>
+            title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart className={cn("w-4 h-4 transition-transform duration-300", isFavorited && "fill-current scale-110")} />
+          </button>
+          <button
+            onClick={handleShare}
+            className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
+            title="Share requirement"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleDownloadPdf}
+            className="p-2.5 rounded-full backdrop-blur-md bg-white/80 border border-white text-slate-400 hover:text-primary hover:bg-white transition-all duration-300 shadow-sm"
+            title="Download as PDF"
+          >
+            <Download className="w-4 h-4" />
+          </button>
         </div>
 
-        {requirement.description && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <div className="cursor-pointer mb-5 sm:mb-8 bg-slate-50/50 hover:bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 transition-colors group">
-                <p className="text-[13px] text-slate-600 font-medium line-clamp-2 leading-relaxed mb-2">
-                  {requirement.description}
-                </p>
-                <div className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                  Read full description <ChevronRight className="w-3 h-3" />
+        <CardContent className="p-5 sm:p-7">
+          <div className="flex justify-between items-start mb-4 sm:mb-5">
+            <div className="pr-10 sm:pr-12"> {/* Space for buttons */}
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <Badge variant={requirement.purpose === 'Rent' ? 'default' : 'secondary'} className={cn(
+                  "rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider",
+                  requirement.purpose === 'Rent' ? "bg-[#2CB6A2] hover:bg-[#2CB6A2]/90" : "bg-slate-100 text-slate-600"
+                )}>
+                  {requirement.purpose}
+                </Badge>
+                <Badge variant="outline" className="text-[#2CB6A2] border-[#2CB6A2]/20 bg-[#2CB6A2]/5 rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
+                  {requirement.propertyType}
+                </Badge>
+                <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md ml-auto border border-slate-100">
+                  ID: NTL-R{requirement.id?.slice(0, 6).toUpperCase()}
+                </span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-primary transition-colors">
+                Needs {requirement.propertyType} in {requirement.area}
+              </h3>
+              <div className="flex items-center gap-1.5 text-slate-500 mt-2 sm:mt-3 text-xs sm:text-sm font-bold">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-[#2CB6A2]/10 flex items-center justify-center">
+                  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2CB6A2]" />
                 </div>
+                {requirement.area}, {requirement.city}
               </div>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md w-[90vw] max-h-[80vh] overflow-y-auto rounded-2xl">
-              <DialogHeader>
-                <DialogTitle>Requirement Details</DialogTitle>
-                <DialogDescription>
-                  Additional details provided by the seeker.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="p-4 bg-slate-50 rounded-xl text-sm text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-wrap">
-                {requirement.description}
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <Button 
-            className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20 bg-[#25D366] hover:bg-[#1ebd5b] text-white border-0 text-sm sm:text-base"
-            onClick={() => {
-              if (!user) {
-                toast({
-                  title: "Authentication Required",
-                  description: "Please login to contact the seeker.",
-                  variant: "destructive"
-                });
-                router.push('/login');
-                return;
-              }
-              window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank');
-            }}
-          >
-            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
-            WhatsApp
-          </Button>
-          <Button 
-            className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white border-0 text-sm sm:text-base"
-            onClick={() => {
-              if (!user) {
-                toast({
-                  title: "Authentication Required",
-                  description: "Please login to contact the seeker.",
-                  variant: "destructive"
-                });
-                router.push('/login');
-                return;
-              }
-              window.open(`tel:+91${requirement.whatsappNumber}`, '_self');
-            }}
-          >
-            <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
-            Call Now
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 my-5 sm:my-7 bg-gradient-to-br from-slate-50 to-slate-100/80 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border border-slate-200/80 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/[0.04] rounded-full -mr-12 -mt-12 blur-2xl" />
+            
+            <div className="flex flex-col gap-1 sm:gap-1.5 relative z-10">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
+                <User className="w-3 h-3 text-primary" /> Seeker
+              </span>
+              <span className="font-black text-sm sm:text-base text-slate-800">{requirement.name}</span>
+            </div>
+            <div className="flex flex-col gap-1 sm:gap-1.5 relative z-10">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
+                <Calendar className="w-3 h-3 text-primary" /> Move In
+              </span>
+              <span className="font-black text-sm sm:text-base text-slate-800">{requirement.moveInDate}</span>
+            </div>
+            
+            <div className="flex flex-col gap-2 col-span-2 relative z-10 mt-1 sm:mt-2">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5">
+                <Info className="w-3 h-3 text-primary" /> Preferences
+              </span>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {requirement.preferences?.tenantType && (
+                  <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
+                    {requirement.preferences.tenantType}
+                  </span>
+                )}
+                {requirement.preferences?.furnishing && (
+                  <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
+                    {requirement.preferences.furnishing}
+                  </span>
+                )}
+                {requirement.preferences?.parking && (
+                  <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black text-slate-600 shadow-sm">
+                    Parking
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 sm:gap-4 mb-5 sm:mb-7">
+              <div className="flex flex-col">
+                  <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</span>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 flex items-center">
+                      <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#2CB6A2]" />
+                      {requirement.budget.toLocaleString('en-IN')}
+                  </div>
+              </div>
+              {requirement.securityDeposit && (
+                <>
+                  <div className="h-8 sm:h-10 w-[1px] bg-slate-100" />
+                  <div className="flex flex-col">
+                      <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Deposit</span>
+                      <div className="text-xl sm:text-2xl font-black text-slate-900 flex items-center">
+                          <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                          {requirement.securityDeposit.toLocaleString('en-IN')}
+                      </div>
+                  </div>
+                </>
+              )}
+              <div className="h-8 sm:h-10 w-[1px] bg-slate-100" />
+              <div className="flex flex-col text-right">
+                  <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Posted</span>
+                  <span className="text-xs sm:text-sm font-black text-slate-600">{getDate(requirement.createdAt)}</span>
+              </div>
+          </div>
+
+          {requirement.description && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="cursor-pointer mb-5 sm:mb-8 bg-slate-50/50 hover:bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 transition-colors group">
+                  <p className="text-[13px] text-slate-600 font-medium line-clamp-2 leading-relaxed mb-2">
+                    {requirement.description}
+                  </p>
+                  <div className="text-[11px] font-bold text-[#2CB6A2] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                    Read full description <ChevronRight className="w-3 h-3" />
+                  </div>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md w-[90vw] max-h-[80vh] overflow-y-auto rounded-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-[#2CB6A2] font-black">Requirement Details</DialogTitle>
+                  <DialogDescription className="font-medium">
+                    Additional details provided by the seeker.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="p-4 bg-slate-50 rounded-xl text-sm text-slate-700 leading-relaxed border border-slate-100 whitespace-pre-wrap font-medium">
+                  {requirement.description}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <Button 
+              className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20 bg-[#25D366] hover:bg-[#1ebd5b] text-white border-0 text-sm sm:text-base"
+              onClick={() => {
+                if (!user) {
+                  toast({
+                    title: "Authentication Required",
+                    description: "Please login to contact the seeker.",
+                    variant: "destructive"
+                  });
+                  router.push('/login');
+                  return;
+                }
+                window.open(`https://wa.me/91${requirement.whatsappNumber}?text=${whatsappMessage}`, '_blank');
+              }}
+            >
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
+              WhatsApp
+            </Button>
+            <Button 
+              className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-[#2CB6A2] hover:bg-[#25A08E] text-white border-0 text-sm sm:text-base"
+              onClick={() => {
+                if (!user) {
+                  toast({
+                    title: "Authentication Required",
+                    description: "Please login to contact the seeker.",
+                    variant: "destructive"
+                  });
+                  router.push('/login');
+                  return;
+                }
+                window.open(`tel:+91${requirement.whatsappNumber}`, '_self');
+              }}
+            >
+              <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-2.5" />
+              Call Now
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 

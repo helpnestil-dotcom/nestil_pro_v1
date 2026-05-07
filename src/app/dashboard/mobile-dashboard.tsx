@@ -226,16 +226,6 @@ export default function MobileDashboard() {
 
       </div>
 
-      {/* Floating Action Button */}
-      {profile?.role !== 'Worker' && (
-        <div className="fixed bottom-24 right-5 z-50">
-          <Link href="/post-property">
-            <div className="h-16 w-16 bg-gradient-to-br from-primary to-purple-600 rounded-full shadow-xl shadow-primary/40 flex items-center justify-center hover:scale-105 active:scale-95 transition-all text-white border-4 border-white">
-              <Plus className="w-8 h-8" />
-            </div>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

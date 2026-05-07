@@ -119,10 +119,12 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
              <div className="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 shadow-sm border border-cyan-100/50"><Bath className="w-5 h-5" /></div>
              <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter text-center">{property.baths || '2'} Bath</span>
            </div>
-           <div className="flex flex-col items-center gap-2">
-             <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100/50"><Expand className="w-5 h-5" /></div>
-             <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter text-center">{property.areaSqFt} Sqft</span>
-           </div>
+           {!isPG && (
+             <div className="flex flex-col items-center gap-2">
+               <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100/50"><Expand className="w-5 h-5" /></div>
+               <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter text-center">{property.areaSqFt} Sqft</span>
+             </div>
+           )}
            <div className="flex flex-col items-center gap-2">
              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm border border-amber-100/50"><Tag className="w-5 h-5" /></div>
              <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter text-center">{property.furnishing || 'Semi'}</span>
@@ -143,10 +145,12 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Availability</span>
                 <span className="text-[11px] font-black text-slate-800">Immediately</span>
              </div>
-             <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Facing</span>
-                <span className="text-[11px] font-black text-slate-800">East Facing</span>
-             </div>
+             {!isPG && (
+               <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Facing</span>
+                  <span className="text-[11px] font-black text-slate-800">{property.facing || 'East Facing'}</span>
+               </div>
+             )}
           </div>
           <div className="flex items-center justify-between pt-6 border-t border-slate-50">
             <div className="flex items-center gap-2">
@@ -182,6 +186,12 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Gate Closing</span>
                         <span className="text-[11px] font-black text-slate-800">{property.gateClosingTime || 'No Restrictions'}</span>
                     </div>
+                    {property.foodType && (
+                        <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Food Type</span>
+                            <span className="text-[11px] font-black text-slate-800">{property.foodType}</span>
+                        </div>
+                    )}
                 </div>
 
                 {property.pgSharingPrices && Object.values(property.pgSharingPrices).some(price => price !== undefined && price > 0) && (

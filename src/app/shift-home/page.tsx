@@ -1,29 +1,17 @@
-'use client';
+import type { Metadata } from 'next';
+import ShiftHomeClient from './shift-home-client';
 
-import { useState, useEffect } from 'react';
-import MobileShiftHome from './mobile-shift-home';
-import DesktopShiftHome from './desktop-shift-home';
-import { LoaderCircle } from 'lucide-react';
+export const metadata: Metadata = {
+  title: 'Home Relocation & Shifting Services',
+  description: 'Book verified packers and movers for a hassle-free home relocation. Professional shifting services with transparent pricing and safe handling of your belongings.',
+  keywords: 'packers and movers Bangalore, home relocation services, house shifting India, verified movers, professional packers',
+  openGraph: {
+    title: 'Safe & Professional Home Relocation Services | Nestil',
+    description: 'Relocating to a new home? Book verified professional movers through Nestil for a stress-free shifting experience.',
+    images: ['https://www.nestil.in/relocation-og.png'],
+  },
+};
 
 export default function ShiftHomePage() {
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  if (isMobile === null) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white">
-        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  return isMobile ? <MobileShiftHome /> : <DesktopShiftHome />;
+  return <ShiftHomeClient />;
 }

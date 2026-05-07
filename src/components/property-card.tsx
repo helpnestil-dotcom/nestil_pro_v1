@@ -165,7 +165,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         </div>
 
         {/* Title */}
-        <h3 className="font-extrabold text-[17px] text-slate-800 line-clamp-1 mb-1 group-hover:text-primary transition-colors duration-300">
+        <h3 className="font-extrabold text-[17px] text-[#2CB6A2] line-clamp-1 mb-1 group-hover:text-primary transition-colors duration-300">
             {property.title}
         </h3>
 

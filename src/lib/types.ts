@@ -99,6 +99,7 @@ export type Property = {
     four?: number;
     five?: number;
   };
+  foodType?: 'South Indian' | 'North Indian' | 'Both';
   smartTags?: string[];
 };
 

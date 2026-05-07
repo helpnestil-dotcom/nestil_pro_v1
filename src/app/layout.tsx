@@ -4,14 +4,14 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Manrope } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
 import { BottomNav } from '@/components/bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
 
-const manrope = Manrope({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -93,7 +93,7 @@ export default function RootLayout({
       <body
         suppressHydrationWarning
         className={cn(
-          manrope.variable,
+          plusJakartaSans.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary bg-[#FCF8F5]"
         )}
       >

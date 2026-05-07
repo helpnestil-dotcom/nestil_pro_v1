@@ -217,8 +217,8 @@ function DemandFeedContent() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
             >
-              {paginatedRequirements.map((req) => (
-                <RequirementCard key={req.id} requirement={req} />
+              {paginatedRequirements.map((req, index) => (
+                <RequirementCard key={req.id} requirement={req} index={index} />
               ))}
             </motion.div>
             

@@ -171,7 +171,8 @@ const PropertyPdfCard = ({ property, owner, innerRef }: { property: Property | n
         </div>
     )
 }
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageCircle } from "lucide-react";
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -190,6 +191,8 @@ export default function AdminPage() {
 
   const [summaryCounts, setSummaryCounts] = useState({ total: 0, active: 0, soldRented: 0 });
   const [countsLoading, setCountsLoading] = useState(true);
+
+  const [crmTab, setCrmTab] = useState('residential');
 
   useEffect(() => {
     async function fetchCounts() {
@@ -275,6 +278,27 @@ export default function AdminPage() {
     }
   }
 
+  const handleContactOwner = async (property: Property) => {
+    setProcessingPropertyId(property.id);
+    try {
+        const privateDocRef = doc(db, 'propertyPrivateDetails', property.id);
+        const privateDocSnap = await getDoc(privateDocRef);
+
+        if (privateDocSnap.exists()) {
+            const owner = privateDocSnap.data() as PropertyOwner;
+            const phone = owner.phone.replace(/\D/g, '');
+            const message = `Hello ${owner.name}, I'm the admin from Nestil. I'm contacting you regarding your property: ${property.title} (ID: ${property.id})`;
+            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: 'Owner contact details not found.' });
+        }
+    } catch (e) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to fetch contact details.' });
+    } finally {
+        setProcessingPropertyId(null);
+    }
+  };
+
   // FIX: Use standard useMemo and pass the 'db' instance directly
   const pendingPropertiesQuery = useMemo(() => {
     return query(collection(db, 'properties'), where('listingStatus', '==', 'pending'));
@@ -315,6 +339,21 @@ export default function AdminPage() {
     
     let props = tableProperties;
 
+    // Filter by CRM Tab
+    if (crmTab === 'pg') {
+        props = props.filter((p: Property) => 
+            p.listingFor === 'PG' || 
+            p.propertyType === 'PG / Hostel' || 
+            p.propertyType === 'Flatmate / Co-living'
+        );
+    } else {
+        props = props.filter((p: Property) => 
+            p.listingFor !== 'PG' && 
+            p.propertyType !== 'PG / Hostel' && 
+            p.propertyType !== 'Flatmate / Co-living'
+        );
+    }
+
     if (propertyStatusFilter === 'all') {
         props = props.filter((p: Property) => p.listingStatus !== 'archived');
     }
@@ -327,7 +366,7 @@ export default function AdminPage() {
     }
 
     return props;
-  }, [tableProperties, propertySearch, propertyStatusFilter]);
+  }, [tableProperties, propertySearch, propertyStatusFilter, crmTab]);
   
   if (pendingLoading || tableLoading || countsLoading) {
       return <AdminSkeleton />;
@@ -540,17 +579,6 @@ export default function AdminPage() {
     document.body.removeChild(link);
   };
 
-  const formatDate = (date: any) => {
-    if (!date) return 'N/A';
-    if (typeof date === 'string') {
-      return format(new Date(date), 'dd/MM/yyyy');
-    }
-    if (date.seconds) {
-      return format(fromUnixTime(date.seconds), 'dd/MM/yyyy');
-    }
-    return 'Invalid Date';
-  };
-
   return (
     <div className="container py-12">
       <PropertyPdfCard property={pdfProperty?.property || null} owner={pdfProperty?.owner || null} innerRef={pdfRef} />
@@ -649,7 +677,7 @@ export default function AdminPage() {
               )
             })()}
         </DialogContent>
-    </Dialog>
+      </Dialog>
       
       <div className="mb-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -736,7 +764,9 @@ export default function AdminPage() {
                                 {prop.photos?.[0] ? (
                                     <Image src={prop.photos[0]} alt={prop.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
-                                    <Home className="w-8 h-8 text-slate-300 absolute center" />
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <Home className="w-8 h-8 text-slate-300" />
+                                    </div>
                                 )}
                             </div>
 
@@ -784,60 +814,46 @@ export default function AdminPage() {
       </Card>
 
       
-      <Card>
-        <CardHeader>
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+      <Card className="border-none shadow-2xl shadow-slate-200/60 overflow-hidden">
+        <CardHeader className="pb-0">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-6">
                 <div>
-                    <CardTitle>All Listings</CardTitle>
-                    <CardDescription>View and manage all property listings.</CardDescription>
+                    <CardTitle className="text-2xl font-black text-slate-900">Dedicated Property CRMs</CardTitle>
+                    <CardDescription className="font-medium">Manage Residential and PG listings in separate optimized views.</CardDescription>
                 </div>
-                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full md:w-auto md:justify-end">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <div className="relative w-full sm:w-auto flex-grow sm:flex-grow-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search title or area..." className="pl-10 w-full sm:w-48" value={propertySearch} onChange={(e) => setPropertySearch(e.target.value)} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input placeholder="Search title, area..." className="pl-10 w-full sm:w-64 rounded-xl border-slate-200 shadow-sm" value={propertySearch} onChange={(e) => setPropertySearch(e.target.value)} />
                     </div>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                id="date"
-                                variant={"outline"}
-                                className={cn(
-                                    "w-full sm:w-[240px] justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date?.from ? (
-                                    date.to ? (
-                                        <>
-                                            {format(date.from, "LLL dd, y")} -{" "}
-                                            {format(date.to, "LLL dd, y")}
-                                        </>
-                                    ) : (
-                                        format(date.from, "LLL dd, y")
-                                    )
-                                ) : (
-                                    <span>Filter by date added</span>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                                initialFocus
-                                mode="range"
-                                defaultMonth={date?.from}
-                                selected={date}
-                                onSelect={setDate}
-                                numberOfMonths={2}
-                            />
-                        </PopoverContent>
-                    </Popover>
-                    <Select value={propertyStatusFilter} onValueChange={setPropertyStatusFilter}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Filter by Status" />
+                    
+                    <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
+                        <SelectTrigger className="w-full sm:w-[160px] rounded-xl shadow-sm border-slate-200">
+                            <SelectValue placeholder="Type" />
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Active Listings</SelectItem>
+                        <SelectContent className="rounded-xl">
+                            <SelectItem value="all">All {crmTab === 'pg' ? 'Coliving' : 'Residential'}</SelectItem>
+                            {crmTab === 'residential' ? (
+                                <>
+                                    <SelectItem value="sale">For Sale</SelectItem>
+                                    <SelectItem value="rent">For Rent</SelectItem>
+                                    <SelectItem value="lease">For Lease</SelectItem>
+                                </>
+                            ) : (
+                                <>
+                                    <SelectItem value="pg">PG / Hostel</SelectItem>
+                                    <SelectItem value="flatmate">Flatmate</SelectItem>
+                                </>
+                            )}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={propertyStatusFilter} onValueChange={setPropertyStatusFilter}>
+                        <SelectTrigger className="w-full sm:w-[160px] rounded-xl shadow-sm border-slate-200">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                            <SelectItem value="all">Active Only</SelectItem>
                             <SelectItem value="approved">Approved</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="rejected">Rejected</SelectItem>
@@ -846,133 +862,160 @@ export default function AdminPage() {
                             <SelectItem value="archived">Archived</SelectItem>
                         </SelectContent>
                     </Select>
-                     <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
-                        <SelectTrigger className="w-full sm:w-[180px]">
-                            <SelectValue placeholder="Filter by Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="sale">For Sale</SelectItem>
-                            <SelectItem value="rent">For Rent</SelectItem>
-                            <SelectItem value="lease">For Lease</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={handlePropertyCsvDownload} className="w-full sm:w-auto">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download CSV
-                    </Button>
+
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" className="w-full sm:w-auto rounded-xl border-slate-200 shadow-sm font-medium">
+                                <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                                {date?.from ? (date.to ? `${format(date.from, "LLL dd")} - ${format(date.to, "LLL dd")}` : format(date.from, "LLL dd")) : "Date Filter"}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="end">
+                            <Calendar mode="range" selected={date} onSelect={setDate} numberOfMonths={2} />
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </div>
+
+            <Tabs value={crmTab} onValueChange={setCrmTab} className="w-full">
+                <TabsList className="bg-slate-100 p-1 rounded-xl h-12 w-full sm:w-max grid grid-cols-2">
+                    <TabsTrigger value="residential" className="rounded-lg font-bold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm px-8 transition-all">
+                        <Home className="w-4 h-4 mr-2" /> Residential CRM
+                    </TabsTrigger>
+                    <TabsTrigger value="pg" className="rounded-lg font-bold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm px-8 transition-all">
+                        <BedDouble className="w-4 h-4 mr-2" /> PG & Co-living CRM
+                    </TabsTrigger>
+                </TabsList>
+            </Tabs>
         </CardHeader>
-        <CardContent>
+        
+        <CardContent className="pt-6">
             <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Property</TableHead>
-                <TableHead className="hidden sm:table-cell">Owner ID</TableHead>
-                <TableHead className="hidden md:table-cell">Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Manage</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-               {filteredProperties && filteredProperties.map((prop: Property) => (
-                  <TableRow key={prop.id}>
-                    <TableCell className="font-medium">{prop.title}</TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                        <div>{prop.ownerId}</div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">₹{prop.price.toLocaleString('en-IN')}</TableCell>
-                    <TableCell>
-                        <div className="flex flex-col gap-1">
-                           <Badge variant={
-                               prop.listingStatus === 'approved' ? 'default' : 
-                               prop.listingStatus === 'pending' ? 'secondary' :
-                               prop.listingStatus === 'sold' || prop.listingStatus === 'rented' ? 'outline' : 
-                               prop.listingStatus === 'archived' ? 'secondary' :
-                               'destructive'
-                            } className="capitalize flex items-center gap-1 w-fit">
-                               {prop.listingStatus === 'approved' && <CheckCircle className="h-3 w-3" />}
-                               {prop.listingStatus === 'pending' && <Clock className="h-3 w-3" />}
-                               {prop.listingStatus === 'rejected' && <XCircle className="h-3 w-3" />}
-                               {prop.listingStatus === 'archived' && <Archive className="h-3 w-3" />}
-                               {prop.listingStatus}
-                           </Badge>
-                           {prop.isPaid && <Badge variant='secondary' className="capitalize flex items-center gap-1 w-fit"><DollarSign className="h-3 w-3" />Paid</Badge>}
-                               {prop.featured && (
-                                <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 capitalize flex items-center gap-1 w-fit text-[10px]">
-                                    <Sparkles className="h-3 w-3" />
-                                    Featured {(prop as any).adExpiry && `(Until ${formatDateLocal((prop as any).adExpiry)})`}
-                                </Badge>
-                               )}
-                        </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                       <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled={(isGeneratingPdf && pdfProperty?.property.id === prop.id) || processingPropertyId === prop.id}>
-                                {(isGeneratingPdf && pdfProperty?.property.id === prop.id) || processingPropertyId === prop.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" />}
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild className="cursor-pointer">
-                                <Link href={`/post-property?edit=${prop.id}`}>
-                                    <Edit className="mr-2 h-4 w-4" />Edit
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="cursor-pointer"
-                                onClick={() => handleMarkAsSoldRented(prop)}
-                                disabled={processingPropertyId === prop.id}
-                            >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
-                                {prop.listingStatus === 'sold' || prop.listingStatus === 'rented' ? 'Mark as Available' : 'Mark as Sold/Rented'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="cursor-pointer"
-                                onClick={() => handleTogglePaidStatus(prop)}
-                                disabled={processingPropertyId === prop.id}
-                            >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <DollarSign className="mr-2 h-4 w-4" />}
-                                {prop.isPaid ? 'Mark as Unpaid' : 'Mark as Paid'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="cursor-pointer"
-                                onClick={() => handleDownloadPdfClick(prop)}
-                                disabled={isGeneratingPdf || processingPropertyId === prop.id}
-                            >
-                                {isGeneratingPdf && pdfProperty?.property.id === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}Download PDF
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="text-amber-600 focus:text-amber-600 cursor-pointer font-black"
-                                onClick={() => handlePromoteToAd(prop.id)}
-                                disabled={processingPropertyId === prop.id}
-                            >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                                {prop.featured ? 'Renew 24h Spotlight' : 'Boost: 24h Spotlight'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="text-orange-600 focus:text-orange-600 cursor-pointer"
-                                onClick={() => handleArchiveProperty(prop.id)}
-                                disabled={processingPropertyId === prop.id}
-                            >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Archive className="mr-2 h-4 w-4" />}Archive
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                                className="text-red-600 focus:text-red-600 cursor-pointer"
-                                onClick={() => handleDeleteProperty(prop.id)}
-                                disabled={processingPropertyId === prop.id}
-                            >
-                                {processingPropertyId === prop.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Property Details</TableHead>
+                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest hidden md:table-cell">
+                        {crmTab === 'pg' ? 'Sharing / Food' : 'BHK / Area'}
+                    </TableHead>
+                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest hidden sm:table-cell">Price / Status</TableHead>
+                    <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-right">Quick Actions</TableHead>
                   </TableRow>
-                ))}
-            </TableBody>
+                </TableHeader>
+                <TableBody>
+                   {filteredProperties && filteredProperties.map((prop: Property) => (
+                      <TableRow key={prop.id} className="group border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <TableCell>
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 relative shrink-0 border border-slate-200">
+                                    {prop.photos?.[0] ? (
+                                        <Image src={prop.photos[0]} alt="" fill className="object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center"><Home className="w-4 h-4 text-slate-300" /></div>
+                                    )}
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="font-bold text-slate-900 truncate max-w-[200px]">{prop.title}</div>
+                                    <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
+                                        <MapPin className="w-3 h-3 shrink-0" /> {prop.city}
+                                    </div>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                            {crmTab === 'pg' ? (
+                                <div className="space-y-1">
+                                    <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <Users className="w-3.5 h-3.5 text-blue-500" /> {prop.pgRoomType || 'N/A'}
+                                    </div>
+                                    <Badge variant="outline" className="text-[9px] bg-emerald-50 text-emerald-700 border-emerald-100 h-5">
+                                        {prop.foodType || 'No Food Info'}
+                                    </Badge>
+                                </div>
+                            ) : (
+                                <div className="space-y-1">
+                                    <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <BedDouble className="w-3.5 h-3.5 text-indigo-500" /> {prop.bhk || 'N/A'}
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+                                        {prop.areaSqFt ? `${prop.areaSqFt.toLocaleString()} sqft` : 'Area N/A'}
+                                    </div>
+                                </div>
+                            )}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                            <div className="space-y-1.5">
+                                <div className="font-black text-slate-900">₹{prop.price.toLocaleString('en-IN')}</div>
+                                <Badge variant={
+                                    prop.listingStatus === 'approved' ? 'default' : 
+                                    prop.listingStatus === 'pending' ? 'secondary' :
+                                    prop.listingStatus === 'sold' || prop.listingStatus === 'rented' ? 'outline' : 
+                                    'destructive'
+                                 } className="text-[9px] h-5 px-1.5 capitalize font-black tracking-tighter">
+                                    {prop.listingStatus}
+                                </Badge>
+                            </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                           <div className="flex items-center justify-end gap-2">
+                               <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="h-9 w-9 rounded-xl border-slate-200 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-all shadow-sm"
+                                    onClick={() => handleContactOwner(prop)}
+                                    disabled={processingPropertyId === prop.id}
+                                    title="Contact Owner via WhatsApp"
+                               >
+                                   {processingPropertyId === prop.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                               </Button>
+
+                               <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white hover:shadow-md transition-all">
+                                        <MoreVertical className="h-4 w-4 text-slate-400" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="rounded-xl w-56 p-2 shadow-2xl border-slate-100">
+                                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer font-bold py-2.5">
+                                        <Link href={`/post-property?edit=${prop.id}`}>
+                                            <Edit className="mr-3 h-4 w-4 text-blue-500" /> Edit Listing
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-bold py-2.5" onClick={() => handleMarkAsSoldRented(prop)}>
+                                        <CheckCircle className="mr-3 h-4 w-4 text-emerald-500" /> {prop.listingStatus === 'sold' || prop.listingStatus === 'rented' ? 'Mark as Available' : 'Mark as Closed'}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-bold py-2.5" onClick={() => handleTogglePaidStatus(prop)}>
+                                        <DollarSign className="mr-3 h-4 w-4 text-amber-500" /> {prop.isPaid ? 'Mark as Unpaid' : 'Mark as Paid'}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-bold py-2.5" onClick={() => handleDownloadPdfClick(prop)}>
+                                        <Download className="mr-3 h-4 w-4 text-indigo-500" /> Download PDF
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator className="my-2" />
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-black py-2.5 text-amber-600 focus:text-amber-600 bg-amber-50/50 mb-1" onClick={() => handlePromoteToAd(prop.id)}>
+                                        <Sparkles className="mr-3 h-4 w-4" /> 24h Spotlight Ad
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-bold py-2.5 text-orange-600 focus:text-orange-600" onClick={() => handleArchiveProperty(prop.id)}>
+                                        <Archive className="mr-3 h-4 w-4" /> Archive Property
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer font-bold py-2.5 text-red-600 focus:text-red-600" onClick={() => handleDeleteProperty(prop.id)}>
+                                        <Trash2 className="mr-3 h-4 w-4" /> Delete Permanently
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                               </DropdownMenu>
+                           </div>
+                        </TableCell>
+                      </TableRow>
+                   ))}
+                </TableBody>
             </Table>
+            {(!filteredProperties || filteredProperties.length === 0) && (
+                <div className="py-24 text-center">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Home className="h-8 w-8 text-slate-300" />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900">No properties found</h3>
+                    <p className="text-slate-500 text-sm">Try adjusting your filters or search terms.</p>
+                </div>
+            )}
         </CardContent>
       </Card>
     </div>

@@ -63,14 +63,14 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-all active:scale-95",
+                "flex flex-col items-center gap-1.5 transition-all duration-300 active:scale-90",
                 isActive ? "text-primary" : "text-slate-400"
               )}
               aria-label={`Go to ${item.label}`}
             >
-              <Icon className={cn("w-6 h-6", isActive && "fill-primary/10")} />
+              <Icon className={cn("w-6 h-6 transition-all duration-300", isActive && "fill-primary/10 scale-110")} />
               <span className={cn(
-                "text-[9px] font-black uppercase tracking-widest",
+                "text-[9px] font-black uppercase tracking-widest transition-all duration-300",
                 isActive ? "text-primary" : "text-slate-400"
               )}>
                 {item.label}

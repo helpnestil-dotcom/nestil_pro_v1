@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 60% 11%;
     
-    --primary: 265 89% 58%;
+    --primary: 171 61% 44%;
     --primary-foreground: 0 0% 100%;
     
     --secondary: 210 40% 96%;
@@ -22,20 +22,20 @@
     --muted: 210 40% 96%;
     --muted-foreground: 215 20% 35%;
     
-    --accent: 251 100% 69%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 171 61% 95%;
+    --accent-foreground: 171 61% 25%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 255 70% 60%;
+    --ring: 171 61% 44%;
 
     --radius: 1rem;
 
-    --font-body: var(--font-body), Inter, system-ui, sans-serif;
-    --font-heading: var(--font-heading), Poppins, system-ui, sans-serif;
+    --font-body: var(--font-body), "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+    --font-heading: var(--font-body), "Plus Jakarta Sans", Poppins, system-ui, sans-serif;
   }
 
   .dark {
@@ -88,11 +88,11 @@
 
 @layer utilities {
     .glow-text {
-        background: linear-gradient(90deg, hsl(255 70% 60%), hsl(280 80% 65%));
+        background: linear-gradient(90deg, hsl(171 61% 44%), hsl(171 61% 60%));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        text-shadow: 0 0 30px hsla(255, 70%, 60%, 0.2);
+        text-shadow: 0 0 30px hsla(171, 61%, 44%, 0.2);
     }
 
     .glass-card {
@@ -132,4 +132,31 @@
 
     .animation-delay-2000 { animation-delay: 2s; }
     .animation-delay-4000 { animation-delay: 4s; }
+
+    .smooth-transition {
+        @apply transition-all duration-300 ease-in-out;
+    }
+
+    .tap-highlight-none {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .premium-shadow {
+        box-shadow: 0 10px 30px -10px rgba(44, 182, 162, 0.15);
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Page Transition Shim */
+.page-fade-in {
+    animation: pageFadeIn 0.5s ease-out forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

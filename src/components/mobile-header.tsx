@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useUser } from '@/firebase';
 import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
+import { motion } from 'framer-motion';
 
 type Location = {
   state: string;
@@ -98,15 +99,18 @@ export function MobileHeader() {
     : 'Select city, area or landmark';
 
   return (
-    <header 
+    <motion.header 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.21, 1.02, 0.73, 1] }}
       className="px-4 pb-4 bg-white/90 backdrop-blur-xl space-y-5 sticky top-0 z-40 border-b border-slate-100/50"
       style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
     >
       {/* Top Nav */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex items-center gap-1.5">
-          <Home className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold font-heading text-primary tracking-tighter">nestil</h1>
+          <Home className="w-6 h-6 text-[#2CB6A2]" />
+          <h1 className="text-2xl font-black font-heading text-[#2CB6A2] tracking-tighter">nestil</h1>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="relative h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors" aria-label="View notifications">
@@ -226,6 +230,6 @@ export function MobileHeader() {
         </Sheet>
       </div>
 
-    </header>
+    </motion.header>
   );
 }

@@ -626,8 +626,8 @@ function PropertySearchComponent() {
             <div className="space-y-4">
                 {isLoading ? (
                     [...Array(3)].map((_, i) => <Skeleton key={i} className="h-[280px] w-full rounded-3xl" />)
-                ) : currentProperties.map((prop) => (
-                    <MobilePropertyListingCard key={prop.id} property={prop} />
+                ) : currentProperties.map((prop, index) => (
+                    <MobilePropertyListingCard key={prop.id} property={prop} index={index} />
                 ))}
             </div>
 

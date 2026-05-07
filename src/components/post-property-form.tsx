@@ -145,6 +145,7 @@ const formSchema = z.object({
     four: z.coerce.number().optional(),
     five: z.coerce.number().optional(),
   }).optional(),
+  foodType: z.enum(['South Indian', 'North Indian', 'Both']).optional(),
 
   details: z.object({
         bhk: z.string().default(''),
@@ -289,6 +290,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
         four: undefined,
         five: undefined,
       },
+      foodType: undefined,
       details: {
         bhk: '',
         bathrooms: '',
@@ -680,6 +682,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       petsAllowed: values.petsAllowed,
       isImmediateMoveIn: values.isImmediateMoveIn,
       pgSharingPrices: values.pgSharingPrices,
+      foodType: values.foodType,
       smartTags: (() => {
         const generatedTags: string[] = [];
         if (values.price > 0 && values.price < 10000) generatedTags.push('Budget Friendly');
@@ -1498,9 +1501,33 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                   <FormField control={form.control} name="details.totalFloors" render={({ field }) => (<FormItem><FormLabel>Total Floors</FormLabel><FormControl><Input placeholder="e.g., 5" {...field}/></FormControl><FormMessage /></FormItem>)} />
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <FormField control={form.control} name="details.area" render={({ field }) => (<FormItem><FormLabel>Built-up Area (sqft)</FormLabel><FormControl><Input type="number" placeholder="e.g., 1200" {...field}/></FormControl><FormDescription>Area in Square Feet.</FormDescription><FormMessage /></FormItem>)} />
-                     <FormField control={form.control} name="details.facing" render={({ field }) => (<FormItem><FormLabel>Facing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select direction"/></SelectTrigger></FormControl><SelectContent>{['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                     <FormField control={form.control} name="details.age" render={({ field }) => (<FormItem><FormLabel>Age of Property</FormLabel><FormControl><Input placeholder="e.g., 2 years" {...field}/></FormControl><FormMessage /></FormItem>)} />
+                    {!isPG && (
+                      <>
+                        <FormField control={form.control} name="details.area" render={({ field }) => (<FormItem><FormLabel>Built-up Area (sqft)</FormLabel><FormControl><Input type="number" placeholder="e.g., 1200" {...field}/></FormControl><FormDescription>Area in Square Feet.</FormDescription><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="details.facing" render={({ field }) => (<FormItem><FormLabel>Facing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select direction"/></SelectTrigger></FormControl><SelectContent>{['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="details.age" render={({ field }) => (<FormItem><FormLabel>Age of Property</FormLabel><FormControl><Input placeholder="e.g., 2 years" {...field}/></FormControl><FormMessage /></FormItem>)} />
+                      </>
+                    )}
+                    {isPG && (
+                      <FormField control={form.control} name="foodType" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Food Type</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select food type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {['South Indian', 'North Indian', 'Both'].map(v => (
+                                <SelectItem key={v} value={v}>{v}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
                  </div>
                  <FormField control={form.control} name="details.furnishing" render={({ field }) => (<FormItem><FormLabel>Furnishing</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} value={field.value} className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2">{['Unfurnished', 'Semi-furnished', 'Fully-furnished'].map(type => (<FormItem key={type} className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value={type} id={`furnish-${type}`} /></FormControl><Label htmlFor={`furnish-${type}`}>{type}</Label></FormItem>))}</RadioGroup></FormControl><FormMessage /></FormItem>)} />
               </div>
