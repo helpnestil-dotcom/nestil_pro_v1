@@ -1,14 +1,15 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { LoaderCircle, Zap } from 'lucide-react';
 
 import { HeroSection } from '@/components/hero-section';
 import { FeaturedProperties } from '@/components/featured-properties';
 import { PropertyCardSkeleton } from '@/components/property-card';
 import { FlatmateSection } from '@/components/flatmate-section';
 import { DynamicTicker } from '@/components/dynamic-ticker';
-import { FeaturedAdDice } from '@/components/featured-ad-dice';
 import { RecentlyViewed } from '@/components/recently-viewed';
 
 // Mobile Components
@@ -18,29 +19,6 @@ import { QuickFilters } from '@/components/quick-filters';
 import { AvailableNow } from '@/components/available-now';
 import { PromoBanners } from '@/components/promo-banners';
 import { WhyNestil } from '@/components/why-nestil';
-import { Zap } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Nestil | Buy, Rent & Sell Properties in Bangalore | Zero Brokerage',
-  description: 'Find your dream home instantly. Browse verified flats and houses in Bangalore with zero brokerage. Direct owner properties — no middlemen, no hidden fees.',
-  keywords: 'properties Bangalore, rent flat Bangalore, buy house Karnataka, zero brokerage property, direct owner listings, Nestil',
-  openGraph: {
-    title: 'Nestil | India\'s #1 Zero Brokerage Property Platform',
-    description: 'Find verified direct-owner properties in Bangalore with zero brokerage.',
-    url: 'https://www.nestil.in',
-    siteName: 'Nestil',
-    type: 'website',
-    images: [{ url: 'https://www.nestil.in/web-app-manifest-512x512.png', width: 512, height: 512, alt: 'Nestil' }],
-  },
-  alternates: {
-    canonical: 'https://www.nestil.in',
-  },
-};
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 600; // Refresh data every 10 minutes
-
-// Old Ticker removed in favor of DynamicTicker
 
 const CtaBand = () => (
     <div className="py-20">
@@ -86,9 +64,28 @@ function FeaturedPropertiesSkeleton() {
 }
 
 export default function Home() {
-  return (
-    <>
-      <div className="md:hidden bg-white min-h-screen">
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 'md' breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile === null) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <div className="bg-white min-h-screen">
         <Suspense fallback={<div className="h-20 bg-white" />}>
           <MobileHeader />
         </Suspense>
@@ -122,20 +119,21 @@ export default function Home() {
           <WhyNestil />
         </div>
       </div>
+    );
+  }
 
-      {/* Desktop Home Screen */}
-      <div className="hidden md:block">
-        <HeroSection />
-        <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
-          <DynamicTicker />
-        </Suspense>
-        <Suspense fallback={<FeaturedPropertiesSkeleton />}>
-          <FeaturedProperties />
-        </Suspense>
-        <RecentlyViewed />
-        <FlatmateSection />
-        <CtaBand />
-      </div>
-    </>
-  )
+  return (
+    <div className="hidden md:block">
+      <HeroSection />
+      <Suspense fallback={<div className="h-12 bg-white border-y border-slate-100" />}>
+        <DynamicTicker />
+      </Suspense>
+      <Suspense fallback={<FeaturedPropertiesSkeleton />}>
+        <FeaturedProperties />
+      </Suspense>
+      <RecentlyViewed />
+      <FlatmateSection />
+      <CtaBand />
+    </div>
+  );
 }

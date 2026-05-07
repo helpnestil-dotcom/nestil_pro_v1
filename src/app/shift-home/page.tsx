@@ -1,15 +1,29 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import MobileShiftHome from './mobile-shift-home';
 import DesktopShiftHome from './desktop-shift-home';
+import { LoaderCircle } from 'lucide-react';
 
 export default function ShiftHomePage() {
-  return (
-    <>
-      <div className="block lg:hidden">
-        <MobileShiftHome />
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile === null) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
       </div>
-      <div className="hidden lg:block">
-        <DesktopShiftHome />
-      </div>
-    </>
-  );
+    );
+  }
+
+  return isMobile ? <MobileShiftHome /> : <DesktopShiftHome />;
 }
