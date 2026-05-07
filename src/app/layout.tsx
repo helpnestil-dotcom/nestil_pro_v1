@@ -4,24 +4,18 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Inter, Poppins } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
 import { BottomNav } from '@/components/bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ['latin'],
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-body',
-});
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-heading',
 });
 
 
@@ -91,18 +85,18 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap" rel="stylesheet" />
       </head>
       <body
         suppressHydrationWarning
         className={cn(
-          inter.variable,
-          poppins.variable,
+          manrope.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary bg-[#FCF8F5]"
         )}
       >
         <FirebaseClientProvider>
-          {/* Main App Container with Curved Corners */}
-          <div className="flex flex-col min-h-[100dvh] overflow-hidden bg-white rounded-[32px] shadow-2xl ring-1 ring-slate-100 max-w-full mx-auto relative">
+          {/* Main App Container with Curved Corners (Desktop Only) */}
+          <div className="flex flex-col min-h-[100dvh] overflow-hidden bg-white md:rounded-[32px] md:shadow-2xl md:ring-1 md:ring-slate-100 max-w-full mx-auto relative">
             <div className="hidden md:block">
               <Header />
             </div>

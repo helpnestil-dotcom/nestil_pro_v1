@@ -23,6 +23,9 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
   const photos = (property.photos && property.photos.length > 0) 
     ? property.photos.map(p => getWatermarkedImageUrl(p)) 
     : ['https://picsum.photos/seed/property/800/600'];
+    
+  const isPG = property.listingFor === 'PG' || property.propertyType === 'PG / Hostel' || property.propertyType === 'Flatmate / Co-living';
+
 
   return (
     <div className="bg-slate-50 min-h-screen pb-32">
@@ -93,6 +96,16 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
             </div>
             {property.address}, {property.city}
           </div>
+          
+          {property.smartTags && property.smartTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-3">
+              {property.smartTags.map(tag => (
+                <span key={tag} className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100/50">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Specs Grid */}
@@ -142,6 +155,48 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
             <span className="text-[10px] text-slate-300 font-black tracking-widest">#{property.id?.slice(0, 6).toUpperCase()}</span>
           </div>
         </div>
+
+        {/* PG Details Section */}
+        {isPG && (
+            <div className="space-y-4 pt-6 border-t border-slate-50">
+                <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-slate-900 tracking-tight">PG & Coliving Details</h2>
+                    <div className="h-[2px] flex-1 bg-slate-50 rounded-full" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Available For</span>
+                        <span className="text-[11px] font-black text-slate-800">{property.pgAvailableFor || 'Anyone'}</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Room Type</span>
+                        <span className="text-[11px] font-black text-slate-800">{property.pgRoomType || 'Shared Room'}</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Food Included?</span>
+                        <span className="text-[11px] font-black text-slate-800">{property.foodIncluded ? 'Yes' : 'No'}</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Gate Closing</span>
+                        <span className="text-[11px] font-black text-slate-800">{property.gateClosingTime || 'No Restrictions'}</span>
+                    </div>
+                </div>
+
+                {property.pgSharingPrices && Object.values(property.pgSharingPrices).some(price => price !== undefined && price > 0) && (
+                    <div className="pt-4 border-t border-slate-50">
+                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-3">Rent per Sharing Type</span>
+                        <div className="space-y-2">
+                            {property.pgSharingPrices.single ? <div className="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100"><span className="text-slate-600 font-medium">1 Sharing</span><span className="font-black text-primary">₹{property.pgSharingPrices.single.toLocaleString('en-IN')}</span></div> : null}
+                            {property.pgSharingPrices.double ? <div className="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100"><span className="text-slate-600 font-medium">2 Sharing</span><span className="font-black text-primary">₹{property.pgSharingPrices.double.toLocaleString('en-IN')}</span></div> : null}
+                            {property.pgSharingPrices.triple ? <div className="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100"><span className="text-slate-600 font-medium">3 Sharing</span><span className="font-black text-primary">₹{property.pgSharingPrices.triple.toLocaleString('en-IN')}</span></div> : null}
+                            {property.pgSharingPrices.four ? <div className="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100"><span className="text-slate-600 font-medium">4 Sharing</span><span className="font-black text-primary">₹{property.pgSharingPrices.four.toLocaleString('en-IN')}</span></div> : null}
+                            {property.pgSharingPrices.five ? <div className="flex justify-between items-center text-sm p-3 bg-slate-50 rounded-xl border border-slate-100"><span className="text-slate-600 font-medium">5+ Sharing</span><span className="font-black text-primary">₹{property.pgSharingPrices.five.toLocaleString('en-IN')}</span></div> : null}
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
       </div>
 
       {/* Similar Properties Section */}

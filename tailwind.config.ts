@@ -18,9 +18,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-body)', 'Inter', 'sans-serif'],
-        body: ['var(--font-body)', 'Inter', 'sans-serif'],
-        heading: ['var(--font-heading)', 'Poppins', 'sans-serif'],
+        sans: ['var(--font-body)', 'Manrope', 'sans-serif'],
+        body: ['var(--font-body)', 'Manrope', 'sans-serif'],
+        heading: ['"General Sans"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

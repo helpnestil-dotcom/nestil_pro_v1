@@ -71,6 +71,35 @@ export type Property = {
   adExpiry?: string | Timestamp | null;
   adStatus?: 'approved' | 'pending' | 'rejected' | 'none';
   ownerName?: string;
+
+  // PG / Coliving specific fields
+  pgAvailableFor?: 'Men' | 'Women' | 'Unisex';
+  pgRoomType?: 'Single Sharing' | 'Double Sharing' | 'Triple Sharing' | 'Dormitory' | 'Private Room';
+  totalBeds?: number;
+  availableBeds?: number;
+  attachedBathroom?: boolean;
+  balcony?: boolean;
+  electricityIncluded?: boolean;
+  foodIncluded?: boolean;
+  brokerage?: number;
+  minimumStayDuration?: string;
+  mealsCount?: number;
+  foodTimings?: string;
+  outsideFoodAllowed?: boolean;
+  smokingAllowed?: boolean;
+  drinkingAllowed?: boolean;
+  visitorsAllowed?: boolean;
+  gateClosingTime?: string;
+  petsAllowed?: boolean;
+  isImmediateMoveIn?: boolean;
+  pgSharingPrices?: {
+    single?: number;
+    double?: number;
+    triple?: number;
+    four?: number;
+    five?: number;
+  };
+  smartTags?: string[];
 };
 
 export type User = {

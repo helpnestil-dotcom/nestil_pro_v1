@@ -98,9 +98,12 @@ export function MobileHeader() {
     : 'Select city, area or landmark';
 
   return (
-    <header className="px-4 pt-4 pb-6 bg-[#FCF8F5] space-y-6 rounded-t-[32px]">
-      {/* Top Nav inside a floating white box */}
-      <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-100/50">
+    <header 
+      className="px-4 pb-4 bg-white/90 backdrop-blur-xl space-y-5 sticky top-0 z-40 border-b border-slate-100/50"
+      style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+    >
+      {/* Top Nav */}
+      <div className="flex items-center justify-between pt-2">
         <div className="flex items-center gap-1.5">
           <Home className="w-6 h-6 text-primary" />
           <h1 className="text-2xl font-bold font-heading text-primary tracking-tighter">nestil</h1>
@@ -127,9 +130,9 @@ export function MobileHeader() {
       </div>
 
       {/* Greeting & Title */}
-      <div className="space-y-1">
-        <p className="text-slate-400 text-sm font-semibold tracking-wide">Hi, Welcome 👋</p>
-        <h2 className="text-2xl font-bold font-heading text-slate-900 leading-tight">
+      <div className="space-y-0.5 px-1">
+        <p className="text-slate-500 text-xs font-bold tracking-wide uppercase">Hi, Welcome 👋</p>
+        <h2 className="text-[22px] font-bold font-heading text-slate-900 leading-tight">
           Find your next home,<br />faster in 48hrs.
         </h2>
       </div>
@@ -140,9 +143,9 @@ export function MobileHeader() {
           <SheetTrigger asChild>
             <div className="relative group cursor-pointer active:scale-[0.98] transition-transform">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
+                <Search className="h-5 w-5 text-slate-500 group-hover:text-primary transition-colors" />
               </div>
-              <div className="min-h-[56px] pl-12 pr-12 py-3 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 hover:border-primary/30 transition-all text-base flex flex-col justify-center">
+              <div className="min-h-[50px] pl-12 pr-12 py-2 rounded-full bg-slate-100/80 border border-transparent hover:border-slate-200 hover:bg-slate-100 transition-all text-base flex flex-col justify-center">
                 {savedLocation ? (
                   <>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 leading-tight">Location</span>

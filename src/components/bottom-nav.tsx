@@ -22,7 +22,10 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 pt-3 pb-8 md:hidden">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-3xl border-t border-slate-100/50 px-6 pt-3 md:hidden"
+      style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
+    >
       <div className="flex items-center justify-between max-w-md mx-auto relative h-12">
         {navItems.map((item) => {
           const Icon = item.icon;

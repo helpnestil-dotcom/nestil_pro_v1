@@ -40,7 +40,6 @@ export function MobilePropertyCard({ property }: MobilePropertyCardProps) {
           fill 
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover"
-          priority
         />
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />

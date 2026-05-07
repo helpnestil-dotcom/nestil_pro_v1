@@ -25,7 +25,8 @@ export function AvailableNow() {
       q = query(q, where('city', '==', city));
     }
     
-    // Removing limit(6) to avoid requiring a composite index in Firebase
+    // Limiting to 20 to ensure performance while allowing local filtering/sorting
+    q = query(q, limit(20));
     return q;
   };
 

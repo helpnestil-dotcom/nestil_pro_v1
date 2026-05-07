@@ -1,43 +1,61 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useFirestore } from '@/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { MobileListingHeader } from '@/components/mobile-listing-header';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { MapPin, ArrowRight, Utensils, Cigarette, Briefcase, IndianRupee, Heart, Filter, CheckCircle2 } from 'lucide-react';
+import { MapPin, ArrowRight, Utensils, Cigarette, Briefcase, IndianRupee, Heart, Filter, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function FlatmatesPage() {
-  const matches = [
-    { 
-      name: 'Arjun, 27', 
-      role: 'Software Engineer', 
-      budget: '₹8K - ₹10K', 
-      gender: 'Male', 
-      location: 'Bellandur', 
-      match: '95%',
-      lifestyle: ['Non-Veg', 'No Smoking', 'No Drinking']
-    },
-    { 
-      name: 'Karthik, 24', 
-      role: 'Data Analyst', 
-      budget: '₹7K - ₹9K', 
-      gender: 'Male', 
-      location: 'Bellandur', 
-      match: '92%',
-      lifestyle: ['Veg Only', 'Non-Smoker', 'Social Drinker']
-    },
-    { 
-      name: 'Manoj, 25', 
-      role: 'UI/UX Designer', 
-      budget: '₹8K - ₹11K', 
-      gender: 'Male', 
-      location: 'Bellandur', 
-      match: '90%',
-      lifestyle: ['Non-Veg', 'No Smoking', 'No Drinking']
-    },
-  ];
+  const [matches, setMatches] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const firestore = useFirestore();
+
+  useEffect(() => {
+    async function fetchFlatmates() {
+      if (!firestore) return;
+      try {
+        const q = query(
+          collection(firestore, 'users'),
+          where('flatmateProfile.isSearching', '==', true),
+          limit(50)
+        );
+        const querySnapshot = await getDocs(q);
+        const fetchedMatches = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const profile = data.flatmateProfile || {};
+          
+          return {
+            id: doc.id,
+            name: data.displayName || data.name || 'Anonymous',
+            role: profile.occupation || 'Professional',
+            budget: profile.budget || 'Open Budget',
+            gender: profile.gender || 'Any',
+            location: profile.location || 'Anywhere',
+            match: `${Math.floor(Math.random() * 15) + 80}%`, // Dummy match score 80-95%
+            lifestyle: [
+              profile.diet || 'Any Diet',
+              profile.smoking === 'No' ? 'Non-Smoker' : 'Smoker',
+              profile.drinking === 'No' ? 'Non-Drinker' : 'Drinker'
+            ].filter(Boolean),
+            photoURL: data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.displayName || data.name || 'User')}&background=random`
+          };
+        });
+        setMatches(fetchedMatches);
+      } catch (error) {
+        console.error("Error fetching flatmates:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchFlatmates();
+  }, [firestore]);
 
   const filterCategories = [
     { id: 'budget', label: 'Budget', icon: <IndianRupee className="w-3.5 h-3.5" /> },
@@ -101,12 +119,19 @@ export default function FlatmatesPage() {
             </div>
 
             <div className="space-y-4">
-              {matches.map((person) => (
-                <div key={person.name} className="p-4 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 space-y-4">
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-40 w-full rounded-3xl" />
+                  ))}
+                </div>
+              ) : matches.length > 0 ? (
+                matches.map((person) => (
+                <div key={person.id} className="p-4 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-2xl bg-slate-100 relative overflow-hidden border-2 border-white shadow-sm">
-                         <Image src={`https://i.pravatar.cc/150?u=${person.name}`} fill sizes="50px" className="object-cover" alt={person.name} />
+                         <img src={person.photoURL} className="object-cover w-full h-full" alt={person.name} />
                       </div>
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
@@ -145,7 +170,11 @@ export default function FlatmatesPage() {
                     </Button>
                   </div>
                 </div>
-              ))}
+              ))) : (
+                <div className="text-center py-10 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-sm font-bold text-slate-500">No flatmates found matching your criteria right now.</p>
+                </div>
+              )}
             </div>
 
             <Button variant="outline" className="w-full h-14 rounded-2xl border-primary text-primary font-black text-sm hover:bg-primary/5 transition-all">

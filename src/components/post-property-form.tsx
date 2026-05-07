@@ -53,12 +53,18 @@ import { collection, serverTimestamp, doc, getDoc, updateDoc, setDoc } from 'fir
 import { useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
 import { locationData } from '@/lib/locations';
+import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
 import { sendAdminNotification } from '@/lib/email';
 
 const amenitiesList = [
   'Balcony', 'Borewell Water', 'Car Parking', 'CCTV', 'Electricity', 'Gated Community', 
   'Garden', 'Gym', 'Lift', 'Municipal Water', 'Pets Allowed', 'Power Backup', 'Security', 'Terrace Access'
 ];
+
+const pgAmenitiesList = {
+  Essentials: ['WiFi', 'Power Backup', 'RO Water', 'Hot Water', 'Washing Machine', 'Housekeeping', 'Lift', 'Parking', 'CCTV', 'Security', 'AC', 'TV', 'Refrigerator'],
+  Lifestyle: ['Gym', 'Gaming Area', 'Common Kitchen', 'Study Area', 'Terrace', 'Lounge Area']
+};
 
 const propertyTypes = [
     '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
@@ -111,6 +117,34 @@ const formSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
   whatsAppAvailable: z.boolean().default(true),
   postedBy: z.enum(['Owner', 'Agent', 'Builder'], { required_error: "Please specify who is posting." }),
+
+  // PG specific fields
+  pgAvailableFor: z.enum(['Men', 'Women', 'Unisex']).optional(),
+  pgRoomType: z.enum(['Single Sharing', 'Double Sharing', 'Triple Sharing', 'Dormitory', 'Private Room']).optional(),
+  totalBeds: z.coerce.number().optional(),
+  availableBeds: z.coerce.number().optional(),
+  attachedBathroom: z.boolean().default(false),
+  balcony: z.boolean().default(false),
+  electricityIncluded: z.boolean().default(false),
+  foodIncluded: z.boolean().default(false),
+  brokerage: z.coerce.number().optional().default(0),
+  minimumStayDuration: z.string().optional(),
+  mealsCount: z.coerce.number().optional(),
+  foodTimings: z.string().optional(),
+  outsideFoodAllowed: z.boolean().default(false),
+  smokingAllowed: z.boolean().default(false),
+  drinkingAllowed: z.boolean().default(false),
+  visitorsAllowed: z.boolean().default(false),
+  gateClosingTime: z.string().optional(),
+  petsAllowed: z.boolean().default(false),
+  isImmediateMoveIn: z.boolean().default(false),
+  pgSharingPrices: z.object({
+    single: z.coerce.number().optional(),
+    double: z.coerce.number().optional(),
+    triple: z.coerce.number().optional(),
+    four: z.coerce.number().optional(),
+    five: z.coerce.number().optional(),
+  }).optional(),
 
   details: z.object({
         bhk: z.string().default(''),
@@ -186,6 +220,9 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
   const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [listingCategory, setListingCategory] = useState<'residential' | 'pg'>('residential');
+
+  const { localitiesByCity, isLoading: isLocationsLoading } = useLocationHierarchy();
 
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -225,6 +262,32 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       mobile: '',
       whatsAppAvailable: true,
       postedBy: 'Owner',
+      pgAvailableFor: undefined,
+      pgRoomType: undefined,
+      totalBeds: undefined,
+      availableBeds: undefined,
+      attachedBathroom: false,
+      balcony: false,
+      electricityIncluded: false,
+      foodIncluded: false,
+      brokerage: 0,
+      minimumStayDuration: '',
+      mealsCount: undefined,
+      foodTimings: '',
+      outsideFoodAllowed: false,
+      smokingAllowed: false,
+      drinkingAllowed: false,
+      visitorsAllowed: false,
+      gateClosingTime: '',
+      petsAllowed: false,
+      isImmediateMoveIn: false,
+      pgSharingPrices: {
+        single: undefined,
+        double: undefined,
+        triple: undefined,
+        four: undefined,
+        five: undefined,
+      },
       details: {
         bhk: '',
         bathrooms: '',
@@ -258,11 +321,16 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
   const listingFor = useWatch({ control: form.control, name: 'listingFor' });
   const watchedState = useWatch({ control: form.control, name: 'state' });
   const watchedCity = useWatch({ control: form.control, name: 'city' });
+  
+  const availableLocalities = watchedCity ? (localitiesByCity[watchedCity] || []) : [];
+
   const watchedPrice = useWatch({ control: form.control, name: 'price' });
   const watchedArea = useWatch({ control: form.control, name: 'details.area' });
   const watchedPlotArea = useWatch({ control: form.control, name: 'details.plotArea' });
   const priceOnRequest = useWatch({ control: form.control, name: 'priceOnRequest' });
   const isAvailableAnytime = useWatch({ control: form.control, name: 'isAvailableAnytime' });
+  
+  const isPG = listingFor === 'PG' || propertyType === 'PG / Hostel' || propertyType === 'Flatmate / Co-living';
   
   const pricePerSqFt = useMemo(() => {
       const area = watchedArea > 0 ? watchedArea : watchedPlotArea;
@@ -420,6 +488,12 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                         const privateData = privateDocSnap.exists() ? privateDocSnap.data() : null;
                         const photoUrls = (data.photos || []).map((url: string) => ({ url }));
                         
+                        if (data.propertyType === 'PG / Hostel' || data.propertyType === 'Flatmate / Co-living') {
+                            setListingCategory('pg');
+                        } else {
+                            setListingCategory('residential');
+                        }
+                        
                         form.reset({
                             propertyType: data.propertyType,
                             listingFor: data.listingFor,
@@ -452,6 +526,32 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                             mobile: privateData?.phone || '',
                             whatsAppAvailable: privateData?.whatsAppAvailable ?? true,
                             postedBy: data.postedByType,
+                            pgAvailableFor: data.pgAvailableFor,
+                            pgRoomType: data.pgRoomType,
+                            totalBeds: data.totalBeds,
+                            availableBeds: data.availableBeds,
+                            attachedBathroom: data.attachedBathroom || false,
+                            balcony: data.balcony || false,
+                            electricityIncluded: data.electricityIncluded || false,
+                            foodIncluded: data.foodIncluded || false,
+                            brokerage: data.brokerage || 0,
+                            minimumStayDuration: data.minimumStayDuration || '',
+                            mealsCount: data.mealsCount,
+                            foodTimings: data.foodTimings || '',
+                            outsideFoodAllowed: data.outsideFoodAllowed || false,
+                            smokingAllowed: data.smokingAllowed || false,
+                            drinkingAllowed: data.drinkingAllowed || false,
+                            visitorsAllowed: data.visitorsAllowed || false,
+                            gateClosingTime: data.gateClosingTime || '',
+                            petsAllowed: data.petsAllowed || false,
+                            isImmediateMoveIn: data.isImmediateMoveIn || false,
+                            pgSharingPrices: data.pgSharingPrices || {
+                                single: undefined,
+                                double: undefined,
+                                triple: undefined,
+                                four: undefined,
+                                five: undefined,
+                            },
                             details: {
                                 bhk: data.bhk,
                                 bathrooms: String(data.baths || ''),
@@ -497,6 +597,23 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
     }
   }, [watchedCity, form]);
 
+  const availablePropertyTypes = useMemo(() => {
+    if (listingCategory === 'pg') {
+      return propertyTypes.filter(t => t === 'PG / Hostel' || t === 'Flatmate / Co-living');
+    }
+    return propertyTypes.filter(t => t !== 'PG / Hostel' && t !== 'Flatmate / Co-living');
+  }, [listingCategory]);
+
+  useEffect(() => {
+    if (propertyType === 'PG / Hostel' || propertyType === 'Flatmate / Co-living') {
+      if (form.getValues('listingFor') !== 'PG') {
+        form.setValue('listingFor', 'PG');
+      }
+    } else if (form.getValues('listingFor') === 'PG') {
+      form.setValue('listingFor', 'Rent');
+    }
+  }, [propertyType, form]);
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore || !user) {
@@ -530,6 +647,36 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       nonVegAllowed: values.nonVegAllowed, vehicleParking: values.vehicleParking,
       photos: values.photos.map(p => p.url).filter(Boolean),
       postedByType: values.postedBy,
+      pgAvailableFor: values.pgAvailableFor,
+      pgRoomType: values.pgRoomType,
+      totalBeds: values.totalBeds,
+      availableBeds: values.availableBeds,
+      attachedBathroom: values.attachedBathroom,
+      balcony: values.balcony,
+      electricityIncluded: values.electricityIncluded,
+      foodIncluded: values.foodIncluded,
+      brokerage: values.brokerage,
+      minimumStayDuration: values.minimumStayDuration,
+      mealsCount: values.mealsCount,
+      foodTimings: values.foodTimings,
+      outsideFoodAllowed: values.outsideFoodAllowed,
+      smokingAllowed: values.smokingAllowed,
+      drinkingAllowed: values.drinkingAllowed,
+      visitorsAllowed: values.visitorsAllowed,
+      gateClosingTime: values.gateClosingTime,
+      petsAllowed: values.petsAllowed,
+      isImmediateMoveIn: values.isImmediateMoveIn,
+      pgSharingPrices: values.pgSharingPrices,
+      smartTags: (() => {
+        const generatedTags: string[] = [];
+        if (values.price > 0 && values.price < 10000) generatedTags.push('Budget Friendly');
+        else if (values.price > 30000) generatedTags.push('Premium');
+        if (values.amenities && values.amenities.includes('WiFi')) generatedTags.push('WiFi Included');
+        if (values.amenities && values.amenities.includes('AC')) generatedTags.push('AC Rooms');
+        if (values.isImmediateMoveIn) generatedTags.push('Immediate Move-in');
+        if (values.foodIncluded) generatedTags.push('Food Included');
+        return generatedTags;
+      })(),
       updatedAt: serverTimestamp(),
       ...(editId ? {} : { 
           postedAt: serverTimestamp(), 
@@ -642,6 +789,43 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
               <p className="text-muted-foreground mt-2">{editId ? 'Update the details of your property.' : 'Fill in the details below to put your property on the market.'}</p>
             </div>
 
+          <FormSection title="Listing Category" description="What kind of property are you listing?">
+            <div className="flex flex-col sm:flex-row gap-3 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50 mb-2">
+              <button
+                type="button"
+                className={cn(
+                  "flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all border outline-none",
+                  listingCategory === 'residential' 
+                    ? "bg-white text-primary border-slate-200 shadow-sm" 
+                    : "bg-transparent text-slate-500 border-transparent hover:text-slate-800"
+                )}
+                onClick={() => {
+                  setListingCategory('residential');
+                  form.setValue('propertyType', '');
+                  form.setValue('listingFor', 'Rent');
+                }}
+              >
+                Properties for Rent/Sale
+              </button>
+              <button
+                type="button"
+                className={cn(
+                  "flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all border outline-none",
+                  listingCategory === 'pg' 
+                    ? "bg-white text-primary border-slate-200 shadow-sm" 
+                    : "bg-transparent text-slate-500 border-transparent hover:text-slate-800"
+                )}
+                onClick={() => {
+                  setListingCategory('pg');
+                  form.setValue('propertyType', 'PG / Hostel');
+                  form.setValue('listingFor', 'PG');
+                }}
+              >
+                Flatmates / PG / Coliving
+              </button>
+            </div>
+          </FormSection>
+
           <FormSection title="Basic Information" description="Start with the essential details about your property.">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <FormField control={form.control} name="propertyType" render={({ field }) => (
@@ -650,7 +834,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                     <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select property type" /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {propertyTypes.map(type => 
+                        {availablePropertyTypes.map(type => 
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         )}
                       </SelectContent>
@@ -659,22 +843,24 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                   </FormItem>
                 )} />
 
-                <FormField control={form.control} name="listingFor" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Listing For</FormLabel>
-                    <FormControl>
-                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} value={field.value} className="flex items-center space-x-4 pt-2">
-                           {['Sale', 'Rent', 'Lease', 'PG'].map(type => (
-                             <FormItem key={type} className="flex items-center space-x-2 space-y-0">
-                                <FormControl><RadioGroupItem value={type} id={`listing-${type}`} /></FormControl>
-                                <Label htmlFor={`listing-${type}`}>{type}</Label>
-                            </FormItem>
-                           ))}
-                        </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                {propertyType !== 'PG / Hostel' && propertyType !== 'Flatmate / Co-living' && (
+                  <FormField control={form.control} name="listingFor" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Listing For</FormLabel>
+                      <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} value={field.value} className="flex items-center space-x-4 pt-2">
+                             {['Sale', 'Rent', 'Lease'].map(type => (
+                               <FormItem key={type} className="flex items-center space-x-2 space-y-0">
+                                  <FormControl><RadioGroupItem value={type} id={`listing-${type}`} /></FormControl>
+                                  <Label htmlFor={`listing-${type}`}>{type}</Label>
+                              </FormItem>
+                             ))}
+                          </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
               </div>
               {listingFor === 'Sale' && (
                 <FormField control={form.control} name="constructionStatus" render={({ field }) => (
@@ -792,16 +978,19 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                 <FormField control={form.control} name="locality" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Area / Locality</FormLabel>
-                        <FormControl>
-                            <Input 
-                                placeholder="e.g., Benz Circle, Patamata" 
-                                {...field}
-                                onBlur={() => {
-                                    field.onBlur();
-                                    handleLocationBlur();
-                                }} 
-                            />
-                        </FormControl>
+                        <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            handleLocationBlur();
+                        }} value={field.value} defaultValue={field.value} disabled={!watchedCity || isLocationsLoading}>
+                            <FormControl><SelectTrigger><SelectValue placeholder={isLocationsLoading ? "Loading localities..." : "Select area/locality"} /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {availableLocalities.map(locality => (
+                                    <SelectItem key={locality} value={locality}>
+                                        {locality}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <FormMessage />
                     </FormItem>
                 )} />
@@ -838,6 +1027,182 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                 </FormItem>
             )} />
           </FormSection>
+
+          {isPG && (
+            <>
+                <FormSection title="PG & Coliving Details" description="Room and facility details for PG/Coliving.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <FormField control={form.control} name="pgAvailableFor" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Available For</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select who can stay" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {['Men', 'Women', 'Unisex'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="pgRoomType" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Room Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select room type" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {['Single Sharing', 'Double Sharing', 'Triple Sharing', 'Dormitory', 'Private Room'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="totalBeds" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Total Beds in Room</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g. 2" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="availableBeds" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Available Beds</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g. 1" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t border-slate-100">
+                        <FormLabel className="text-sm font-semibold mb-3 block">Pricing by Sharing Type (Monthly Rent)</FormLabel>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            <FormField control={form.control} name="pgSharingPrices.single" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">1 Sharing (Single)</FormLabel>
+                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="pgSharingPrices.double" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">2 Sharing</FormLabel>
+                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="pgSharingPrices.triple" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">3 Sharing</FormLabel>
+                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="pgSharingPrices.four" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">4 Sharing</FormLabel>
+                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="pgSharingPrices.five" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs">5+ Sharing</FormLabel>
+                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
+                                </FormItem>
+                            )} />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6 border-t border-slate-100 pt-4">
+                        <FormField control={form.control} name="attachedBathroom" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Attached Bathroom</FormLabel></div>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="balcony" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Balcony Attached</FormLabel></div>
+                            </FormItem>
+                        )} />
+                    </div>
+                </FormSection>
+                
+                <FormSection title="Food & Utilities" description="Details about food, electricity, and other inclusions.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <FormField control={form.control} name="electricityIncluded" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
+                                <div className="space-y-0.5"><FormLabel>Electricity Included in Rent?</FormLabel></div>
+                                <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="foodIncluded" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
+                                <div className="space-y-0.5"><FormLabel>Food Included in Rent?</FormLabel></div>
+                                <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                            </FormItem>
+                        )} />
+                        {form.watch('foodIncluded') && (
+                            <>
+                                <FormField control={form.control} name="mealsCount" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Number of Meals (per day)</FormLabel>
+                                        <FormControl><Input type="number" placeholder="e.g. 3" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="foodTimings" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Food Timings (Optional)</FormLabel>
+                                        <FormControl><Input placeholder="e.g. Breakfast 8AM, Dinner 8PM" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="outsideFoodAllowed" render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md col-span-1 md:col-span-2">
+                                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>Outside Food Allowed</FormLabel></div>
+                                    </FormItem>
+                                )} />
+                            </>
+                        )}
+                    </div>
+                </FormSection>
+                
+                <FormSection title="Rules & Preferences" description="Set expectations for tenants.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <FormField control={form.control} name="gateClosingTime" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Gate Closing Time</FormLabel>
+                                <FormControl><Input placeholder="e.g. 10:00 PM (or No restrictions)" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="minimumStayDuration" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Minimum Stay Duration</FormLabel>
+                                <FormControl><Input placeholder="e.g. 3 Months" {...field} /></FormControl>
+                            </FormItem>
+                        )} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                        <FormField control={form.control} name="smokingAllowed" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Smoking Allowed</FormLabel></div>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="drinkingAllowed" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Drinking Allowed</FormLabel></div>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="visitorsAllowed" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Visitors Allowed</FormLabel></div>
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="petsAllowed" render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-md">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <div className="space-y-1 leading-none"><FormLabel>Pets Allowed</FormLabel></div>
+                            </FormItem>
+                        )} />
+                    </div>
+                </FormSection>
+            </>
+          )}
 
           <FormSection title="Price & Availability">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
@@ -1115,43 +1480,90 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
 
 
           <FormSection title="Amenities" description="Select all the amenities available at your property.">
-            <FormField
-              control={form.control}
-              name="amenities"
-              render={() => (
-                <FormItem className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {amenitiesList.map((item) => (
-                    <FormField
-                      key={item}
-                      control={form.control}
-                      name="amenities"
-                      render={({ field }) => {
-                        return (
-                          <FormItem key={item} className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), item])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item
+            {isPG ? (
+                <div className="space-y-6">
+                    {Object.entries(pgAmenitiesList).map(([category, items]) => (
+                        <div key={category}>
+                            <h4 className="text-sm font-semibold mb-3 text-slate-700">{category}</h4>
+                            <FormField
+                            control={form.control}
+                            name="amenities"
+                            render={() => (
+                                <FormItem className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {items.map((item) => (
+                                    <FormField
+                                    key={item}
+                                    control={form.control}
+                                    name="amenities"
+                                    render={({ field }) => {
+                                        return (
+                                        <FormItem key={item} className="flex flex-row items-start space-x-3 space-y-0">
+                                            <FormControl>
+                                            <Checkbox
+                                                checked={field.value?.includes(item)}
+                                                onCheckedChange={(checked) => {
+                                                return checked
+                                                    ? field.onChange([...(field.value || []), item])
+                                                    : field.onChange(
+                                                        field.value?.filter(
+                                                        (value) => value !== item
+                                                        )
+                                                    )
+                                                }}
+                                            />
+                                            </FormControl>
+                                            <FormLabel className="font-normal">{item}</FormLabel>
+                                        </FormItem>
                                         )
-                                      )
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">{item}</FormLabel>
-                          </FormItem>
-                        )
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                                    }}
+                                    />
+                                ))}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <FormField
+                control={form.control}
+                name="amenities"
+                render={() => (
+                    <FormItem className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {amenitiesList.map((item) => (
+                        <FormField
+                        key={item}
+                        control={form.control}
+                        name="amenities"
+                        render={({ field }) => {
+                            return (
+                            <FormItem key={item} className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                <Checkbox
+                                    checked={field.value?.includes(item)}
+                                    onCheckedChange={(checked) => {
+                                    return checked
+                                        ? field.onChange([...(field.value || []), item])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                            (value) => value !== item
+                                            )
+                                        )
+                                    }}
+                                />
+                                </FormControl>
+                                <FormLabel className="font-normal">{item}</FormLabel>
+                            </FormItem>
+                            )
+                        }}
+                        />
+                    ))}
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                 <FormField
                     control={form.control}

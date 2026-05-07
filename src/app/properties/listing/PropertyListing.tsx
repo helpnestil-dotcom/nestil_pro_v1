@@ -64,6 +64,7 @@ function PropertySearchComponent() {
     ];
   };
 
+  const [listingCategory, setListingCategory] = useState(searchParams.get('category') || 'all');
   const [stateParam, setStateParam] = useState(searchParams.get('state') || 'all');
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || 'all');
   const [locality, setLocality] = useState(searchParams.get('locality') || 'all');
@@ -105,7 +106,8 @@ function PropertySearchComponent() {
   const propertiesQuery = useMemo(() => {
     return query(
       collection(db, 'properties'),
-      where('listingStatus', '==', 'approved')
+      where('listingStatus', '==', 'approved'),
+      limit(100)
     );
   }, []);
 
@@ -172,6 +174,12 @@ function PropertySearchComponent() {
         });
     }
 
+    if (listingCategory === 'residential') {
+        result = result.filter(prop => prop.propertyType !== 'PG / Hostel' && prop.propertyType !== 'Flatmate / Co-living');
+    } else if (listingCategory === 'pg') {
+        result = result.filter(prop => prop.propertyType === 'PG / Hostel' || prop.propertyType === 'Flatmate / Co-living');
+    }
+
     if (keyword && keyword !== 'all') {
       const altKeyword = keyword.endsWith(' district') ? keyword.replace(' district', '') : `${keyword} district`;
       result = result.filter(prop => prop.city === keyword || prop.city === altKeyword);
@@ -209,7 +217,7 @@ function PropertySearchComponent() {
     });
 
     return result;
-  }, [propertiesFromQuery, stateParam, keyword, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
+  }, [propertiesFromQuery, listingCategory, stateParam, keyword, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
   useEffect(() => {
     setLocality('all');
@@ -222,7 +230,7 @@ function PropertySearchComponent() {
   
   useEffect(() => {
     setCurrentPage(1);
-  }, [keyword, stateParam, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
+  }, [listingCategory, keyword, stateParam, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
 
   const currentProperties = useMemo(() => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -233,6 +241,7 @@ function PropertySearchComponent() {
   const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
 
   const handleReset = () => {
+    setListingCategory('all');
     setStateParam('all');
     setKeyword('all');
     setLocality('all');
@@ -466,7 +475,7 @@ function PropertySearchComponent() {
       {/* Mobile Listing View */}
       <div className="md:hidden">
         <MobileListingHeader 
-            title={transaction === 'Rent' ? 'Find Home' : 'Buy Home'} 
+            title={listingCategory === 'pg' ? 'Find PG / Coliving' : (transaction === 'Rent' ? 'Find Home' : 'Buy Home')} 
             onFilterClick={() => setIsFilterSheetOpen(true)}
             searchValue={keyword}
             onSearchChange={setKeyword}
