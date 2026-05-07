@@ -29,9 +29,12 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.nestil.in'),
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/apple-touch-icon.png',
-    other: [{ rel: 'icon', url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }],
   },
   openGraph: {
     title: 'Nestil | India\'s #1 Zero Brokerage Property Platform',
