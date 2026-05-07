@@ -15,7 +15,7 @@ import { PropertyCard } from '@/components/property-card';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Share2 } from 'lucide-react';
 import { MobilePropertyDetails } from '@/components/mobile-property-details';
-import { getWatermarkedImageUrl } from '@/lib/utils';
+import { getWatermarkedImageUrl, cn } from '@/lib/utils';
 import { PropertyViewTracker } from '@/components/property-view-tracker';
 import type { Metadata } from 'next';
 
