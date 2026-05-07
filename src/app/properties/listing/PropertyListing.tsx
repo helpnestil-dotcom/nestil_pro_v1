@@ -73,6 +73,10 @@ function PropertySearchComponent() {
   const [constructionStatus, setConstructionStatus] = useState(searchParams.get('constructionStatus') || 'all');
   const [rentalStatus, setRentalStatus] = useState(searchParams.get('rentalStatus') || 'all');
   const [genderPreference, setGenderPreference] = useState(searchParams.get('gender') || 'all');
+  const [foodFilter, setFoodFilter] = useState('all');
+  const [sharingFilter, setSharingFilter] = useState('all');
+  const [roomTypeFilter, setRoomTypeFilter] = useState('all');
+  const [immediateMoveIn, setImmediateMoveIn] = useState(searchParams.get('immediate') === 'true');
   const [priceRange, setPriceRange] = useState<[number, number]>(getInitialPriceRange());
   const [headerLocation, setHeaderLocation] = useState<Location | null>(null);
   const [nearbyParam, setNearbyParam] = useState(searchParams.get('nearby') || 'all');
@@ -206,6 +210,22 @@ function PropertySearchComponent() {
     if (genderPreference !== 'all') {
         result = result.filter(prop => prop.flatmateGenderPreference === genderPreference);
     }
+
+    if (foodFilter !== 'all') {
+        result = result.filter(prop => prop.foodIncluded === (foodFilter === 'Yes'));
+    }
+
+    if (sharingFilter !== 'all') {
+        result = result.filter(prop => prop.pgSharingPrices?.[sharingFilter as keyof typeof prop.pgSharingPrices] !== undefined);
+    }
+
+    if (roomTypeFilter !== 'all') {
+        result = result.filter(prop => prop.pgRoomType === roomTypeFilter);
+    }
+
+    if (immediateMoveIn) {
+        result = result.filter(prop => prop.isImmediateMoveIn === true);
+    }
     
     result = result.filter(prop => prop.price >= priceRange[0] && prop.price <= priceRange[1]);
     
@@ -230,7 +250,7 @@ function PropertySearchComponent() {
   
   useEffect(() => {
     setCurrentPage(1);
-  }, [listingCategory, keyword, stateParam, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange]);
+  }, [listingCategory, keyword, stateParam, locality, nearbyParam, transaction, propertyType, constructionStatus, rentalStatus, genderPreference, priceRange, foodFilter, sharingFilter, roomTypeFilter, immediateMoveIn]);
 
   const currentProperties = useMemo(() => {
     const indexOfLastProperty = currentPage * propertiesPerPage;
@@ -250,6 +270,10 @@ function PropertySearchComponent() {
     setConstructionStatus('all');
     setRentalStatus('all');
     setGenderPreference('all');
+    setFoodFilter('all');
+    setSharingFilter('all');
+    setRoomTypeFilter('all');
+    setImmediateMoveIn(false);
     setNearbyParam('all');
     setPriceRange([0, 100000000]);
     
@@ -273,25 +297,97 @@ function PropertySearchComponent() {
         </div>
 
         {/* Transaction Toggle (Segmented Control) */}
-        <div className="space-y-3">
-            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Listing Type</Label>
-            <div className="flex p-1 bg-slate-100 rounded-2xl gap-1">
-                {['all', 'Rent', 'Sale', 'Lease'].map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => setTransaction(type)}
-                        className={cn(
-                            "flex-1 py-2 text-[12px] font-bold rounded-xl transition-all duration-300",
-                            transaction === type 
-                                ? "bg-white text-primary shadow-sm" 
-                                : "text-slate-500 hover:text-slate-700"
-                        )}
-                    >
-                        {type === 'all' ? 'All' : type}
-                    </button>
-                ))}
-            </div>
-        </div>
+        {/* Standard Residential Filters - Hidden for PG/Flatmate */}
+        {listingCategory !== 'pg' && propertyType !== 'PG / Hostel' && propertyType !== 'Flatmate / Co-living' && (
+            <>
+                <div className="space-y-3">
+                    <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Listing Type</Label>
+                    <div className="flex p-1 bg-slate-100 rounded-2xl gap-1">
+                        {['all', 'Rent', 'Sale', 'Lease'].map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => setTransaction(type)}
+                                className={cn(
+                                    "flex-1 py-2 text-[12px] font-bold rounded-xl transition-all duration-300",
+                                    transaction === type 
+                                        ? "bg-white text-primary shadow-sm" 
+                                        : "text-slate-500 hover:text-slate-700"
+                                )}
+                            >
+                                {type === 'all' ? 'All' : type}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Property Type</Label>
+                    <div className="flex justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
+                        {[
+                            { label: 'All', icon: Home, value: 'all' },
+                            { label: '1BHK', icon: Building2, value: '1 BHK Flat' },
+                            { label: '2BHK', icon: Building2, value: '2 BHK Flat' },
+                            { label: '3BHK+', icon: Building2, value: '3 BHK Flat' },
+                        ].map((t) => (
+                            <button
+                                key={t.value}
+                                onClick={() => setPropertyType(t.value)}
+                                className="flex flex-col items-center gap-2 min-w-[70px]"
+                            >
+                                <div className={cn(
+                                    "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all",
+                                    propertyType === t.value 
+                                        ? "bg-primary/5 border-primary text-primary" 
+                                        : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
+                                )}>
+                                    <t.icon className="w-6 h-6" />
+                                </div>
+                                <span className={cn(
+                                    "text-[10px] font-bold",
+                                    propertyType === t.value ? "text-primary" : "text-slate-400"
+                                )}>{t.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Furnishing</Label>
+                    <div className="flex flex-wrap gap-2">
+                        {['Any', 'Furnished', 'Semi Furnished', 'Unfurnished'].map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setRentalStatus(f === 'Any' ? 'all' : f)}
+                                className={cn(
+                                    "px-4 py-2 rounded-xl text-[11px] font-bold border transition-all",
+                                    (f === 'Any' ? rentalStatus === 'all' : rentalStatus === f)
+                                        ? "bg-primary text-white border-primary" 
+                                        : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
+                                )}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                    <div className="space-y-3">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Construction</Label>
+                        <Select value={constructionStatus} onValueChange={setConstructionStatus}>
+                            <SelectTrigger className="h-10 rounded-lg border-slate-200 bg-white focus:ring-primary/20 font-bold text-xs">
+                                <SelectValue placeholder="Any Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Any Status</SelectItem>
+                                <SelectItem value="Ready to Move">Ready to Move</SelectItem>
+                                <SelectItem value="Under Construction">Under Construction</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            </>
+        )}
 
         {/* Location Section */}
         <div className="space-y-4">
@@ -351,89 +447,124 @@ function PropertySearchComponent() {
             </div>
         </div>
 
-        {/* Property Type Icons */}
-        <div className="space-y-4">
-            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Property Type</Label>
-            <div className="flex justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
-                {[
-                    { label: 'All', icon: Home, value: 'all' },
-                    { label: '1BHK', icon: Building2, value: '1 BHK Flat' },
-                    { label: '2BHK', icon: Building2, value: '2 BHK Flat' },
-                    { label: '3BHK+', icon: Building2, value: '3 BHK Flat' },
-                ].map((t) => (
-                    <button
-                        key={t.value}
-                        onClick={() => setPropertyType(t.value)}
-                        className="flex flex-col items-center gap-2 min-w-[70px]"
-                    >
-                        <div className={cn(
-                            "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all",
-                            propertyType === t.value 
-                                ? "bg-primary/5 border-primary text-primary" 
-                                : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
-                        )}>
-                            <t.icon className="w-6 h-6" />
-                        </div>
-                        <span className={cn(
-                            "text-[10px] font-bold",
-                            propertyType === t.value ? "text-primary" : "text-slate-400"
-                        )}>{t.label}</span>
-                    </button>
-                ))}
-            </div>
-        </div>
 
-        {/* Furnishing */}
-        <div className="space-y-4">
-            <Label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Furnishing</Label>
-            <div className="flex flex-wrap gap-2">
-                {['Any', 'Furnished', 'Semi Furnished', 'Unfurnished'].map((f) => (
-                    <button
-                        key={f}
-                        className={cn(
-                            "px-4 py-2 rounded-xl text-[11px] font-bold border transition-all",
-                            (f === 'Any' ? !rentalStatus : rentalStatus === f)
-                                ? "bg-primary text-white border-primary" 
-                                : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
-                        )}
-                    >
-                        {f}
-                    </button>
-                ))}
-            </div>
-        </div>
 
-        {/* Status Section */}
-        <div className="space-y-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Construction</Label>
-              <Select value={constructionStatus} onValueChange={setConstructionStatus}>
-                <SelectTrigger className="h-10 rounded-lg border-slate-200 bg-white focus:ring-primary/20 font-bold text-xs">
-                  <SelectValue placeholder="Any Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Any Status</SelectItem>
-                  <SelectItem value="Ready to Move">Ready to Move</SelectItem>
-                  <SelectItem value="Under Construction">Under Construction</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Specialized Filters for PG / Co-living */}
+        {(listingCategory === 'pg' || propertyType === 'PG / Hostel' || propertyType === 'Flatmate / Co-living') && (
+            <div className="space-y-6 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-1">
+                <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-800">PG High Conversion Filters</span>
+                </div>
+                
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Food Included</Label>
+                    <div className="flex gap-2">
+                        {['all', 'Yes', 'No'].map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setFoodFilter(f)}
+                                className={cn(
+                                    "px-4 py-2 rounded-xl text-[11px] font-bold border transition-all",
+                                    foodFilter === f 
+                                        ? "bg-primary text-white border-primary shadow-md" 
+                                        : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
+                                )}
+                            >
+                                {f === 'all' ? 'Any' : f}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Availability</Label>
-              <Select value={rentalStatus} onValueChange={setRentalStatus}>
-                <SelectTrigger className="h-10 rounded-lg border-slate-200 bg-white focus:ring-primary/20 font-bold text-xs">
-                  <SelectValue placeholder="Any Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Any Status</SelectItem>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Vacating Soon">Vacating Soon</SelectItem>
-                  <SelectItem value="Upcoming">Upcoming</SelectItem>
-                </SelectContent>
-              </Select>
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Sharing Mode</Label>
+                    <Select value={sharingFilter} onValueChange={setSharingFilter}>
+                        <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                            <SelectValue placeholder="Any Sharing" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Any Sharing</SelectItem>
+                            <SelectItem value="single">Single Sharing</SelectItem>
+                            <SelectItem value="double">Double Sharing</SelectItem>
+                            <SelectItem value="triple">Triple Sharing</SelectItem>
+                            <SelectItem value="four">Four Sharing</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Near Landmark (Offices)</Label>
+                    <Select value={nearbyParam} onValueChange={setNearbyParam} disabled={locality === 'all'}>
+                        <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                            <SelectValue placeholder="Select Office/Hub" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Anywhere Near {locality}</SelectItem>
+                            {availableNearby.map((n) => (
+                                <SelectItem key={n} value={n}>{n}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
-        </div>
+        )}
+
+        {(propertyType === 'Flatmate / Co-living' || listingCategory === 'pg') && (
+            <div className="space-y-6 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-1">
+                <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-800">Flatmate High Conversion</span>
+                </div>
+
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Gender Preference</Label>
+                    <div className="flex gap-2">
+                        {['all', 'Male', 'Female', 'Anyone'].map((g) => (
+                            <button
+                                key={g}
+                                onClick={() => setGenderPreference(g)}
+                                className={cn(
+                                    "px-3 py-2 rounded-xl text-[10px] font-bold border transition-all",
+                                    genderPreference === g 
+                                        ? "bg-emerald-500 text-white border-emerald-500 shadow-md" 
+                                        : "bg-white border-slate-100 text-slate-600 hover:border-slate-200"
+                                )}
+                            >
+                                {g === 'all' ? 'Any' : g}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Room Requirement</Label>
+                    <Select value={roomTypeFilter} onValueChange={setRoomTypeFilter}>
+                        <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white font-bold text-xs">
+                            <SelectValue placeholder="Private Room?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Any Room Type</SelectItem>
+                            <SelectItem value="Private Room">Private Room</SelectItem>
+                            <SelectItem value="Shared Room">Shared Room</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-emerald-50/50 rounded-xl border border-emerald-100">
+                    <div className="space-y-0.5">
+                        <Label className="text-xs font-bold text-emerald-800">Immediate Move-in</Label>
+                        <p className="text-[9px] text-emerald-600 font-medium tracking-tight uppercase">Ready to shift</p>
+                    </div>
+                    <input 
+                        type="checkbox" 
+                        checked={immediateMoveIn} 
+                        onChange={(e) => setImmediateMoveIn(e.target.checked)}
+                        className="w-4 h-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                </div>
+            </div>
+        )}
 
         {/* Price Range */}
         <div className="space-y-5">

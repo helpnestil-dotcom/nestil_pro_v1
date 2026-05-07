@@ -167,7 +167,8 @@ const formSchema = z.object({
       path: ['deposit'],
     });
   }
-  if (!data.priceOnRequest && data.price <= 0) {
+  const isPG = data.listingFor === 'PG' || data.propertyType === 'PG / Hostel' || data.propertyType === 'Flatmate / Co-living';
+  if (!data.priceOnRequest && data.price <= 0 && !isPG) {
       ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Price must be a positive number if "Price on Request" is not selected.',
@@ -317,18 +318,18 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
     name: "visitAvailability"
   });
 
-  const propertyType = useWatch({ control: form.control, name: 'propertyType' });
-  const listingFor = useWatch({ control: form.control, name: 'listingFor' });
-  const watchedState = useWatch({ control: form.control, name: 'state' });
-  const watchedCity = useWatch({ control: form.control, name: 'city' });
+  const propertyType = useWatch({ control: form.control, name: 'propertyType' as any });
+  const listingFor = useWatch({ control: form.control, name: 'listingFor' as any });
+  const watchedState = useWatch({ control: form.control, name: 'state' as any });
+  const watchedCity = useWatch({ control: form.control, name: 'city' as any });
   
   const availableLocalities = watchedCity ? (localitiesByCity[watchedCity] || []) : [];
 
-  const watchedPrice = useWatch({ control: form.control, name: 'price' });
-  const watchedArea = useWatch({ control: form.control, name: 'details.area' });
-  const watchedPlotArea = useWatch({ control: form.control, name: 'details.plotArea' });
-  const priceOnRequest = useWatch({ control: form.control, name: 'priceOnRequest' });
-  const isAvailableAnytime = useWatch({ control: form.control, name: 'isAvailableAnytime' });
+  const watchedPrice = useWatch({ control: form.control, name: 'price' as any });
+  const watchedArea = useWatch({ control: form.control, name: 'details.area' as any });
+  const watchedPlotArea = useWatch({ control: form.control, name: 'details.plotArea' as any });
+  const priceOnRequest = useWatch({ control: form.control, name: 'priceOnRequest' as any });
+  const isAvailableAnytime = useWatch({ control: form.control, name: 'isAvailableAnytime' as any });
   
   const isPG = listingFor === 'PG' || propertyType === 'PG / Hostel' || propertyType === 'Flatmate / Co-living';
   
@@ -596,6 +597,18 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       }
     }
   }, [watchedCity, form]);
+
+  const watchedSharingPrices = form.watch().pgSharingPrices;
+
+  useEffect(() => {
+    if (isPG && watchedSharingPrices) {
+      const activePrices = Object.values(watchedSharingPrices).filter(p => p !== undefined && p !== null && p > 0) as number[];
+      if (activePrices.length > 0) {
+        const minPrice = Math.min(...activePrices);
+        form.setValue('price', minPrice);
+      }
+    }
+  }, [isPG, watchedSharingPrices, form]);
 
   const availablePropertyTypes = useMemo(() => {
     if (listingCategory === 'pg') {
@@ -1070,37 +1083,65 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                     
                     <div className="mt-6 pt-4 border-t border-slate-100">
                         <FormLabel className="text-sm font-semibold mb-3 block">Pricing by Sharing Type (Monthly Rent)</FormLabel>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <FormField control={form.control} name="pgSharingPrices.single" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">1 Sharing (Single)</FormLabel>
-                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="pgSharingPrices.double" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">2 Sharing</FormLabel>
-                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="pgSharingPrices.triple" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">3 Sharing</FormLabel>
-                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="pgSharingPrices.four" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">4 Sharing</FormLabel>
-                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="pgSharingPrices.five" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-xs">5+ Sharing</FormLabel>
-                                    <FormControl><Input type="number" placeholder="₹" {...field} value={field.value || ''} /></FormControl>
-                                </FormItem>
-                            )} />
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {([
+                                    { id: 'single' as const, label: '1 Sharing (Single)' },
+                                    { id: 'double' as const, label: '2 Sharing' },
+                                    { id: 'triple' as const, label: '3 Sharing' },
+                                    { id: 'four' as const, label: '4 Sharing' },
+                                    { id: 'five' as const, label: '5+ Sharing' }
+                                ] as const).map((type) => {
+                                    const fieldName = `pgSharingPrices.${type.id}` as 
+                                        | 'pgSharingPrices.single'
+                                        | 'pgSharingPrices.double'
+                                        | 'pgSharingPrices.triple'
+                                        | 'pgSharingPrices.four'
+                                        | 'pgSharingPrices.five';
+                                    const val = form.getValues(fieldName);
+                                    const isSelected = val !== undefined;
+                                    return (
+                                        <div key={type.id} className={cn(
+                                            "p-4 rounded-2xl border transition-all duration-200",
+                                            isSelected ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-100 bg-slate-50/50 opacity-60"
+                                        )}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Label className="text-xs font-black uppercase tracking-wider">{type.label}</Label>
+                                                <Switch 
+                                                    checked={isSelected}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            form.setValue(fieldName, 0);
+                                                        } else {
+                                                            form.setValue(fieldName, undefined);
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                            {isSelected && (
+                                                <FormField
+                                                    control={form.control}
+                                                    name={fieldName}
+                                                    render={({ field }) => (
+                                                        <FormControl>
+                                                            <div className="relative">
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                                                                <Input 
+                                                                    type="number" 
+                                                                    className="pl-7 h-10 rounded-xl bg-white border-primary/20 font-bold"
+                                                                    placeholder="0" 
+                                                                    {...field}
+                                                                    value={field.value ?? ''}
+                                                                />
+                                                            </div>
+                                                        </FormControl>
+                                                    )}
+                                                />
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 
@@ -1206,18 +1247,25 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
 
           <FormSection title="Price & Availability">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
-                    <FormField control={form.control} name="price" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Expected Price / Monthly Rent (₹)</FormLabel>
-                            <FormControl><Input type="number" placeholder="e.g., 4500000" {...field} disabled={priceOnRequest} /></FormControl>
-                            {!priceOnRequest && (
-                                <FormDescription>
-                                    Price per Sq.Ft: ₹{pricePerSqFt}
-                                </FormDescription>
-                            )}
-                             <FormMessage />
-                        </FormItem>
-                    )} />
+                    {!isPG ? (
+                        <FormField control={form.control} name="price" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Expected Price / Monthly Rent (₹)</FormLabel>
+                                <FormControl><Input type="number" placeholder="e.g., 4500000" {...field} disabled={priceOnRequest} /></FormControl>
+                                {!priceOnRequest && (
+                                    <FormDescription>
+                                        Price per Sq.Ft: ₹{pricePerSqFt}
+                                    </FormDescription>
+                                )}
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    ) : (
+                        <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col justify-center">
+                            <p className="text-sm font-black text-primary uppercase tracking-wider mb-1">Sharing-based Pricing</p>
+                            <p className="text-xs text-slate-500">Global price is disabled for PG/Flatmates. Please set the pricing for each sharing type in the section below.</p>
+                        </div>
+                    )}
                     <div className="space-y-4">
                         <FormField control={form.control} name="priceOnRequest" render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm h-[68px]">
@@ -1442,7 +1490,7 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
             <FormSection title="Property Details">
               <div className="space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  { !propertyType.includes('BHK') && propertyType !== 'Studio Apartment' && propertyType !== 'PG / Hostel' && (
+                  { !propertyType.includes('BHK') && propertyType !== 'Studio Apartment' && propertyType !== 'PG / Hostel' && propertyType !== 'Flatmate / Co-living' && (
                     <FormField control={form.control} name="details.bhk" render={({ field }) => (<FormItem><FormLabel>BHK</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Beds"/></SelectTrigger></FormControl><SelectContent>{['1', '2', '3', '4+'].map(v => <SelectItem key={v} value={`${v} BHK`}>{v} BHK</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                   )}
                   <FormField control={form.control} name="details.bathrooms" render={({ field }) => (<FormItem><FormLabel>Bathrooms</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Baths"/></SelectTrigger></FormControl><SelectContent>{['1', '2', '3', '4+'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />

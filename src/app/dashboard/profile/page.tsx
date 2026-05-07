@@ -17,7 +17,7 @@ import { doc, setDoc } from 'firebase/firestore';
 
 import { useFirestore } from '@/firebase';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { LoaderCircle, Camera, User, Building2, MapPin, Briefcase } from 'lucide-react';
+import { LoaderCircle, Camera, User, Building2, MapPin, Briefcase, Plus } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import FlatmateProfileForm from '@/components/flatmate-profile-form';
@@ -325,6 +325,34 @@ export default function ProfilePage() {
           </div>
         </form>
       </Form>
+
+      {/* Refer a Friend Section */}
+      <Card className="mt-12 border-none shadow-md bg-gradient-to-br from-indigo-600 to-primary text-white overflow-hidden relative group">
+        <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+        <CardHeader>
+          <CardTitle className="text-xl font-black flex items-center gap-2 text-white">
+            <Plus className="w-6 h-6" /> Refer a Friend & Help them Save!
+          </CardTitle>
+          <CardDescription className="text-indigo-100">
+            Know someone looking for a home? Share Nestil and help them find verified properties with Zero Brokerage.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild className="w-full h-12 bg-white hover:bg-indigo-50 text-indigo-600 font-black rounded-2xl border-none shadow-lg active:scale-[0.98] transition-all">
+              <a 
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `🏠 *Stop paying brokerage!* \n\n` +
+                  `Hey! Use *Nestil* to find verified flats, PGs, and houses with *Zero Brokerage*. I've been using it and it's awesome. \n\n` +
+                  `Check it out here: https://nestil.in`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                  Share on WhatsApp
+              </a>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Flatmate Matching Profile Section */}
       <div className="mt-12 pt-12 border-t border-slate-200">

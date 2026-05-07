@@ -2,7 +2,7 @@
 
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { List, Heart, MessageSquare, ShieldCheck, Truck, BadgeCheck, Building2, Briefcase } from "lucide-react";
+import { List, Heart, MessageSquare, ShieldCheck, Truck, BadgeCheck, Building2, Briefcase, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { NotificationToggle } from "@/components/notification-toggle";
@@ -229,6 +229,29 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mt-1">New Message Inquiries</p>
              <Button asChild variant="secondary" size="sm" className="mt-6 w-full rounded-xl font-bold">
               <Link href="/dashboard/visit-requests">Check History</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-md hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-indigo-600 to-primary text-white overflow-hidden relative group">
+          <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 font-bold text-white"><Plus className="h-5 w-5" /> Refer a Friend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-indigo-100 text-sm mb-4">Help your friends find homes with zero brokerage. Share Nestil with them!</p>
+            <Button asChild className="w-full h-11 bg-white hover:bg-indigo-50 text-indigo-600 font-black rounded-xl border-none shadow-lg active:scale-[0.98] transition-all">
+                <a 
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `🏠 *Help your friends save lakhs on brokerage!* \n\n` +
+                    `Hey! I've been using *Nestil* to find/list properties with *Zero Brokerage*. It's super easy and verified. \n\n` +
+                    `Check it out here: https://nestil.in`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                    Share on WhatsApp
+                </a>
             </Button>
           </CardContent>
         </Card>

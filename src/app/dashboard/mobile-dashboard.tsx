@@ -146,6 +146,28 @@ export default function MobileDashboard() {
           )}
         </div>
 
+        {/* Refer a Friend */}
+        <div className="bg-gradient-to-br from-indigo-600 to-primary rounded-[28px] p-6 shadow-xl shadow-indigo-200/50 text-white relative overflow-hidden group">
+          <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+          <div className="relative z-10">
+            <h3 className="text-lg font-black mb-1 flex items-center gap-2"><Plus className="w-5 h-5" /> Refer a Friend</h3>
+            <p className="text-indigo-100 text-[11px] font-medium leading-relaxed mb-4">Help your friends find/list properties with ZERO brokerage. Share the love!</p>
+            <Button asChild className="w-full h-12 bg-white hover:bg-white/90 text-indigo-600 font-black rounded-2xl border-none shadow-lg active:scale-[0.98] transition-all">
+                <a 
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `🏠 *Help your friends save lakhs on brokerage!* \n\n` +
+                    `Hey! I've been using *Nestil* to find/list properties with *Zero Brokerage*. It's super easy and verified. \n\n` +
+                    `Check it out here: https://nestil.in`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                    Share on WhatsApp
+                </a>
+            </Button>
+          </div>
+        </div>
+
         {/* Settings & Notifications */}
         <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 mt-6 space-y-4">
           <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-400">System</h3>

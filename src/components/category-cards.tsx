@@ -16,9 +16,9 @@ export function CategoryCards() {
     },
     {
       title: 'Find Flatmate',
-      description: 'Find & match perfect flatmates',
+      description: 'Shared flats & flatmate vacancies',
       icon: Users,
-      href: '/flatmates',
+      href: '/properties?type=Flatmate%20%2F%20Co-living',
       bgColor: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
     },
