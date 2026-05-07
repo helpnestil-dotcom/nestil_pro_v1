@@ -8,8 +8,9 @@ import { cn } from '@/lib/utils';
 export function BottomNav() {
   const pathname = usePathname();
 
-  // Hide on login page and admin pages
-  if (pathname === '/login' || pathname?.startsWith('/admin') || pathname === '/user-login') {
+  // Hide on login page, admin pages, and property detail pages (where we have sticky contact actions)
+  const isPropertyDetail = pathname?.startsWith('/properties/') && pathname.split('/').length > 2;
+  if (pathname === '/login' || pathname?.startsWith('/admin') || pathname === '/user-login' || isPropertyDetail) {
     return null;
   }
 

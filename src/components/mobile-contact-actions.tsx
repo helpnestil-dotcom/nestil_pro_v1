@@ -73,7 +73,10 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-100 px-5 py-4 pb-8 md:hidden shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
+    <div 
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-100 px-5 pt-4 md:hidden shadow-[0_-15px_40px_rgba(0,0,0,0.08)]"
+      style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+    >
       {isLoading || isUserLoading ? (
          <div className="flex gap-3">
              <Skeleton className="h-14 flex-1 rounded-2xl" />

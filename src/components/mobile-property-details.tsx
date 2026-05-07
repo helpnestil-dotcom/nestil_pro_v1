@@ -28,7 +28,7 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
 
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-32">
+    <div className="bg-slate-50 min-h-screen pb-40">
       {/* Sticky Header with Actions */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-4 pointer-events-none">
         <Button 
@@ -79,7 +79,8 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-black text-slate-900 leading-tight">
-              {property.bhk} {property.propertyType}
+              {property.bhk && !property.title?.includes(property.bhk) ? `${property.bhk} ` : ''}
+              {property.title || property.propertyType}
             </h1>
             <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
                <CheckCircle2 className="w-3 h-3" />
