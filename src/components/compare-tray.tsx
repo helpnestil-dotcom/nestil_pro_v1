@@ -1,7 +1,6 @@
-
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEngagement } from '@/hooks/use-engagement';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, documentId } from 'firebase/firestore';
@@ -14,6 +13,11 @@ import Link from 'next/link';
 export function CompareTray() {
     const { compareList, toggleCompare, clearCompare } = useEngagement();
     const firestore = useFirestore();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const clQuery = useMemoFirebase(() => {
         if (!firestore || compareList.length === 0) return null;
@@ -24,6 +28,8 @@ export function CompareTray() {
     }, [firestore, compareList]);
 
     const { data: properties } = useCollection<Property>(clQuery);
+
+    if (!mounted) return null;
 
     return (
         <AnimatePresence>

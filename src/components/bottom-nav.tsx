@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Home, ClipboardList, Plus, Truck, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,6 +8,14 @@ import { cn } from '@/lib/utils';
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering anything until mounted on the client
+  if (!mounted) return null;
 
   // Hide on login page, admin pages, and property detail pages (where we have sticky contact actions)
   const isPropertyDetail = pathname?.startsWith('/properties/') && pathname.split('/').length > 2;

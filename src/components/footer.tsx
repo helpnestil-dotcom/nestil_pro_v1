@@ -1,4 +1,6 @@
 'use client';
+
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Facebook, Instagram, Youtube, Home } from 'lucide-react';
@@ -32,6 +34,13 @@ const WhatsappIcon = ({className}: {className?: string}) => (
 
 export function Footer() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   
   if (pathname?.startsWith('/admin')) {
     return null;

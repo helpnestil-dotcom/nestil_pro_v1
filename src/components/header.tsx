@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
@@ -7,7 +8,6 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { Menu, Home, Building2, Activity, Users, Truck, HardHat, LogIn, Info, Shield } from 'lucide-react';
 import { UserNav } from './user-nav';
-import { useState } from 'react';
 import { useUser } from '@/firebase';
 
 const NavLogo = () => (
@@ -31,15 +31,22 @@ const WhatsappIcon = ({className}: {className?: string}) => (
 
 export function Header() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useUser();
   const isAdmin = user?.email === 'helpnestil@gmail.com';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering anything until mounted
+  if (!mounted) return null;
 
   // Do not show header on admin pages
   if (pathname?.startsWith('/admin')) {
     return null;
   }
-
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
