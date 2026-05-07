@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useFirestore } from '@/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { MobileListingHeader } from '@/components/mobile-listing-header';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -153,7 +153,7 @@ export default function FlatmatesPage() {
                     <Badge variant="outline" className="bg-slate-50/50 border-slate-100 text-[9px] font-bold py-0.5 rounded-lg">
                       {person.budget}
                     </Badge>
-                    {person.lifestyle.map(tag => (
+                    {person.lifestyle.map((tag: string) => (
                       <Badge key={tag} variant="outline" className="bg-slate-50/50 border-slate-100 text-[9px] font-bold py-0.5 rounded-lg">
                         {tag}
                       </Badge>

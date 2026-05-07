@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Search, X, Filter, MapPin, Building2, Home, CheckCircle2, RotateCcw, IndianRupee, Sparkles, ChevronRight, LayoutGrid } from 'lucide-react';
-import { collection, query, where, DocumentData, Query, orderBy } from 'firebase/firestore';
+import { collection, query, where, DocumentData, Query, orderBy, limit } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { db } from '@/lib/firebase';
 import type { Property } from '@/lib/types';
