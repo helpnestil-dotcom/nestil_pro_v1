@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle, Zap } from 'lucide-react';
 
 import { HeroSection } from '@/components/hero-section';
-import { FeaturedProperties } from '@/components/featured-properties';
+
 import { PropertyCardSkeleton } from '@/components/property-card';
 import { FlatmateSection } from '@/components/flatmate-section';
 import { DynamicTicker } from '@/components/dynamic-ticker';
@@ -38,7 +38,7 @@ const CtaBand = () => (
     </div>
 );
 
-export default function HomeClient() {
+export default function HomeClient({ featuredProperties }: { featuredProperties: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function HomeClient() {
               <h2 className="text-xl font-black text-slate-900 tracking-tight">Verified Listings</h2>
               <Link href="/properties" className="text-primary font-bold text-sm">See all</Link>
            </div>
-           <FeaturedProperties />
+           {featuredProperties}
         </div>
 
         <PromoBanners />
@@ -122,7 +122,7 @@ export default function HomeClient() {
   return (
     <div className="bg-white">
       <HeroSection />
-      <FeaturedProperties />
+      {featuredProperties}
       <DynamicTicker />
       <FlatmateSection />
       <RecentlyViewed />
