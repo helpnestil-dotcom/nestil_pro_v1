@@ -39,27 +39,19 @@ export function UserNav() {
 
   if (!user) {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-            <Avatar className="h-10 w-10 border">
-              <AvatarFallback className="bg-background">
-                <UserIcon className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/login">
-              <LogIn className="mr-2 h-4 w-4" />
-              <span>Login / Register</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button asChild variant="ghost" className="h-10 px-2 sm:px-4 rounded-xl hover:bg-slate-100 flex items-center gap-2">
+        <Link href="/login">
+          <Avatar className="h-8 w-8 border border-slate-200">
+            <AvatarFallback className="bg-white text-slate-500">
+              <UserIcon className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-bold text-slate-700 hidden sm:inline">Login</span>
+        </Link>
+      </Button>
     );
   }
+
 
   const userInitial = user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || '?';
 

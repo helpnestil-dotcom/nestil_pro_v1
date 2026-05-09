@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useUser } from '@/firebase';
+import { UserNav } from './user-nav';
 import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
 import { motion } from 'framer-motion';
 
@@ -119,18 +120,9 @@ export function MobileHeader() {
               5
             </Badge>
           </Link>
-          <Link href="/dashboard" className="h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 overflow-hidden flex items-center justify-center transition-colors" aria-label="Go to profile">
-            {user?.photoURL ? (
-              <img 
-                src={user.photoURL} 
-                alt="Profile" 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User className="w-5 h-5 text-slate-700" />
-            )}
-          </Link>
+          <UserNav />
         </div>
+
       </div>
 
       {/* Greeting & Title */}

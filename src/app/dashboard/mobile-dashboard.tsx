@@ -192,36 +192,26 @@ export default function MobileDashboard() {
             </div>
           )}
 
-          {isAdmin && (
-            <div className="border-t border-slate-100 pt-4 mt-2">
-              <Button 
-                variant="outline" 
-                className="w-full justify-between h-12 rounded-xl text-slate-600 font-medium bg-slate-50 border-none hover:bg-slate-100"
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/notifications/send', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        userId: user?.uid,
-                        title: "Demo Notification 🔔",
-                        body: "Great! Your push notifications are working perfectly on mobile.",
-                        url: "/dashboard"
-                      }),
-                    });
-                    const data = await response.json();
-                    if (data.success) toast.success("Test notification sent!");
-                    else toast.error("Failed to send: " + (data.message || "No registered devices"));
-                  } catch (e) {
-                    toast.error("Error sending test notification");
-                  }
-                }}
-              >
-                Test Push Notification
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </Button>
-            </div>
-          )}
+          <div className="border-t border-slate-100 pt-4 mt-2">
+             <Button 
+               variant="outline" 
+               className="w-full justify-between h-12 rounded-xl text-rose-600 font-black bg-rose-50 border-none hover:bg-rose-100"
+               onClick={async () => {
+                 const { signOut } = await import('firebase/auth');
+                 const { auth } = await import('@/firebase');
+                 if (auth) {
+                   await signOut(auth);
+                   window.location.href = '/';
+                 }
+               }}
+             >
+               <div className="flex items-center gap-2">
+                 <LogOut className="w-4 h-4" />
+                 Logout Account
+               </div>
+               <ChevronRight className="w-4 h-4 text-rose-300" />
+             </Button>
+          </div>
         </div>
 
       </div>
@@ -229,3 +219,6 @@ export default function MobileDashboard() {
     </div>
   );
 }
+
+import { LogOut } from "lucide-react";
+

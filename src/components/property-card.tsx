@@ -4,7 +4,7 @@
 import type { Property } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Heart, ExternalLink, Flag, Wrench, Building2, Users, Key, Armchair, Calendar, IndianRupee, Tag, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { MapPin, Heart, CheckCircle2, Sparkles, Star, Wifi, UtensilsCrossed, Car } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn, getWatermarkedImageUrl } from '@/lib/utils';
 import { useFavorites } from '@/hooks/use-favorites';
@@ -19,21 +19,14 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property, priority = false }: PropertyCardProps) {
   const { favoriteIds, toggleFavorite } = useFavorites();
-  const { compareList, toggleCompare, addToRecentlyViewed } = useEngagement();
+  const { addToRecentlyViewed } = useEngagement();
 
   const isFavorited = favoriteIds.has(property.id);
-  const isComparing = compareList.includes(property.id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(property.id, isFavorited);
-  };
-
-  const handleCompareClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleCompare(property.id);
   };
   
   const handleCardClick = () => {
@@ -45,14 +38,6 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
   const imageUrl = photos[0];
 
   const formatPrice = (p: number) => {
-    if (p >= 10000000) {
-        const value = p / 10000000;
-        return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr`;
-    }
-    if (p >= 100000) {
-        const value = p / 100000;
-        return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Lakhs`;
-    }
     return `₹${new Intl.NumberFormat('en-IN').format(p)}`;
   };
 
@@ -65,149 +50,101 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.12)] transition-all duration-500"
+      className="group flex flex-col bg-white rounded-[32px] overflow-hidden shadow-xl shadow-slate-200/40 border border-slate-100 transition-all duration-300"
       onClick={handleCardClick}
     >
-      {/* Top Image Section */}
-      <Link href={`/properties/${property.id}`} className="relative aspect-[4/3] overflow-hidden block">
+      {/* 1. Image Section */}
+      <div className="relative aspect-[16/11] overflow-hidden">
         <Image 
           src={imageUrl} 
-          alt={`Photo of ${property.title}`} 
+          alt={property.title} 
           fill 
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={priority}
-          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
+          className="object-cover group-hover:scale-105 transition-transform duration-700" 
         />
         
-        {/* Overlay Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-        
-        {/* BHK Badge */}
+        {/* Overlay Badges (Top Left) */}
         <div className="absolute top-4 left-4 z-10 flex gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-[10px] font-black uppercase tracking-wider rounded-lg shadow-sm border border-white/20">
-            <Building2 className="w-3 h-3 text-primary" />
-            {property.bhk || '1 BHK'}
+          <div className="px-4 py-1.5 bg-white text-slate-900 text-[10px] font-black rounded-full shadow-lg">
+            {property.propertyType?.includes('PG') ? 'PG / Co-living' : property.propertyType}
           </div>
-          {property.featured && (
-            <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-lg border border-amber-400"
-            >
-              <Sparkles className="w-3 h-3 fill-white" />
-              Featured
-            </motion.div>
-          )}
+          <div className="px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black rounded-full shadow-lg flex items-center gap-1.5">
+            <CheckCircle2 className="w-3 h-3" />
+            Verified
+          </div>
         </div>
 
-        {/* Heart Icon Button */}
-        <motion.button 
-          whileTap={{ scale: 0.8 }}
+        {/* Favorite Button (Top Right) */}
+        <button 
           onClick={handleFavoriteClick}
-          className={cn(
-            "absolute top-4 right-4 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 backdrop-blur-md z-10 border",
-            isFavorited 
-              ? "bg-white border-primary/20" 
-              : "bg-white/80 border-white/20 hover:bg-white"
-          )}
+          className="absolute top-4 right-4 h-11 w-11 rounded-full bg-white flex items-center justify-center shadow-xl z-10 transition-transform active:scale-90"
         >
-          <Heart 
-            className={cn(
-              "h-5 w-5 transition-all duration-300", 
-              isFavorited ? "fill-primary text-primary scale-110" : "text-slate-600"
-            )} 
-          />
-        </motion.button>
+          <Heart className={cn("h-5 w-5", isFavorited ? "fill-rose-500 text-rose-500" : "text-slate-400")} />
+        </button>
 
-        {/* Compare Icon Button */}
-        <motion.button 
-          whileTap={{ scale: 0.8 }}
-          onClick={handleCompareClick}
-          className={cn(
-            "absolute top-16 right-4 h-10 w-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 backdrop-blur-md z-10 border",
-            isComparing 
-              ? "bg-slate-900 border-slate-700 text-white" 
-              : "bg-white/80 border-white/20 hover:bg-white text-slate-600"
-          )}
-        >
-          <GitCompare className={cn("h-5 w-5", isComparing && "scale-110")} />
-        </motion.button>
+        {/* Bottom Metadata Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+           <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center gap-1 bg-amber-400/90 text-white text-[10px] font-black px-2 py-0.5 rounded-md">
+                <Star className="w-3 h-3 fill-white" />
+                4.8
+              </div>
+           </div>
+           <h3 className="text-xl font-black text-white tracking-tight mb-1 line-clamp-1">
+              {property.title}
+           </h3>
+           <div className="flex items-center text-white/90 text-xs font-bold gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-rose-400" />
+              {property.subLocality || property.city}, {property.city}
+           </div>
+        </div>
+      </div>
 
-        {/* Verification Badge */}
-        <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-green-500/90 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-widest rounded-md shadow-sm">
-          <CheckCircle2 className="w-3 h-3" />
-          Verified
+      {/* 2. Content Section */}
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-start">
+           <div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-3xl font-black text-slate-900">{currentPrice}</span>
+                <span className="text-xs font-bold text-slate-400 tracking-tight">/ month</span>
+              </div>
+              <p className="text-xs font-bold text-slate-400 mt-1">2 Sharing</p>
+           </div>
+           <div className="bg-slate-50 text-slate-500 text-[10px] font-black px-3 py-1.5 rounded-full border border-slate-100">
+              No Brokerage
+           </div>
         </div>
 
-        {/* Photos Count */}
-        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1 px-2 py-1 bg-black/40 backdrop-blur-md text-white text-[10px] font-bold rounded-lg border border-white/10">
-          <img className="h-3 w-3 opacity-80" width={12} height={12} alt="photos" src="https://img.icons8.com/material-outlined/24/ffffff/camera.png" />
-          <span>{rawPhotos.length || 1}</span>
-        </div>
-      </Link>
-
-      {/* Details Section */}
-      <div className="p-5 flex flex-col flex-grow bg-gradient-to-b from-white to-slate-50/30">
-        {/* Price and Maintenance */}
-        <div className="flex items-end justify-between mb-4">
-            <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Asking Price</span>
-                <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">{currentPrice}</span>
-            </div>
-            {property.maintenance && property.maintenance > 0 && (
-                <div className="flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-[10px] font-bold border border-indigo-100/50">
-                    <Tag className="h-3 w-3" />
-                    <span>+₹{property.maintenance}</span>
-                </div>
-            )}
+        {/* Amenities Pills */}
+        <div className="flex gap-2">
+           <div className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-2xl font-black text-[11px]">
+              <Wifi className="w-3.5 h-3.5" />
+              WiFi
+           </div>
+           <div className="flex items-center gap-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-2xl font-black text-[11px]">
+              <UtensilsCrossed className="w-3.5 h-3.5" />
+              Food
+           </div>
+           <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-2xl font-black text-[11px]">
+              <Car className="w-3.5 h-3.5" />
+              Parking
+           </div>
         </div>
 
-        {/* Title */}
-        <h3 className="font-extrabold text-[17px] text-[#2CB6A2] line-clamp-1 mb-1 group-hover:text-primary transition-colors duration-300">
-            {property.title}
-        </h3>
-
-        {/* Location */}
-        <div className="flex items-center gap-1 text-[13px] text-slate-500 mb-5">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/60" />
-            <span className="truncate max-w-[150px]">{property.address || property.city}</span>
-            <span className="mx-1 opacity-30">•</span>
-            <Link href={`/properties/${property.id}`} className="text-primary hover:text-primary/80 font-bold transition-colors">Details</Link>
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+           <Button variant="secondary" className="flex-1 h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-xs shadow-none">
+              Schedule Visit
+           </Button>
+           <Button asChild className="flex-1 h-14 rounded-2xl bg-black hover:bg-slate-800 text-white font-black text-xs shadow-xl">
+              <Link href={`/properties/${property.id}`}>
+                 View Details
+              </Link>
+           </Button>
         </div>
-
-        {/* Premium Specs Grid */}
-        <div className="grid grid-cols-2 gap-2 mb-6">
-            {/* Area */}
-            <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex items-center gap-3 shadow-sm group/spec">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover/spec:bg-primary/5 transition-colors">
-                    <Expand className="h-4 w-4 text-slate-400 group-hover/spec:text-primary transition-colors" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] font-black text-slate-800 truncate">{property.areaSqFt?.toLocaleString('en-IN') || '-'} sqft</span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Area</span>
-                </div>
-            </div>
-            {/* Furnishing */}
-            <div className="p-2.5 bg-white border border-slate-100 rounded-xl flex items-center gap-3 shadow-sm group/spec">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover/spec:bg-primary/5 transition-colors">
-                    <Armchair className="h-4 w-4 text-slate-400 group-hover/spec:text-primary transition-colors" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] font-black text-slate-800 truncate">{property.furnishing || 'Unfurnished'}</span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Status</span>
-                </div>
-            </div>
-        </div>
-
-        {/* CTA Button */}
-        <Link href={`/properties/${property.id}`} className="mt-auto block">
-          <Button className="w-full bg-slate-900 hover:bg-primary text-white font-black h-12 rounded-xl shadow-lg shadow-slate-200 hover:shadow-primary/20 transition-all duration-300 group/btn">
-            <span className="mr-2">Get Owner Details</span>
-            <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
-          </Button>
-        </Link>
       </div>
     </motion.div>
   );

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Expand, MapPin, Building, School, Hospital, BadgeCheck, Sparkles, Flame, Car, Fish, CalendarClock, PhoneCall, Heart } from 'lucide-react';
+import { BedDouble, Bath, Expand, MapPin, Building, School, Hospital, BadgeCheck, Sparkles, Flame, Car, Fish, CalendarClock, PhoneCall, Heart, User, Users, UtensilsCrossed, Soup, Wifi, Zap, Camera, Waves, Tv, Wind, ShieldCheck, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PropertyContactDetails } from '@/components/property-contact-details';
 import { PropertyCard } from '@/components/property-card';
@@ -252,33 +252,159 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
             {/* Left Column: Details */}
             <div className="lg:col-span-2 space-y-10">
                 
-                {/* Key Overview Bar */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm text-center">
-                    <div className="flex flex-col items-center gap-1.5">
-                        <div className="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1"><BedDouble className="h-5 w-5" /></div>
-                        <p className="font-extrabold text-xl text-slate-800 leading-none">{property.bhk || '-'}</p>
-                        <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Beds</p>
+                {/* 1. Key Overview Bar */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-8 rounded-[32px] border border-slate-200/60 shadow-sm text-center">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-1"><BedDouble className="h-6 w-6" /></div>
+                        <p className="font-black text-2xl text-slate-900 leading-none">{property.bhk || '-'}</p>
+                        <p className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Bedrooms</p>
                     </div>
-                    <div className="flex flex-col items-center gap-1.5 md:border-l border-slate-100">
-                        <div className="h-10 w-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600 mb-1"><Bath className="h-5 w-5" /></div>
-                        <p className="font-extrabold text-xl text-slate-800 leading-none">{property.baths || '-'}</p>
-                         <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Baths</p>
+                    <div className="flex flex-col items-center gap-2 md:border-l border-slate-100">
+                        <div className="h-12 w-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 mb-1"><Bath className="h-6 w-6" /></div>
+                        <p className="font-black text-2xl text-slate-900 leading-none">{property.baths || '-'}</p>
+                         <p className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Bathrooms</p>
                     </div>
                     {!isPG && (
-                      <div className="flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0">
-                          <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1"><Expand className="h-5 w-5" /></div>
-                          <p className="font-extrabold text-xl text-slate-800 leading-none">{(property.areaSqFt || 0).toLocaleString('en-IN')}</p>
-                           <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Sq. Ft.</p>
+                      <div className="flex flex-col items-center gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0">
+                          <div className="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1"><Expand className="h-6 w-6" /></div>
+                          <p className="font-black text-2xl text-slate-900 leading-none">{(property.areaSqFt || 0).toLocaleString('en-IN')}</p>
+                           <p className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Square Ft</p>
                       </div>
                     )}
-                    <div className={cn("flex flex-col items-center gap-1.5 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0", isPG && "col-span-2")}>
-                        <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 mb-1"><Building className="h-5 w-5" /></div>
-                        <p className="font-extrabold text-xl text-slate-800 leading-none text-center">
-                           {property.floor && property.totalFloors ? `${property.floor}/${property.totalFloors}` : (property.floor || '-')}
+                    <div className={cn("flex flex-col items-center gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0", isPG && "col-span-2")}>
+                        <div className="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 mb-1"><Building className="h-6 w-6" /></div>
+                        <p className="font-black text-2xl text-slate-900 leading-none text-center">
+                           {property.floor && property.totalFloors ? `${property.floor}/${property.totalFloors}` : (property.floor || '2nd')}
                         </p>
-                        <p className="text-xs uppercase font-bold text-slate-400 tracking-wider">Floor</p>
+                        <p className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Floor Level</p>
                     </div>
                 </div>
+
+                {/* 2. Amenities Section */}
+                {(property.amenities && property.amenities.length > 0) && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Essential Amenities</h2>
+                            <div className="h-[2px] flex-1 bg-slate-100 rounded-full" />
+                        </div>
+                        <div className="bg-white rounded-[32px] p-10 border border-slate-200/60 shadow-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                {[
+                                    { icon: Wifi, label: 'High-speed WiFi', value: true },
+                                    { icon: Zap, label: 'Power Backup', value: true },
+                                    { icon: Camera, label: 'CCTV Security', value: true },
+                                    { icon: Waves, label: 'Washing Machine', value: true },
+                                    { icon: Tv, label: 'Smart TV', value: true },
+                                    { icon: Wind, label: 'AC Rooms', value: property.amenities?.includes('AC') },
+                                    { icon: ShieldCheck, label: '24/7 Security', value: true },
+                                    { icon: Car, label: 'Parking Space', value: property.vehicleParking !== 'None' },
+                                ].filter(a => a.value).map((item, i) => (
+                                    <div key={i} className="flex flex-col items-center gap-3 p-4 rounded-3xl bg-slate-50/50 border border-slate-50 hover:bg-white hover:shadow-md transition-all">
+                                        <div className="bg-white text-primary p-3 rounded-2xl shadow-sm">
+                                          <item.icon className="h-6 w-6" />
+                                        </div>
+                                        <span className="font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">{item.label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 3. PG Food Banner (Desktop) */}
+                {isPG && property.foodIncluded && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Meal Plan & Quality</h2>
+                            <div className="h-[2px] flex-1 bg-slate-100 rounded-full" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="md:col-span-2 bg-gradient-to-br from-orange-500 to-amber-600 rounded-[40px] p-12 text-white shadow-xl shadow-orange-100 relative overflow-hidden group">
+                                <div className="absolute top-[-20%] right-[-5%] w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="relative z-10 flex items-center justify-between h-full">
+                                    <div className="space-y-6">
+                                        <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-2xl border border-white/20">
+                                            <UtensilsCrossed className="w-5 h-5" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Homely Meals Included</span>
+                                        </div>
+                                        <h3 className="text-4xl font-black tracking-tight leading-tight">Healthy North & South <br/>Indian Meals Served</h3>
+                                        <p className="text-orange-50 text-base font-medium opacity-90 max-w-lg">We serve hygienic, fresh, and tasty food prepared by professional cooks. Menu includes variety of dishes daily.</p>
+                                    </div>
+                                    <div className="hidden lg:flex w-40 h-40 bg-white/10 rounded-full items-center justify-center backdrop-blur-md border border-white/10">
+                                        <Soup className="w-20 h-20 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="p-8 rounded-[32px] bg-white border border-slate-100 shadow-sm flex flex-col gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500">
+                                        <Soup className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Cuisine Preference</p>
+                                        <p className="text-xl font-black text-slate-800">{property.foodType || 'North & South Indian'}</p>
+                                    </div>
+                                </div>
+                                <div className="p-8 rounded-[32px] bg-white border border-slate-100 shadow-sm flex flex-col gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500">
+                                        <BadgeCheck className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Quality Assurance</p>
+                                        <p className="text-xl font-black text-slate-800">Verified Hygiene</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 4. Sharing & Pricing Section */}
+                {isPG && property.pgSharingPrices && Object.values(property.pgSharingPrices).some(price => price !== undefined && price > 0) && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Sharing Options</h2>
+                            <div className="h-[2px] flex-1 bg-slate-100 rounded-full" />
+                        </div>
+                        <div className="bg-white rounded-[40px] p-10 border border-slate-200/60 shadow-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                {Object.entries({
+                                    single: { label: '1 Sharing', icon: User },
+                                    double: { label: '2 Sharing', icon: Users },
+                                    triple: { label: '3 Sharing', icon: Users },
+                                    four: { label: '4 Sharing', icon: Users },
+                                    five: { label: '5+ Sharing', icon: Users }
+                                }).map(([key, info]) => {
+                                    const price = (property.pgSharingPrices as any)?.[key];
+                                    if (!price) return null;
+                                    const Icon = info.icon;
+                                    
+                                    return (
+                                        <div 
+                                            key={key}
+                                            className="p-8 rounded-[32px] bg-slate-50/50 border-2 border-slate-100 hover:border-primary/20 transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 group"
+                                        >
+                                            <div className="flex flex-col gap-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                                                        <Icon className="w-7 h-7" />
+                                                    </div>
+                                                    <div className="w-6 h-6 rounded-full border-2 border-slate-200 group-hover:border-primary group-hover:bg-primary/10 flex items-center justify-center transition-all">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">{info.label}</p>
+                                                    <p className="text-3xl font-black text-slate-900">₹{price.toLocaleString('en-IN')}<span className="text-sm text-slate-400 font-bold ml-1">/mo</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Description */}
                 <div>
@@ -330,24 +456,8 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                     </div>
                 </div>
 
-                {/* Amenities */}
-                {(property.amenities && property.amenities.length > 0) && (
-                    <div>
-                        <h2 className="text-2xl font-bold text-slate-800 mb-4">Amenities</h2>
-                        <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/60 shadow-sm">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                                {property.amenities.map((amenity, index) => (
-                                    <div key={index} className="flex items-center gap-3">
-                                        <div className="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl shrink-0">
-                                          <Sparkles className="h-5 w-5" />
-                                        </div>
-                                        <span className="font-medium text-slate-700">{amenity}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
+
+
                 
                 {/* Available Timings */}
                 {(property.isAvailableAnytime || (property.visitAvailability && property.visitAvailability.length > 0)) && (
@@ -375,6 +485,68 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                         </div>
                     </div>
                 )}
+
+                {/* 7. Location Details & Map */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Location & Map</h2>
+                        <div className="h-[2px] flex-1 bg-slate-100 rounded-full" />
+                    </div>
+                    <div className="bg-white rounded-[40px] p-10 border border-slate-200/60 shadow-sm space-y-8">
+                        <div className="relative w-full aspect-[21/9] rounded-[32px] overflow-hidden bg-slate-100 border border-slate-200">
+                             <Image 
+                                src="https://maps.googleapis.com/maps/api/staticmap?center=Bangalore&zoom=14&size=800x400&key=YOUR_API_KEY" // Placeholder
+                                alt="Map Location" 
+                                fill 
+                                className="object-cover blur-[1px] opacity-70"
+                             />
+                             <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-center bg-white/10 backdrop-blur-[1px]">
+                                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-2xl shadow-primary/40 mb-6 animate-bounce">
+                                    <MapPin className="w-8 h-8 text-white" />
+                                </div>
+                                <h4 className="text-slate-900 font-black text-xl mb-6 max-w-md">{property.address}, {property.city}</h4>
+                                <Button asChild className="rounded-2xl h-14 px-8 font-black bg-white text-slate-900 hover:bg-slate-50 border-none shadow-2xl transition-transform hover:scale-105">
+                                    <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                                        Open in Google Maps
+                                    </a>
+                                </Button>
+                             </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                             {[
+                               { label: 'Metro Station', value: '2.5 km away', icon: Building },
+                               { label: 'Tech Park', value: '1.2 km away', icon: Building },
+                               { label: 'Restaurants', value: '500m away', icon: UtensilsCrossed }
+                             ].map((item, i) => (
+                               <div key={i} className="flex flex-col gap-2 p-6 rounded-3xl bg-slate-50/50 border border-slate-100">
+                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm mb-2">
+                                    <item.icon className="w-5 h-5" />
+                                 </div>
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</span>
+                                 <span className="text-base font-black text-slate-800">{item.value}</span>
+                               </div>
+                             ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 8. Reviews Section (Placeholder) */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Tenant Experience</h2>
+                        <div className="h-[2px] flex-1 bg-slate-100 rounded-full" />
+                    </div>
+                    <div className="bg-slate-50 rounded-[40px] p-16 text-center border-2 border-dashed border-slate-200">
+                        <div className="flex justify-center gap-1.5 mb-6">
+                            {[...Array(5)].map((_, i) => (
+                                <Sparkles key={i} className="w-8 h-8 text-amber-400 fill-current" />
+                            ))}
+                        </div>
+                        <h4 className="text-2xl font-black text-slate-900 mb-3">Community Reviews Coming Soon</h4>
+                        <p className="text-slate-500 font-medium max-w-md mx-auto">We are currently verifying the first set of tenant reviews for this property. Stay tuned for authentic experiences!</p>
+                    </div>
+                </div>
 
             </div>
             

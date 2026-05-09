@@ -4,6 +4,7 @@ import { ArrowLeft, Heart, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { UserNav } from './user-nav';
 
 interface MobileListingHeaderProps {
   title: string;
@@ -29,10 +30,14 @@ export function MobileListingHeader({ title, onFilterClick, searchValue, onSearc
           </Button>
           <h1 className="text-lg font-bold text-slate-900">{title}</h1>
         </div>
-        <Button variant="ghost" size="icon" className="rounded-full bg-slate-50">
-          <Heart className="w-5 h-5 text-slate-700" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="rounded-full bg-slate-50">
+            <Heart className="w-5 h-5 text-slate-700" />
+          </Button>
+          <UserNav />
+        </div>
       </div>
+
 
       <div className="flex gap-2">
         <div className="relative flex-grow group">
