@@ -374,11 +374,15 @@ export default function AdminPage() {
 
   const notifyUser = async (userId: string, title: string, body: string, url: string) => {
     try {
-      await fetch('/api/notifications/send', {
+      const response = await fetch('/api/notifications/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, title, body, url }),
       });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.warn('Notification send API returned an error:', errorData);
+      }
     } catch (error) {
       console.error('Failed to send push notification:', error);
     }
@@ -405,11 +409,16 @@ export default function AdminPage() {
 
         // Notify Matched Users (Real-time Alerts)
         try {
-          await fetch('/api/notifications/trigger-match', {
+          const matchResponse = await fetch('/api/notifications/trigger-match', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(propData),
           });
+          
+          if (!matchResponse.ok) {
+            const errorData = await matchResponse.json().catch(() => ({}));
+            console.warn('Matching notification API returned an error:', errorData);
+          }
         } catch (matchError) {
           console.error('Failed to trigger matching notifications:', matchError);
         }

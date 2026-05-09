@@ -37,11 +37,12 @@ export async function POST(req: NextRequest) {
       const reqData = doc.data();
       
       // Match Budget (Requirement budget should be >= property price)
-      if (reqData.budget < price) continue;
+      const propPrice = Number(price);
+      if (isNaN(propPrice) || reqData.budget < propPrice) continue;
 
       // Match Purpose/ListingFor
       // Rent/Sale/Lease etc should align, unless the requirement says 'All'
-      if (reqData.purpose && reqData.purpose.toLowerCase() !== 'all' && reqData.purpose.toLowerCase() !== listingFor.toLowerCase()) {
+      if (reqData.purpose && reqData.purpose.toLowerCase() !== 'all' && listingFor && reqData.purpose.toLowerCase() !== listingFor.toLowerCase()) {
           continue;
       }
 
@@ -49,12 +50,15 @@ export async function POST(req: NextRequest) {
       if (reqData.area && reqData.area.toLowerCase() !== 'all') {
         const reqArea = reqData.area.toLowerCase();
         
+        // Use subLocality as the primary area field from Property type, or fallback to area if provided
+        const targetArea = area || property.subLocality || property.address;
+
         // If property has no area data, it cannot match a specific area request
-        if (!area) {
+        if (!targetArea) {
             continue;
         }
 
-        const propArea = area.toLowerCase();
+        const propArea = targetArea.toLowerCase();
         // If the property area is completely different from the requested area, skip it.
         if (!propArea.includes(reqArea) && !reqArea.includes(propArea)) {
             continue;
@@ -70,8 +74,8 @@ export async function POST(req: NextRequest) {
         notificationsToSend.push({
           userId: reqData.userId,
           tokens,
-          title: `New Property in ${area || city}! 🏠`,
-          body: `${propertyType} matching your requirement is now available at ₹${price.toLocaleString('en-IN')}.`,
+          title: `New Property in ${area || property.subLocality || city}! 🏠`,
+          body: `${propertyType || 'Property'} matching your requirement is now available at ₹${propPrice.toLocaleString('en-IN')}.`,
         });
       }
     }

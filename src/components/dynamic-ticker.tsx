@@ -1,40 +1,40 @@
+'use client';
 
+import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { Home } from 'lucide-react';
 
-async function getPostedCities() {
-    try {
-        const propertiesCol = collection(db, 'properties');
-        // We only want cities from approved listings
-        const q = query(
-            propertiesCol, 
-            where('listingStatus', '==', 'approved'),
-            limit(100) // Limit to avoid massive reads if DB grows large
-        );
-        
-        const snapshot = await getDocs(q);
-        const cities = snapshot.docs.map(doc => doc.data().city);
-        
-        // Filter unique cities, remove nulls/empty, and sort alphabetically
-        const uniqueCities = Array.from(new Set(cities))
-            .filter((city): city is string => typeof city === 'string' && city.length > 0)
-            .sort();
+const FALLBACK_CITIES = ['Bangalore', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore', 'Kakinada', 'Rajahmundry'];
 
-        // Fallback cities if none found in DB
-        if (uniqueCities.length === 0) {
-            return ['Bangalore', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore', 'Kakinada', 'Rajahmundry'];
+export function DynamicTicker() {
+    const [cities, setCities] = useState<string[]>(FALLBACK_CITIES);
+
+    useEffect(() => {
+        async function fetchCities() {
+            try {
+                const propertiesCol = collection(db, 'properties');
+                const q = query(
+                    propertiesCol, 
+                    where('listingStatus', '==', 'approved'),
+                    limit(100)
+                );
+                
+                const snapshot = await getDocs(q);
+                const fetchedCities = snapshot.docs.map(doc => doc.data().city);
+                
+                const uniqueCities = Array.from(new Set(fetchedCities))
+                    .filter((city): city is string => typeof city === 'string' && city.length > 0)
+                    .sort();
+
+                if (uniqueCities.length > 0) {
+                    setCities(uniqueCities);
+                }
+            } catch (error) {
+                console.error("Error fetching cities for ticker:", error);
+            }
         }
-
-        return uniqueCities;
-    } catch (error) {
-        console.error("Error fetching cities for ticker:", error);
-        return ['Bangalore', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore'];
-    }
-}
-
-export async function DynamicTicker() {
-    const cities = await getPostedCities();
+        fetchCities();
+    }, []);
     
     // Duplicate the list to ensure smooth continuous scrolling
     const scrollCities = [...cities, ...cities, ...cities];
@@ -62,3 +62,4 @@ export async function DynamicTicker() {
         </div>
     );
 }
+

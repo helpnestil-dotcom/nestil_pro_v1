@@ -1,48 +1,57 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { collection, query, where, limit, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Property } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
-import { PropertyCard } from '@/components/property-card';
+import { PropertyCard, PropertyCardSkeleton } from '@/components/property-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-async function getFeaturedProperties(): Promise<Property[]> {
-  const propertiesCol = collection(db, 'properties');
-  // Fetch a larger pool of recent approved properties to shuffle from
-  const q = query(
-    propertiesCol, 
-    where('listingStatus', '==', 'approved'),
-    orderBy('dateAdded', 'desc'), 
-    limit(24)
-  );
-  
-  const snapshot = await getDocs(q);
-  const pool = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-          id: doc.id,
-          ...data,
-          postedAt: data.postedAt?.toDate().toISOString() || null,
-          updatedAt: data.updatedAt?.toDate().toISOString() || null,
-          adExpiry: data.adExpiry?.toDate().toISOString() || null,
-      } as Property;
-  });
+export function FeaturedProperties() {
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
 
-  if (pool.length === 0) return [];
+    useEffect(() => {
+        async function fetchProperties() {
+            try {
+                const propertiesCol = collection(db, 'properties');
+                const q = query(
+                    propertiesCol, 
+                    where('listingStatus', '==', 'approved'),
+                    orderBy('dateAdded', 'desc'), 
+                    limit(24)
+                );
+                
+                const snapshot = await getDocs(q);
+                const pool = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        // Handle date fields safely
+                        dateAdded: data.dateAdded || new Date().toISOString(),
+                    } as Property;
+                });
 
-  // Shuffle the pool to provide a dynamic "First Impression" on every refresh
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  
-  // Prioritize "Featured" ones but keep it mixed
-  const featured = shuffled.filter(p => p.featured);
-  const nonFeatured = shuffled.filter(p => !p.featured);
-  
-  return [...featured, ...nonFeatured].slice(0, 8);
-}
-
-
-export async function FeaturedProperties() {
-    const properties = await getFeaturedProperties();
+                if (pool.length > 0) {
+                    // Shuffle the pool to provide a dynamic "First Impression" on every refresh
+                    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+                    
+                    // Prioritize "Featured" ones but keep it mixed
+                    const featured = shuffled.filter(p => p.featured);
+                    const nonFeatured = shuffled.filter(p => !p.featured);
+                    
+                    setProperties([...featured, ...nonFeatured].slice(0, 8));
+                }
+            } catch (error) {
+                console.error("Error fetching featured properties:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchProperties();
+    }, []);
 
     return (
         <section className="py-16 md:py-24">
@@ -60,14 +69,17 @@ export async function FeaturedProperties() {
                         <Link href="/properties">Browse All →</Link>
                     </Button>
                 </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {properties && properties.length > 0 ? (
+                    {loading ? (
+                        [...Array(4)].map((_, i) => <PropertyCardSkeleton key={i} />)
+                    ) : properties && properties.length > 0 ? (
                         properties.map((prop, index) => <PropertyCard key={prop.id} property={prop} priority={index < 3} />)
                     ) : (
-                        <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-10 border-dashed border-2 rounded-lg bg-background">
-                            <h3 className="text-xl font-semibold">No Properties Found</h3>
-                            <p className="text-muted-foreground mt-2">
-                                Check back later for new listings.
+                        <div className="col-span-full text-center py-16 border-dashed border-2 rounded-3xl bg-slate-50/50">
+                            <h3 className="text-xl font-black text-slate-800">No Properties Found</h3>
+                            <p className="text-slate-500 mt-2 font-medium">
+                                Check back later for new verified listings.
                             </p>
                         </div>
                     )}
@@ -77,3 +89,4 @@ export async function FeaturedProperties() {
         </section>
     );
 };
+
