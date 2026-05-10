@@ -21,7 +21,7 @@ import {
   Gamepad2,
   Book,
   ArrowUpRight,
-  Couch,
+  Sofa,
   Bath
 } from 'lucide-react';
 
@@ -56,7 +56,7 @@ export const AMENITY_ICONS: Record<string, any> = {
   'Common Kitchen': UtensilsCrossed,
   'Study Area': Book,
   'Terrace': ArrowUpRight,
-  'Lounge Area': Couch,
+  'Lounge Area': Sofa,
   
   // Inferred from flags
   'Attached Bathroom': Bath,
