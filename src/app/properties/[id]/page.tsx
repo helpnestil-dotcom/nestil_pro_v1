@@ -110,17 +110,19 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     ? property.googleMapsLink 
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.city}`)}`;
 
+  const isPG = property.listingFor === 'PG' || property.propertyType?.includes('PG') || property.propertyType?.includes('Co-living');
+
   const reviews = [
-    { name: 'Aditya Raj', rating: 5, comment: 'Amazing place! The food is homely and the maintenance is top-notch.', date: '2 months ago', avatar: 'AR' },
-    { name: 'Sneha Kapoor', rating: 4, comment: 'Very secure for girls. The warden is helpful and the rooms are spacious.', date: '1 month ago', avatar: 'SK' },
-    { name: 'Rohan Mehta', rating: 5, comment: 'Best co-living experience in Bangalore. WiFi is really fast!', date: '3 weeks ago', avatar: 'RM' },
+    { name: 'Aditya Raj', rating: 5, comment: isPG ? 'Amazing place! The food is homely and the maintenance is top-notch.' : 'Great property! Very well maintained and the location is perfect.', date: '2 months ago', avatar: 'AR' },
+    { name: 'Sneha Kapoor', rating: 4, comment: isPG ? 'Very secure for girls. The warden is helpful and the rooms are spacious.' : 'Very professional experience. The property is exactly as shown in photos.', date: '1 month ago', avatar: 'SK' },
+    { name: 'Rohan Mehta', rating: 5, comment: isPG ? 'Best co-living experience in Bangalore. WiFi is really fast!' : 'Excellent connectivity and the neighborhood is very peaceful.', date: '3 weeks ago', avatar: 'RM' },
   ];
 
-  const sharingOptions = [
-    { type: 'Single Sharing', price: property.pgSharingPrices?.single || property.price * 1.5 || 15000, icon: User, availability: 'Available' },
-    { type: 'Double Sharing', price: property.pgSharingPrices?.double || property.price || 10000, icon: Users, availability: 'Few Left' },
-    { type: 'Triple Sharing', price: property.pgSharingPrices?.triple || property.price * 0.8 || 8000, icon: Users, availability: 'Available' },
-  ];
+  const sharingOptions = isPG ? [
+    { type: 'Single Sharing', price: property.pgSharingPrices?.single, icon: User, availability: 'Available' },
+    { type: 'Double Sharing', price: property.pgSharingPrices?.double, icon: Users, availability: 'Few Left' },
+    { type: 'Triple Sharing', price: property.pgSharingPrices?.triple, icon: Users, availability: 'Available' },
+  ].filter(opt => opt.price && opt.price > 0) : [];
 
   return (
     <>
@@ -271,36 +273,38 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
 
               {/* SECTION 4: ROOM TYPES */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Sharing Options</h2>
-                  <div className="h-px flex-1 bg-slate-100" />
-                </div>
-                <div className="flex flex-col gap-3">
-                  {sharingOptions.map((room, i) => (
-                    <div key={i} className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center justify-between group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-[14px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                          <room.icon className="w-5 h-5" />
+              {sharingOptions.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Sharing Options</h2>
+                    <div className="h-px flex-1 bg-slate-100" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {sharingOptions.map((room, i) => (
+                      <div key={i} className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center justify-between group">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-[14px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                            <room.icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex flex-col items-start gap-1">
+                            <p className="text-sm font-black text-slate-900 leading-none">{room.type}</p>
+                            <Badge className={cn(
+                              "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border-none",
+                              room.availability === 'Available' ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
+                            )}>
+                              {room.availability}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex flex-col items-start gap-1">
-                          <p className="text-sm font-black text-slate-900 leading-none">{room.type}</p>
-                          <Badge className={cn(
-                            "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border-none",
-                            room.availability === 'Available' ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
-                          )}>
-                            {room.availability}
-                          </Badge>
+                        <div className="text-right flex items-baseline gap-1">
+                          <span className="text-xl font-black text-slate-900">₹{room.price.toLocaleString('en-IN')}</span>
+                          <span className="text-[10px] font-bold text-slate-400">/mo</span>
                         </div>
                       </div>
-                      <div className="text-right flex items-baseline gap-1">
-                        <span className="text-xl font-black text-slate-900">₹{room.price.toLocaleString('en-IN')}</span>
-                        <span className="text-[10px] font-bold text-slate-400">/mo</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* SECTION 5: MAP SECTION */}
               <div className="space-y-4">

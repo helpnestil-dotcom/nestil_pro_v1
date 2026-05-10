@@ -73,13 +73,22 @@ export const getAmenityIcon = (name: string) => {
 export const getAllPropertyAmenities = (property: any) => {
   const amenities = [...(property.amenities || [])];
   
+  const isPG = property.listingFor === 'PG' || 
+               property.propertyType?.includes('PG') || 
+               property.propertyType?.includes('Hostel') || 
+               property.propertyType?.includes('Co-living');
+
   // Add boolean flags as amenities if they are true
   if (property.attachedBathroom) amenities.push('Attached Bathroom');
   if (property.balcony) amenities.push('Balcony');
-  if (property.electricityIncluded) amenities.push('Electricity Included');
-  if (property.foodIncluded) amenities.push('Food Included');
-  if (property.wifiIncluded) amenities.push('WiFi Included');
-  if (property.waterIncluded) amenities.push('Water Included');
+  
+  // Only add PG-specific flags if it's a PG
+  if (isPG) {
+    if (property.electricityIncluded) amenities.push('Electricity Included');
+    if (property.foodIncluded) amenities.push('Food Included');
+    if (property.wifiIncluded) amenities.push('WiFi Included');
+    if (property.waterIncluded) amenities.push('Water Included');
+  }
   
   // Deduplicate
   return Array.from(new Set(amenities));
