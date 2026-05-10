@@ -42,20 +42,25 @@ const parseDate = (dateVal: any) => {
 };
 
 async function getProperty(id: string): Promise<Property | null> {
-  const docRef = doc(db, 'properties', id);
-  const docSnap = await getDoc(docRef);
+  try {
+    const docRef = doc(db, 'properties', id);
+    const docSnap = await getDoc(docRef);
 
-  if (!docSnap.exists() || docSnap.data().listingStatus !== 'approved') {
+    if (!docSnap.exists() || docSnap.data().listingStatus !== 'approved') {
+      return null;
+    }
+    
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      ...data,
+      postedAt: parseDate(data.postedAt) || new Date().toISOString(),
+      updatedAt: parseDate(data.updatedAt) || new Date().toISOString(),
+    } as Property;
+  } catch (error) {
+    console.error("Error fetching property:", error);
     return null;
   }
-  
-  const data = docSnap.data();
-  return {
-    id: docSnap.id,
-    ...data,
-    postedAt: parseDate(data.postedAt) || new Date().toISOString(),
-    updatedAt: parseDate(data.updatedAt) || new Date().toISOString(),
-  } as Property;
 }
 
 async function getSimilarProperties(property: Property): Promise<Property[]> {
