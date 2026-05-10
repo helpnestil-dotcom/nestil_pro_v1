@@ -301,7 +301,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                           </div>
                         </div>
                         <div className="text-right flex items-baseline gap-1">
-                          <span className="text-xl font-black text-slate-900">₹{room.price.toLocaleString('en-IN')}</span>
+                          <span className="text-xl font-black text-slate-900">₹{room.price?.toLocaleString('en-IN')}</span>
                           <span className="text-[10px] font-bold text-slate-400">/mo</span>
                         </div>
                       </div>
