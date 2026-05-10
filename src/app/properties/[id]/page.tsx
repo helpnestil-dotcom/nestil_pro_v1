@@ -110,7 +110,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     ? property.googleMapsLink 
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.city}`)}`;
 
-  const isPG = property.listingFor === 'PG' || property.propertyType?.includes('PG') || property.propertyType?.includes('Co-living');
+  const isPG = property.listingFor === 'PG';
 
   const reviews = [
     { name: 'Aditya Raj', rating: 5, comment: isPG ? 'Amazing place! The food is homely and the maintenance is top-notch.' : 'Great property! Very well maintained and the location is perfect.', date: '2 months ago', avatar: 'AR' },
@@ -219,7 +219,9 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Rent</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      {property.listingFor === 'Sale' ? 'Total Price' : 'Monthly Rent'}
+                    </p>
                     <p className="text-xl md:text-2xl font-black text-slate-900">₹{(property.price || 0).toLocaleString('en-IN')}</p>
                   </div>
                   <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
@@ -230,10 +232,12 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Maintenance</p>
                     <p className="text-xl md:text-2xl font-black text-slate-900">₹{property.maintenance || 'Included'}</p>
                   </div>
-                  <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Food Charges</p>
-                    <p className="text-xl md:text-2xl font-black text-slate-900">{property.foodIncluded ? 'Included' : '₹2,500/mo'}</p>
-                  </div>
+                  {isPG && (
+                    <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Food Charges</p>
+                      <p className="text-xl md:text-2xl font-black text-slate-900">{property.foodIncluded ? 'Included' : '₹2,500/mo'}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

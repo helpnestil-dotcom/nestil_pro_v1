@@ -26,7 +26,7 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
     ? property.photos.map(p => getWatermarkedImageUrl(p)) 
     : ['https://picsum.photos/seed/property/800/600'];
     
-  const isPG = property.listingFor === 'PG' || property.propertyType === 'PG / Hostel' || property.propertyType === 'Flatmate / Co-living';
+  const isPG = property.listingFor === 'PG';
 
 
   return (
@@ -95,7 +95,7 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-4xl font-black text-primary tracking-tighter">₹{property.price?.toLocaleString('en-IN')}</span>
-            <span className="text-sm text-slate-400 font-bold tracking-tight">{property.listingFor === 'Rent' ? '/month' : ''}</span>
+            <span className="text-sm text-slate-400 font-bold tracking-tight">{property.listingFor === 'Sale' ? '' : '/month'}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold uppercase tracking-wider">
             <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">

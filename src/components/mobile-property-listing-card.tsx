@@ -39,7 +39,7 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
         {/* Top Badges (Top Left) */}
         <div className="absolute top-4 left-4 z-10 flex gap-2">
           <div className="px-3 py-1 bg-white text-slate-900 text-[9px] font-black rounded-full shadow-lg">
-            PG / Co-living
+            {property.listingFor === 'PG' ? 'PG / Co-living' : property.propertyType}
           </div>
           <div className="px-3 py-1 bg-accent-green text-white text-[9px] font-black rounded-full shadow-md flex items-center gap-1">
             <CheckCircle2 className="w-2.5 h-2.5" />
@@ -71,9 +71,20 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
            <div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-black text-slate-900">₹{property.price?.toLocaleString('en-IN')}</span>
-                <span className="text-[10px] font-bold text-slate-400 tracking-tight">/ month</span>
+                <span className="text-[10px] font-bold text-slate-400 tracking-tight">
+                  {property.listingFor === 'Sale' ? '' : '/ month'}
+                </span>
               </div>
-              <p className="text-[10px] font-bold text-slate-400 mt-0.5">2 Sharing</p>
+              {property.listingFor === 'PG' && (
+                <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                  {property.pgRoomType || '2 Sharing'}
+                </p>
+              )}
+              {property.listingFor !== 'PG' && property.bhk && (
+                <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                  {property.bhk}
+                </p>
+              )}
            </div>
            <div className="bg-slate-50 text-slate-500 text-[9px] font-black px-2.5 py-1 rounded-full border border-slate-100">
               No Brokerage

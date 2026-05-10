@@ -109,7 +109,7 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
           <div className="flex gap-2">
             <div className="px-3 py-1 bg-white/95 backdrop-blur-md text-slate-900 text-[10px] font-black rounded-full shadow-sm">
-              {property.propertyType?.includes('PG') ? 'PG / Co-living' : property.propertyType}
+              {property.listingFor === 'PG' ? 'PG / Co-living' : property.propertyType}
             </div>
             {property.featured && (
               <div className="px-3 py-1 bg-amber-400 text-white text-[10px] font-black rounded-full shadow-sm flex items-center gap-1">
@@ -178,10 +178,12 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
       <div className="p-5 pt-0 mt-auto">
         <div className="flex items-center justify-between py-4 border-t border-slate-100 mb-4">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Starting from</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+              {property.listingFor === 'PG' ? 'Starting from' : (property.listingFor === 'Sale' ? 'Price' : 'Rent')}
+            </p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-slate-900">{currentPrice}</span>
-              <span className="text-[10px] font-bold text-slate-400">/mo</span>
+              {property.listingFor !== 'Sale' && <span className="text-[10px] font-bold text-slate-400">/mo</span>}
             </div>
           </div>
           <div className="text-right">
