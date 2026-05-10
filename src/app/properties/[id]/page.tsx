@@ -128,11 +128,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
 
       <div className="bg-white min-h-screen pb-20 font-sans">
         {/* 1. STICKY IMAGE GALLERY (FULL WIDTH) */}
-        <div className="relative w-full h-[50vh] md:h-[70vh] bg-slate-900 group">
+        <div className="relative w-full h-[40vh] md:h-[60vh] bg-slate-900 group">
           <Carousel className="w-full h-full">
             <CarouselContent className="h-full ml-0">
               {propertyPhotos.map((photo, index) => (
-                <CarouselItem key={index} className="relative w-full h-[50vh] md:h-[70vh] pl-0">
+                <CarouselItem key={index} className="relative w-full h-[40vh] md:h-[60vh] pl-0">
                   <Image
                     src={photo}
                     alt={`${property.title} - ${index + 1}`}
@@ -170,17 +170,17 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {/* LEFT COLUMN */}
-            <div className="lg:col-span-2 space-y-10">
+            <div className="lg:col-span-2 space-y-6">
               
               {/* SECTION 1: OVERVIEW */}
-              <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+              <div className="bg-white rounded-[32px] p-6 md:p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-[0.2em]">
                       <Sparkles className="w-4 h-4" />
                       Premium Stay
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">
                       {property.title}
                     </h1>
                     <div className="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
@@ -204,39 +204,39 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
 
               {/* SECTION 2: PRICING BREAKDOWN */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Pricing Details</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Pricing Details</h2>
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                  <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Rent</p>
-                    <p className="text-2xl font-black text-slate-900">₹{(property.price || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-xl md:text-2xl font-black text-slate-900">₹{(property.price || 0).toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                  <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Security Deposit</p>
-                    <p className="text-2xl font-black text-slate-900">₹{(property.deposit || property.price * 2 || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-xl md:text-2xl font-black text-slate-900">₹{(property.deposit || property.price * 2 || 0).toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                  <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Maintenance</p>
-                    <p className="text-2xl font-black text-slate-900">₹{property.maintenance || 'Included'}</p>
+                    <p className="text-xl md:text-2xl font-black text-slate-900">₹{property.maintenance || 'Included'}</p>
                   </div>
-                  <div className="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                  <div className="bg-slate-50 p-4 md:p-5 rounded-[24px] border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Food Charges</p>
-                    <p className="text-2xl font-black text-slate-900">{property.foodIncluded ? 'Included' : '₹2,500/mo'}</p>
+                    <p className="text-xl md:text-2xl font-black text-slate-900">{property.foodIncluded ? 'Included' : '₹2,500/mo'}</p>
                   </div>
                 </div>
               </div>
 
               {/* SECTION 3: AMENITIES GRID */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Premium Amenities</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Premium Amenities</h2>
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
-                <div className="bg-white rounded-[32px] p-8 md:p-10 border border-slate-100 shadow-sm">
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
                     {[
                       { icon: Wifi, label: 'High Speed WiFi' },
                       { icon: UtensilsCrossed, label: 'Homely Food' },
@@ -249,11 +249,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                       { icon: Dumbbell, label: 'Gym Access' },
                       { icon: Camera, label: 'CCTV' },
                     ].map((amenity, i) => (
-                      <div key={i} className="flex flex-col items-center gap-3 group">
-                        <div className="w-16 h-16 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
-                          <amenity.icon className="w-7 h-7" />
+                      <div key={i} className="flex flex-col items-center gap-2 group">
+                        <div className="w-12 h-12 rounded-[16px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
+                          <amenity.icon className="w-5 h-5" />
                         </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider text-center group-hover:text-slate-900 transition-colors">{amenity.label}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider text-center group-hover:text-slate-900 transition-colors leading-tight">{amenity.label}</span>
                       </div>
                     ))}
                   </div>
@@ -261,29 +261,31 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
 
               {/* SECTION 4: ROOM TYPES */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Sharing Options</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Sharing Options</h2>
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-3">
                   {sharingOptions.map((room, i) => (
-                    <div key={i} className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                          <room.icon className="w-7 h-7" />
+                    <div key={i} className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center justify-between group">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-[14px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                          <room.icon className="w-5 h-5" />
                         </div>
-                        <Badge className={cn(
-                          "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest",
-                          room.availability === 'Available' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-orange-50 text-orange-600 border-orange-100"
-                        )}>
-                          {room.availability}
-                        </Badge>
+                        <div className="flex flex-col items-start gap-1">
+                          <p className="text-sm font-black text-slate-900 leading-none">{room.type}</p>
+                          <Badge className={cn(
+                            "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border-none",
+                            room.availability === 'Available' ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
+                          )}>
+                            {room.availability}
+                          </Badge>
+                        </div>
                       </div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{room.type}</p>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black text-slate-900">₹{room.price.toLocaleString('en-IN')}</span>
-                        <span className="text-sm font-bold text-slate-400">/mo</span>
+                      <div className="text-right flex items-baseline gap-1">
+                        <span className="text-xl font-black text-slate-900">₹{room.price.toLocaleString('en-IN')}</span>
+                        <span className="text-[10px] font-bold text-slate-400">/mo</span>
                       </div>
                     </div>
                   ))}
@@ -291,13 +293,13 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
 
               {/* SECTION 5: MAP SECTION */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Location & Surroundings</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Location & Surroundings</h2>
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
-                <div className="bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm p-2">
-                  <div className="relative w-full aspect-video md:aspect-[21/9] rounded-[26px] overflow-hidden">
+                <div className="bg-white rounded-[24px] overflow-hidden border border-slate-100 shadow-sm p-2">
+                  <div className="relative w-full aspect-video md:aspect-[24/9] rounded-[18px] overflow-hidden">
                     <iframe 
                       src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.3!2d77.6!3d12.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDU0JzAwLjAiTiA3N8KwMzYnMDAuMCJF!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin`}
                       className="w-full h-full grayscale opacity-80"
@@ -305,11 +307,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                       loading="lazy"
                     />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="bg-white/90 backdrop-blur-md px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white">
-                        <MapPin className="w-6 h-6 text-primary" />
+                      <div className="bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white">
+                        <MapPin className="w-5 h-5 text-primary" />
                         <div className="text-left">
-                          <p className="font-black text-slate-900">Premium Location</p>
-                          <p className="text-xs font-bold text-slate-500">Bangalore, Karnataka</p>
+                          <p className="text-sm font-black text-slate-900">Premium Location</p>
+                          <p className="text-[10px] font-bold text-slate-500">Bangalore, Karnataka</p>
                         </div>
                       </div>
                     </div>
@@ -318,31 +320,31 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
 
               {/* SECTION 6: REVIEWS */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Tenant Experiences</h2>
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Tenant Experiences</h2>
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
-                <div className="flex gap-6 overflow-x-auto no-scrollbar pb-6">
+                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
                   {reviews.map((review, i) => (
-                    <div key={i} className="min-w-[300px] md:min-w-[400px] bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black">
+                    <div key={i} className="min-w-[280px] md:min-w-[340px] bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm">
                             {review.avatar}
                           </div>
                           <div>
-                            <p className="font-black text-slate-900">{review.name}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{review.date}</p>
+                            <p className="font-black text-slate-900 text-sm">{review.name}</p>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{review.date}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-0.5">
                           {[...Array(review.rating)].map((_, j) => (
-                            <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                            <Star key={j} className="w-3 h-3 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
                       </div>
-                      <p className="text-slate-600 font-medium leading-relaxed italic">"{review.comment}"</p>
+                      <p className="text-slate-600 text-sm font-medium leading-relaxed italic">"{review.comment}"</p>
                     </div>
                   ))}
                 </div>
@@ -352,12 +354,12 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
 
             {/* RIGHT COLUMN (SIDEBAR) */}
             <div className="lg:col-span-1">
-              <div className="sticky top-28 space-y-6">
-                <div className="bg-slate-900 rounded-[32px] p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
+              <div className="sticky top-24 space-y-4">
+                <div className="bg-slate-900 rounded-[24px] p-6 md:p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-10">
                     <Sparkles className="w-24 h-24" />
                   </div>
-                  <div className="relative z-10 space-y-6">
+                  <div className="relative z-10 space-y-5">
                     <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.2em] bg-white/10 w-fit px-3 py-1 rounded-lg">
                       <ShieldCheck className="w-4 h-4" />
                       Zero Brokerage

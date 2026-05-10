@@ -20,6 +20,7 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
   const [privateDetails, setPrivateDetails] = useState<PropertyOwner | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showNumber, setShowNumber] = useState(false);
 
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -43,12 +44,6 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
         const docSnap = await getDoc(privateDocRef);
         if (docSnap.exists()) {
           setPrivateDetails(docSnap.data() as PropertyOwner);
-          // Fire qualify_lead when contact details are revealed
-          trackQualifyLead({
-            propertyId,
-            city: (docSnap.data() as any)?.city,
-            price,
-          });
         } else {
           setPrivateDetails(null);
         }
@@ -108,18 +103,31 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
                 <Link href={`${propertyPath}?action=callback`}>Callback</Link>
              </Button>
           </div>
-          <div className="flex gap-3">
-              <Button asChild variant="outline" className="flex-1 h-14 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 active:scale-[0.96] transition-all">
-                <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone', price })}>
-                    <Phone className="mr-2 h-5 w-5 text-blue-500" /> Call
-                </a>
-              </Button>
-              <Button asChild className="flex-1 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 border-none active:scale-[0.96] transition-all">
-                <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp', price })}>
-                    <WhatsappIcon /> <span className="ml-2">WhatsApp</span>
-                </a>
-              </Button>
-          </div>
+          {!showNumber ? (
+            <Button onClick={() => {
+              setShowNumber(true);
+              trackQualifyLead({
+                propertyId,
+                city: (privateDetails as any)?.city,
+                price,
+              });
+            }} className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all">
+              <Phone className="mr-2 h-5 w-5" /> View Contact Number
+            </Button>
+          ) : (
+            <div className="flex gap-3">
+                <Button asChild variant="outline" className="flex-1 h-14 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 active:scale-[0.96] transition-all">
+                  <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone', price })}>
+                      <Phone className="mr-2 h-5 w-5 text-blue-500" /> Call
+                  </a>
+                </Button>
+                <Button asChild className="flex-1 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white font-black rounded-2xl shadow-xl shadow-[#25D366]/20 border-none active:scale-[0.96] transition-all">
+                  <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp', price })}>
+                      <WhatsappIcon /> <span className="ml-2">WhatsApp</span>
+                  </a>
+                </Button>
+            </div>
+          )}
         </div>
       ) : (
          <div className="text-center w-full py-3 text-sm font-bold text-slate-500">Contact unavailable</div>

@@ -20,13 +20,10 @@ service cloud.firestore {
     // PROPERTIES COLLECTION
     match /properties/{propertyId} {
 
-      // READ SINGLE PROPERTY
-      allow get: if resource.data.listingStatus == "approved"
+      // READ (GET and LIST) PROPERTIES
+      allow read: if resource.data.listingStatus == "approved"
                   || (resource.data.ownerId != null && isOwner(resource.data.ownerId))
                   || isAdmin();
-
-      // LIST PROPERTIES
-      allow list: if true;
 
       // CREATE PROPERTY
       allow create: if request.auth != null
@@ -67,13 +64,8 @@ service cloud.firestore {
       // anyone can send message
       allow create: if true;
 
-      // only admin read/delete
+      // only admin read/delete (includes list)
       allow read, delete: if isAdmin();
-    }
-
-    // LIST CONTACT MESSAGES
-    match /contactMessages {
-      allow list: if isAdmin();
     }
 
     // AGENTS COLLECTION

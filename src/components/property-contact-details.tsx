@@ -21,6 +21,7 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
   const [privateDetails, setPrivateDetails] = useState<PropertyOwner | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showNumber, setShowNumber] = useState(false);
 
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -44,8 +45,6 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
         const docSnap = await getDoc(privateDocRef);
         if (docSnap.exists()) {
           setPrivateDetails(docSnap.data() as PropertyOwner);
-          // Fire qualify_lead — user has revealed owner contact info
-          trackQualifyLead({ propertyId });
         } else {
           setPrivateDetails(null);
         }
@@ -82,6 +81,13 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
   }
 
   if (privateDetails) {
+    const maskedPhone = privateDetails.phone ? privateDetails.phone.slice(0, 4) + 'XXXXXX' : 'N/A';
+
+    const handleViewNumber = () => {
+      setShowNumber(true);
+      trackQualifyLead({ propertyId });
+    };
+
     return (
       <Card className="shadow-lg text-center">
         <CardHeader>
@@ -91,20 +97,28 @@ export function PropertyContactDetails({ propertyId, isPaid, propertyPath }: { p
         <CardContent className="space-y-4">
             <div className="text-center p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">Phone Number</p>
-                <p className="text-2xl font-bold tracking-widest">{privateDetails.phone || 'N/A'}</p>
+                <p className="text-2xl font-bold tracking-widest">
+                  {showNumber ? privateDetails.phone || 'N/A' : maskedPhone}
+                </p>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-                <Button asChild size="lg">
-                    <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone' })}>
-                        <Phone className="mr-2 h-5 w-5" /> Call
-                    </a>
-                </Button>
-                <Button asChild size="lg" variant="accent">
-                    <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp' })}>
-                        <WhatsappIcon /> WhatsApp
-                    </a>
-                </Button>
-            </div>
+            {!showNumber ? (
+              <Button size="lg" className="w-full font-bold" onClick={handleViewNumber}>
+                <Phone className="mr-2 h-5 w-5" /> View Number
+              </Button>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                  <Button asChild size="lg">
+                      <a href={`tel:${privateDetails.phone}`} onClick={() => trackCloseConvertLead({ propertyId, contactType: 'phone' })}>
+                          <Phone className="mr-2 h-5 w-5" /> Call
+                      </a>
+                  </Button>
+                  <Button asChild size="lg" variant="accent">
+                      <a href={`https://wa.me/${(privateDetails.phone || '').replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2" onClick={() => trackCloseConvertLead({ propertyId, contactType: 'whatsapp' })}>
+                          <WhatsappIcon /> WhatsApp
+                      </a>
+                  </Button>
+              </div>
+            )}
         </CardContent>
       </Card>
     );
