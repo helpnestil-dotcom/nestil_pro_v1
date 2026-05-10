@@ -645,10 +645,10 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       city: values.city, address: values.locality,
       subLocality: values.subLocality,
       pincode: values.pincode, googleMapsLink: values.googleMapsLink, price: values.priceOnRequest ? 0 : values.price,
-      priceOnRequest: values.priceOnRequest, negotiable: values.negotiable === 'Yes', maintenance: values.maintenance,
-      deposit: values.deposit, availableFrom: values.availableFrom ? values.availableFrom.toISOString() : null,
-      preferredTenants: values.preferredTenants, 
-      flatmateGenderPreference: values.propertyType === 'Flatmate / Co-living' ? values.flatmateGenderPreference : null,
+      priceOnRequest: values.priceOnRequest, negotiable: values.negotiable === 'Yes', maintenance: values.maintenance || 0,
+      deposit: values.deposit || 0, availableFrom: values.availableFrom ? values.availableFrom.toISOString() : null,
+      preferredTenants: values.preferredTenants || null, 
+      flatmateGenderPreference: values.propertyType === 'Flatmate / Co-living' ? (values.flatmateGenderPreference || null) : null,
       isAvailableAnytime: values.isAvailableAnytime,
       visitAvailability: values.isAvailableAnytime ? [] : values.visitAvailability,
       areaSqFt: values.details.area || values.details.plotArea || 0,
@@ -662,27 +662,27 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
       nonVegAllowed: values.nonVegAllowed, vehicleParking: values.vehicleParking,
       photos: values.photos.map(p => p.url).filter(Boolean),
       postedByType: values.postedBy,
-      pgAvailableFor: values.pgAvailableFor,
-      pgRoomType: values.pgRoomType,
-      totalBeds: values.totalBeds,
-      availableBeds: values.availableBeds,
+      pgAvailableFor: values.pgAvailableFor || null,
+      pgRoomType: values.pgRoomType || null,
+      totalBeds: values.totalBeds || null,
+      availableBeds: values.availableBeds || null,
       attachedBathroom: values.attachedBathroom,
       balcony: values.balcony,
       electricityIncluded: values.electricityIncluded,
       foodIncluded: values.foodIncluded,
-      brokerage: values.brokerage,
-      minimumStayDuration: values.minimumStayDuration,
-      mealsCount: values.mealsCount,
-      foodTimings: values.foodTimings,
+      brokerage: values.brokerage || 0,
+      minimumStayDuration: values.minimumStayDuration || '',
+      mealsCount: values.mealsCount || null,
+      foodTimings: values.foodTimings || '',
       outsideFoodAllowed: values.outsideFoodAllowed,
       smokingAllowed: values.smokingAllowed,
       drinkingAllowed: values.drinkingAllowed,
       visitorsAllowed: values.visitorsAllowed,
-      gateClosingTime: values.gateClosingTime,
+      gateClosingTime: values.gateClosingTime || '',
       petsAllowed: values.petsAllowed,
       isImmediateMoveIn: values.isImmediateMoveIn,
-      pgSharingPrices: values.pgSharingPrices,
-      foodType: values.foodType,
+      pgSharingPrices: values.pgSharingPrices ? Object.fromEntries(Object.entries(values.pgSharingPrices).map(([k, v]) => [k, v === undefined ? null : v])) : null,
+      foodType: values.foodType || null,
       smartTags: (() => {
         const generatedTags: string[] = [];
         if (values.price > 0 && values.price < 10000) generatedTags.push('Budget Friendly');
@@ -708,9 +708,13 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
 
     if (values.constructionStatus) {
         propertyData.constructionStatus = values.constructionStatus;
+    } else {
+        propertyData.constructionStatus = null;
     }
     if (values.rentalStatus) {
         propertyData.rentalStatus = values.rentalStatus;
+    } else {
+        propertyData.rentalStatus = null;
     }
 
     const privateDocData = {
@@ -1208,13 +1212,18 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                         <FormField control={form.control} name="gateClosingTime" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Gate Closing Time</FormLabel>
-                                <FormControl><Input placeholder="e.g. 10:00 PM (or No restrictions)" {...field} /></FormControl>
+                                <FormControl><Input type="time" {...field} /></FormControl>
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="minimumStayDuration" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Minimum Stay Duration</FormLabel>
-                                <FormControl><Input placeholder="e.g. 3 Months" {...field} /></FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        {['No Minimum', '1 Month', '2 Months', '3 Months', '6 Months', '11 Months', '1 Year+'].map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </FormItem>
                         )} />
                     </div>
@@ -1254,12 +1263,10 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                         <FormField control={form.control} name="price" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Expected Price / Monthly Rent (₹)</FormLabel>
-                                <FormControl><Input type="number" placeholder="e.g., 4500000" {...field} disabled={priceOnRequest} /></FormControl>
-                                {!priceOnRequest && (
-                                    <FormDescription>
-                                        Price per Sq.Ft: ₹{pricePerSqFt}
-                                    </FormDescription>
-                                )}
+                                <FormControl><Input type="number" placeholder="e.g., 4500000" {...field} /></FormControl>
+                                <FormDescription>
+                                    Price per Sq.Ft: ₹{pricePerSqFt}
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )} />
@@ -1270,15 +1277,6 @@ export function PostPropertyFormComponent({ editId }: { editId: string | null })
                         </div>
                     )}
                     <div className="space-y-4">
-                        <FormField control={form.control} name="priceOnRequest" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm h-[68px]">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Price on Request</FormLabel>
-                                    <FormDescription className="text-xs">Hide price from public view</FormDescription>
-                                </div>
-                                <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl>
-                            </FormItem>
-                        )} />
                         <FormField control={form.control} name="negotiable" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Negotiable?</FormLabel>
