@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useCallback, useEffect } from 'react';
+import { getAmenityIcon, getAllPropertyAmenities } from '@/lib/amenities-data';
 
 interface PropertyCardProps {
   property: Property;
@@ -151,19 +152,25 @@ export function PropertyCard({ property, priority = false }: PropertyCardProps) 
         </div>
 
         {/* Amenities Chips */}
-        <div className="flex gap-2 mt-1">
-          <div className="flex items-center gap-1.5 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl font-bold text-[10px] border border-slate-100">
-            <Wifi className="w-3 h-3" />
-            WiFi
-          </div>
-          <div className="flex items-center gap-1.5 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl font-bold text-[10px] border border-slate-100">
-            <UtensilsCrossed className="w-3 h-3" />
-            Food
-          </div>
-          <div className="flex items-center gap-1.5 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl font-bold text-[10px] border border-slate-100">
-            <Car className="w-3 h-3" />
-            Parking
-          </div>
+        <div className="flex flex-wrap gap-2 mt-1 min-h-[30px]">
+          {(() => {
+            const allAmenities = getAllPropertyAmenities(property);
+            return allAmenities.length > 0 ? (
+              allAmenities.slice(0, 3).map((amenity) => {
+                const Icon = getAmenityIcon(amenity);
+                return (
+                  <div key={amenity} className="flex items-center gap-1.5 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl font-bold text-[10px] border border-slate-100">
+                    <Icon className="w-3 h-3" />
+                    {amenity}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-[10px] text-slate-400 font-medium italic py-1.5 px-1">
+                Essential amenities included
+              </div>
+            );
+          })()}
         </div>
       </div>
 

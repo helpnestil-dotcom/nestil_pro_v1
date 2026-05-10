@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Heart, MapPin, CheckCircle2, Star, Wifi, UtensilsCrossed, Car, Phone, MessageCircle, ChevronRight, Sparkles } from 'lucide-react';
 import { cn, getWatermarkedImageUrl } from '@/lib/utils';
+import { getAmenityIcon, getAllPropertyAmenities } from '@/lib/amenities-data';
 import { Property } from '@/lib/types';
 import Link from 'next/link';
 import { useFavorites } from '@/hooks/use-favorites';
@@ -118,19 +119,25 @@ export function MobilePropertyCard({ property, index = 0 }: MobilePropertyCardPr
         </div>
 
         {/* Amenities chips */}
-        <div className="flex gap-2">
-           <div className="flex items-center gap-1 bg-slate-50 text-slate-600 px-2.5 py-1.5 rounded-xl font-bold text-[9px] border border-slate-100">
-              <Wifi className="w-3 h-3" />
-              WiFi
-           </div>
-           <div className="flex items-center gap-1 bg-slate-50 text-slate-600 px-2.5 py-1.5 rounded-xl font-bold text-[9px] border border-slate-100">
-              <UtensilsCrossed className="w-3 h-3" />
-              Food
-           </div>
-           <div className="flex items-center gap-1 bg-slate-50 text-slate-600 px-2.5 py-1.5 rounded-xl font-bold text-[9px] border border-slate-100">
-              <Car className="w-3 h-3" />
-              Parking
-           </div>
+        <div className="flex flex-wrap gap-2">
+           {(() => {
+             const allAmenities = getAllPropertyAmenities(property);
+             return allAmenities.length > 0 ? (
+               allAmenities.slice(0, 3).map((amenity) => {
+                 const Icon = getAmenityIcon(amenity);
+                 return (
+                    <div key={amenity} className="flex items-center gap-1 bg-slate-50 text-slate-600 px-2.5 py-1.5 rounded-xl font-bold text-[9px] border border-slate-100">
+                      <Icon className="w-3 h-3" />
+                      {amenity}
+                    </div>
+                 );
+               })
+             ) : (
+                <div className="text-[9px] text-slate-400 font-medium italic py-1.5 px-1">
+                  Essential amenities included
+                </div>
+             );
+           })()}
         </div>
       </div>
 

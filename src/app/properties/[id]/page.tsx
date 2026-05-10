@@ -13,6 +13,7 @@ import { PropertyContactDetails } from '@/components/property-contact-details';
 import { PropertyCard } from '@/components/property-card';
 import { getWatermarkedImageUrl, cn } from '@/lib/utils';
 import { PropertyViewTracker } from '@/components/property-view-tracker';
+import { getAllPropertyAmenities, getAmenityIcon } from '@/lib/amenities-data';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -241,27 +242,31 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                   <div className="h-px flex-1 bg-slate-100" />
                 </div>
                 <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                    {[
-                      { icon: Wifi, label: 'High Speed WiFi' },
-                      { icon: UtensilsCrossed, label: 'Homely Food' },
-                      { icon: Wind, label: 'AC Rooms' },
-                      { icon: Car, label: 'Parking' },
-                      { icon: Waves, label: 'Washing' },
-                      { icon: Shield, label: '24/7 Security' },
-                      { icon: Zap, label: 'Power Backup' },
-                      { icon: Tv, label: 'Smart TV' },
-                      { icon: Dumbbell, label: 'Gym Access' },
-                      { icon: Camera, label: 'CCTV' },
-                    ].map((amenity, i) => (
-                      <div key={i} className="flex flex-col items-center gap-2 group">
-                        <div className="w-12 h-12 rounded-[16px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
-                          <amenity.icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider text-center group-hover:text-slate-900 transition-colors leading-tight">{amenity.label}</span>
+                  {(() => {
+                    const allAmenities = getAllPropertyAmenities(property);
+                    return allAmenities.length > 0 ? (
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                        {allAmenities.map((amenity, i) => {
+                          const Icon = getAmenityIcon(amenity);
+                          return (
+                            <div key={i} className="flex flex-col items-center gap-2 group">
+                              <div className="w-12 h-12 rounded-[16px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
+                                <Icon className="w-5 h-5" />
+                              </div>
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider text-center group-hover:text-slate-900 transition-colors leading-tight">{amenity}</span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mx-auto mb-3">
+                          <Shield className="w-8 h-8" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-500">Essential utilities and amenities provided.</p>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

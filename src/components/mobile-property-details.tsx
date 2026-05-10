@@ -11,6 +11,7 @@ import { cn, getWatermarkedImageUrl } from '@/lib/utils';
 import { Property } from '@/lib/types';
 import { MobileContactActions } from '@/components/mobile-contact-actions';
 import { MobilePropertyCard } from '@/components/mobile-property-card';
+import { getAllPropertyAmenities, getAmenityIcon } from '@/lib/amenities-data';
 
 interface MobilePropertyDetailsProps {
   property: Property;
@@ -142,24 +143,26 @@ export function MobilePropertyDetails({ property, similarProperties = [] }: Mobi
           </div>
           
           <div className="grid grid-cols-3 gap-y-6 gap-x-4">
-            {[
-              { icon: Wifi, label: 'High-speed WiFi', value: true },
-              { icon: Zap, label: 'Power Backup', value: true },
-              { icon: Camera, label: 'CCTV Security', value: true },
-              { icon: Waves, label: 'Washing Machine', value: true },
-              { icon: Tv, label: 'Smart TV', value: true },
-              { icon: Wind, label: 'AC Rooms', value: property.amenities?.includes('AC') },
-              { icon: ShieldCheck, label: '24/7 Security', value: true },
-              { icon: Car, label: 'Car Parking', value: property.vehicleParking !== 'None' },
-              { icon: Dumbbell, label: 'Gym Access', value: property.amenities?.includes('Gym') },
-            ].filter(a => a.value).map((item, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-primary">
-                  <item.icon className="w-5 h-5" />
+            {(() => {
+              const allAmenities = getAllPropertyAmenities(property);
+              return allAmenities.length > 0 ? (
+                allAmenities.map((amenity, i) => {
+                  const Icon = getAmenityIcon(amenity);
+                  return (
+                    <div key={i} className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-primary">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter text-center leading-tight">{amenity}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-3 text-center py-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Essential utilities included</p>
                 </div>
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter text-center leading-tight">{item.label}</span>
-              </div>
-            ))}
+              );
+            })()}
           </div>
         </div>
 

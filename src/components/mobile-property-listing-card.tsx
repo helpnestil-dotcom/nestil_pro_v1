@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { MapPin, CheckCircle2, Star, Wifi, UtensilsCrossed, Car } from 'lucide-react';
 import { getWatermarkedImageUrl } from '@/lib/utils';
+import { getAmenityIcon, getAllPropertyAmenities } from '@/lib/amenities-data';
 import { Property } from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -80,19 +81,25 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
         </div>
 
         {/* Amenities Pills */}
-        <div className="flex gap-2">
-           <div className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-xl font-black text-[10px]">
-              <Wifi className="w-3 h-3" />
-              WiFi
-           </div>
-           <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-xl font-black text-[10px]">
-              <UtensilsCrossed className="w-3 h-3" />
-              Food
-           </div>
-           <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-xl font-black text-[10px]">
-              <Car className="w-3 h-3" />
-              Parking
-           </div>
+        <div className="flex flex-wrap gap-2">
+           {(() => {
+             const allAmenities = getAllPropertyAmenities(property);
+             return allAmenities.length > 0 ? (
+               allAmenities.slice(0, 3).map((amenity) => {
+                 const Icon = getAmenityIcon(amenity);
+                 return (
+                    <div key={amenity} className="flex items-center gap-1.5 bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl font-black text-[10px] border border-slate-100">
+                      <Icon className="w-3 h-3" />
+                      {amenity}
+                    </div>
+                 );
+               })
+             ) : (
+                <div className="text-[10px] text-slate-400 font-medium italic py-1.5 px-1">
+                  Essential amenities included
+                </div>
+             );
+           })()}
         </div>
 
         {/* Action Buttons */}
