@@ -45,11 +45,11 @@ export function AvailableNow() {
     .slice(0, 6) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-8">
       <div className="flex items-center justify-between px-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-teal-50 text-[#2CB6A2] shadow-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary shadow-sm">
                 <Zap className="w-4 h-4 fill-current" />
             </div>
             <h2 className="text-xl font-black text-slate-900 tracking-tighter">Available Now</h2>

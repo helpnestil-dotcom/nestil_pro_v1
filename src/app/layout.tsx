@@ -4,18 +4,24 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Poppins } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CompareTray } from '@/components/compare-tray';
 import { BottomNav } from '@/components/bottom-nav';
 import { MobileHeader } from '@/components/mobile-header';
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-body',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-heading',
 });
 
 
@@ -88,12 +94,12 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap" rel="stylesheet" />
       </head>
       <body
         suppressHydrationWarning
         className={cn(
-          plusJakartaSans.variable,
+          inter.variable,
+          poppins.variable,
           "font-body antialiased selection:bg-primary/20 selection:text-primary bg-[#FCF8F5]"
         )}
       >

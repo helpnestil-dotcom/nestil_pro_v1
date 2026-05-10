@@ -147,11 +147,11 @@ export function RequirementCard({ requirement, index = 0 }: { requirement: Prope
               <div className="flex items-center gap-2 mb-2 sm:mb-3">
                 <Badge variant={requirement.purpose === 'Rent' ? 'default' : 'secondary'} className={cn(
                   "rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider",
-                  requirement.purpose === 'Rent' ? "bg-[#2CB6A2] hover:bg-[#2CB6A2]/90" : "bg-slate-100 text-slate-600"
+                  requirement.purpose === 'Rent' ? "bg-primary hover:bg-primary/90" : "bg-slate-100 text-slate-600"
                 )}>
                   {requirement.purpose}
                 </Badge>
-                <Badge variant="outline" className="text-[#2CB6A2] border-[#2CB6A2]/20 bg-[#2CB6A2]/5 rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
+                <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 rounded-lg px-2 sm:px-3 py-1 font-black text-[9px] sm:text-[10px] uppercase tracking-wider">
                   {requirement.propertyType}
                 </Badge>
                 <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md ml-auto border border-slate-100">
@@ -162,8 +162,8 @@ export function RequirementCard({ requirement, index = 0 }: { requirement: Prope
                 Needs {requirement.propertyType} in {requirement.area}
               </h3>
               <div className="flex items-center gap-1.5 text-slate-500 mt-2 sm:mt-3 text-xs sm:text-sm font-bold">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-[#2CB6A2]/10 flex items-center justify-center">
-                  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#2CB6A2]" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                 </div>
                 {requirement.area}, {requirement.city}
               </div>
@@ -214,7 +214,7 @@ export function RequirementCard({ requirement, index = 0 }: { requirement: Prope
               <div className="flex flex-col">
                   <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</span>
                   <div className="text-xl sm:text-2xl font-black text-slate-900 flex items-center">
-                      <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#2CB6A2]" />
+                      <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       {requirement.budget.toLocaleString('en-IN')}
                   </div>
               </div>
@@ -244,14 +244,14 @@ export function RequirementCard({ requirement, index = 0 }: { requirement: Prope
                   <p className="text-[13px] text-slate-600 font-medium line-clamp-2 leading-relaxed mb-2">
                     {requirement.description}
                   </p>
-                  <div className="text-[11px] font-bold text-[#2CB6A2] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <div className="text-[11px] font-bold text-primary flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                     Read full description <ChevronRight className="w-3 h-3" />
                   </div>
                 </div>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md w-[90vw] max-h-[80vh] overflow-y-auto rounded-2xl">
                 <DialogHeader>
-                  <DialogTitle className="text-[#2CB6A2] font-black">Requirement Details</DialogTitle>
+                  <DialogTitle className="text-primary font-black">Requirement Details</DialogTitle>
                   <DialogDescription className="font-medium">
                     Additional details provided by the seeker.
                   </DialogDescription>
@@ -283,7 +283,7 @@ export function RequirementCard({ requirement, index = 0 }: { requirement: Prope
               WhatsApp
             </Button>
             <Button 
-              className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-[#2CB6A2] hover:bg-[#25A08E] text-white border-0 text-sm sm:text-base"
+              className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl font-black tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white border-0 text-sm sm:text-base"
               onClick={() => {
                 if (!user) {
                   toast({

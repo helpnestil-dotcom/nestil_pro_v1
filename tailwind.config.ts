@@ -18,62 +18,72 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-body)', 'Manrope', 'sans-serif'],
-        body: ['var(--font-body)', 'Manrope', 'sans-serif'],
-        heading: ['"General Sans"', 'sans-serif'],
+        sans: ['var(--font-body)', 'sans-serif'],
+        body: ['var(--font-body)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'sans-serif'],
         code: ['monospace'],
       },
-      colors: {
-        theme1: '#7C3AED', // Violet 600 (Purple Accent)
-        theme2: '#8B5CF6', // Violet 500
-        theme3: '#A78BFA', // Violet 400
-        theme4: '#F8FAFC',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
-        },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
-        },
-      },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
+      // Extend the theme with the new UI palette
+          colors: {
+
+            // Preserve existing theme colors
+            theme1: '#7C3AED',
+            theme2: '#8B5CF6',
+            theme3: '#A78BFA',
+            theme4: '#F8FAFC',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            card: {
+              DEFAULT: 'hsl(var(--card))',
+              foreground: 'hsl(var(--card-foreground))',
+            },
+            popover: {
+              DEFAULT: 'hsl(var(--popover))',
+              foreground: 'hsl(var(--popover-foreground))',
+            },
+            primary: {
+              DEFAULT: 'hsl(var(--primary))',
+              foreground: 'hsl(var(--primary-foreground))',
+              indigo: '#4F46E5',
+              royal: '#2563EB',
+            },
+            secondary: {
+              DEFAULT: 'hsl(var(--secondary))',
+              foreground: 'hsl(var(--secondary-foreground))',
+              violet: '#EEF2FF',
+              gray: '#F8FAFC',
+            },
+            muted: {
+              DEFAULT: 'hsl(var(--muted))',
+              foreground: 'hsl(var(--muted-foreground))',
+            },
+            accent: {
+              DEFAULT: 'hsl(var(--accent))',
+              foreground: 'hsl(var(--accent-foreground))',
+              green: '#10B981',
+              orange: '#F97316',
+            },
+            destructive: {
+              DEFAULT: 'hsl(var(--destructive))',
+              foreground: 'hsl(var(--destructive-foreground))',
+            },
+            border: 'hsl(var(--border))',
+            input: 'hsl(var(--input))',
+            ring: 'hsl(var(--ring))',
+            chart: {
+              '1': 'hsl(var(--chart-1))',
+              '2': 'hsl(var(--chart-2))',
+              '3': 'hsl(var(--chart-3))',
+              '4': 'hsl(var(--chart-4))',
+              '5': 'hsl(var(--chart-5))',
+            },
+          },
+          // Adjust border radius for cards (16‑20px range)
+          borderRadius: {
+            lg: '20px', // large cards
+            md: '18px', // medium cards
+            sm: '16px', // small cards
+          },
       keyframes: {
         'accordion-down': {
           from: {

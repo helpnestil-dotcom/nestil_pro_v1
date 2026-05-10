@@ -4,38 +4,38 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 224 60% 11%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
     
     --card: 0 0% 100%;
-    --card-foreground: 224 60% 11%;
+    --card-foreground: 222.2 84% 4.9%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 224 60% 11%;
+    --popover-foreground: 222.2 84% 4.9%;
     
-    --primary: 171 61% 44%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 210 40% 98%;
     
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 224 60% 11%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 20% 35%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     
-    --accent: 171 61% 95%;
-    --accent-foreground: 171 61% 25%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 171 61% 44%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 243 75% 59%;
 
     --radius: 1rem;
 
-    --font-body: var(--font-body), "Plus Jakarta Sans", Inter, system-ui, sans-serif;
-    --font-heading: var(--font-body), "Plus Jakarta Sans", Poppins, system-ui, sans-serif;
+    --font-body: var(--font-body), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --font-heading: var(--font-heading), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   }
 
   .dark {
@@ -48,7 +48,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body selection:bg-primary/10 selection:text-primary;
+    @apply bg-white text-slate-900 font-body selection:bg-primary/10 selection:text-primary;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;

@@ -101,10 +101,10 @@ export function MobileContactActions({ propertyId, isPaid, propertyPath, title, 
       ) : privateDetails ? (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-             <Button variant="outline" className="h-11 border-[#2CB6A2] text-[#2CB6A2] bg-white font-bold rounded-xl active:scale-95 transition-all text-xs uppercase tracking-wider" asChild>
+             <Button variant="outline" className="h-11 border-primary text-primary bg-white font-bold rounded-xl active:scale-95 transition-all text-xs uppercase tracking-wider" asChild>
                 <Link href={`${propertyPath}?action=visit`}>Schedule Visit</Link>
              </Button>
-             <Button variant="outline" className="h-11 border-[#2CB6A2] text-[#2CB6A2] bg-white font-bold rounded-xl active:scale-95 transition-all text-xs uppercase tracking-wider" asChild>
+             <Button variant="outline" className="h-11 border-primary text-primary bg-white font-bold rounded-xl active:scale-95 transition-all text-xs uppercase tracking-wider" asChild>
                 <Link href={`${propertyPath}?action=callback`}>Callback</Link>
              </Button>
           </div>

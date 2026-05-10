@@ -1,6 +1,7 @@
 'use client'; 
 
-import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { useFirestore, useCollection, useMemoFirebase, useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 import { List, Heart, MessageSquare, ShieldCheck, Truck, BadgeCheck, Building2, Briefcase, Plus, Bell, User, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 export default function MobileDashboard() {
   const { user, profile, isLoading: isProfileLoading } = useUserProfile();
   const firestore = useFirestore();
+  const auth = useAuth();
   const isAdmin = user?.email === 'helpnestil@gmail.com';
 
   const myPropertiesQuery = useMemoFirebase(() => {
@@ -197,8 +199,6 @@ export default function MobileDashboard() {
                variant="outline" 
                className="w-full justify-between h-12 rounded-xl text-rose-600 font-black bg-rose-50 border-none hover:bg-rose-100"
                onClick={async () => {
-                 const { signOut } = await import('firebase/auth');
-                 const { auth } = await import('@/firebase');
                  if (auth) {
                    await signOut(auth);
                    window.location.href = '/';

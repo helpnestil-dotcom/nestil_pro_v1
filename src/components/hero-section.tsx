@@ -1,10 +1,9 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, MapPin, Navigation, IndianRupee, Sparkles, Filter, Home, Loader2 } from 'lucide-react';
+import { Search, MapPin, Navigation, IndianRupee, Sparkles, User, Calendar, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -12,27 +11,25 @@ import { collection, query, where } from 'firebase/firestore';
 import type { Property } from '@/lib/types';
 import { locationData } from '@/lib/locations';
 import { Slider } from './ui/slider';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useLocationHierarchy } from '@/hooks/use-location-hierarchy';
-
-const propertyTypesList = [
-    '1 BHK Flat', '2 BHK Flat', '3 BHK Flat', 'Independent House', 
-    'Villa', 'Row House', 'Duplex', 'Studio Apartment', 'PG / Hostel', 'Flatmate / Co-living', 'Land', 'Plot', 'Commercial properties', 'Godowns', 'Warehouses', 'Agricultural Land'
-];
+import Image from 'next/image';
 
 const SearchWidget = () => {
   const router = useRouter();
   const firestore = useFirestore();
   const { states, citiesByState, localitiesByCity, isLoading: isLoadingLocs } = useLocationHierarchy();
 
-  const [searchTab, setSearchTab] = useState('buy');
+  const [searchTab, setSearchTab] = useState('pg');
   const [state, setState] = useState('all');
   const [district, setDistrict] = useState('all');
   const [locality, setLocality] = useState('all');
-  const [propertyType, setPropertyType] = useState('all');
+  
+  const [gender, setGender] = useState('all');
+  const [moveIn, setMoveIn] = useState('immediate');
   
   // Budget as a range [min, max]
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 100000000]); // Default max 10Cr
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 50000]); 
   const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
@@ -57,10 +54,10 @@ const SearchWidget = () => {
 
   useEffect(() => {
     // Reset budget range when tab changes
-    if (searchTab === 'rent') {
+    if (searchTab === 'rental') {
         setBudgetRange([0, 200000]); // Max 2 Lac for rent
     } else {
-        setBudgetRange([0, 100000000]); // Max 10 Cr for sale
+        setBudgetRange([0, 50000]); // Max 50k for PG/Coliving
     }
   }, [searchTab]);
 
@@ -75,16 +72,12 @@ const SearchWidget = () => {
     if (!fetchedProperties) return 0;
     let props = fetchedProperties;
     
-    if (searchTab === 'buy') {
-        props = props.filter(p => p.listingFor === 'Sale');
-    } else if (searchTab === 'rent') {
-        props = props.filter(p => p.listingFor === 'Rent');
-    } else if (searchTab === 'commercial') {
-        props = props.filter(p => p.propertyType === 'Commercial properties');
-    } else if (searchTab === 'plot') {
-        props = props.filter(p => p.propertyType === 'Plot');
-    } else if (searchTab === 'flatmates') {
-        props = props.filter(p => p.propertyType === 'Flatmate / Co-living');
+    if (searchTab === 'pg') {
+        props = props.filter(p => p.propertyType?.includes('PG'));
+    } else if (searchTab === 'flatmate' || searchTab === 'coliving') {
+        props = props.filter(p => p.propertyType?.includes('Flatmate') || p.propertyType?.includes('Co-living'));
+    } else if (searchTab === 'rental') {
+        props = props.filter(p => p.listingFor === 'Rent' && !p.propertyType?.includes('PG') && !p.propertyType?.includes('Flatmate'));
     }
 
     if (state !== 'all') {
@@ -98,48 +91,35 @@ const SearchWidget = () => {
     if (locality !== 'all') {
         props = props.filter(p => p.address === locality || p.subLocality === locality);
     }
-
-    // Apply client-side filters for instant count
-    if (propertyType !== 'all') {
-        props = props.filter(p => p.propertyType === propertyType);
+    
+    // Gender
+    if (gender !== 'all') {
+        props = props.filter(p => p.preferredTenants === 'Anyone' || p.preferredTenants?.toLowerCase() === gender.toLowerCase());
     }
     
     props = props.filter(p => p.price >= budgetRange[0] && p.price <= budgetRange[1]);
     
     return props.length;
-  }, [fetchedProperties, propertyType, budgetRange, searchTab, state, district, locality]);
+  }, [fetchedProperties, searchTab, state, district, locality, budgetRange, gender]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
 
-    if (state && state !== 'all') {
-      params.set('state', state);
-    }
+    if (state && state !== 'all') params.set('state', state);
+    if (district && district !== 'all') params.set('keyword', district);
+    if (locality && locality !== 'all') params.set('locality', locality);
 
-    if (district && district !== 'all') {
-      params.set('keyword', district);
-    }
-
-    if (locality && locality !== 'all') {
-        params.set('locality', locality);
-    }
-
-    if (searchTab === 'buy') {
-      params.set('transaction', 'Sale');
-    } else if (searchTab === 'rent') {
-      params.set('transaction', 'Rent');
-    } else if (searchTab === 'commercial') {
-      params.set('type', 'Commercial properties');
-    } else if (searchTab === 'plot') {
-      params.set('type', 'Plot');
-    } else if (searchTab === 'flatmates') {
-        params.set('transaction', 'Rent');
+    if (searchTab === 'pg') {
+      params.set('type', 'PG / Hostel');
+    } else if (searchTab === 'flatmate') {
         params.set('type', 'Flatmate / Co-living');
+    } else if (searchTab === 'coliving') {
+        params.set('type', 'Flatmate / Co-living');
+    } else if (searchTab === 'rental') {
+        params.set('transaction', 'Rent');
     }
 
-    if (propertyType !== 'all') {
-      params.set('type', propertyType);
-    }
+    if (gender !== 'all') params.set('tenant', gender);
     
     params.set('minPrice', budgetRange[0].toString());
     params.set('maxPrice', budgetRange[1].toString());
@@ -152,8 +132,6 @@ const SearchWidget = () => {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                // In a real app, we would use reverse geocoding here.
-                // For now, we'll simulate finding "Bangalore"
                 setTimeout(() => {
                     setState('Karnataka');
                     setDistrict('Bangalore');
@@ -161,7 +139,6 @@ const SearchWidget = () => {
                 }, 1500);
             },
             (error) => {
-                console.error("Geolocation error:", error);
                 setIsLocating(false);
             }
         );
@@ -178,208 +155,277 @@ const SearchWidget = () => {
 
   return (
     <div className="relative z-20 group">
-        {/* Glow effect around widget */}
         <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-[40px] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
         
-        <div className="relative bg-white/80 backdrop-blur-2xl p-4 md:p-6 max-w-[950px] rounded-[40px] border border-white/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all duration-500">
+        <div className="relative bg-white/90 backdrop-blur-2xl p-5 md:p-6 rounded-[32px] border border-white/40 shadow-xl shadow-slate-200/50 transition-all duration-500">
             <Tabs defaultValue={searchTab} onValueChange={setSearchTab} className="w-full">
-                <TabsList className="flex h-14 justify-start p-1.5 bg-slate-100/50 rounded-2xl mb-6 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
-                    {['buy', 'rent', 'flatmates', 'commercial', 'plot'].map((tab) => (
+                <TabsList className="flex h-14 justify-start p-1.5 bg-slate-100/60 rounded-2xl mb-6 gap-1 overflow-x-auto hide-scrollbar border border-slate-200/50">
+                    {[
+                      { id: 'pg', label: 'PG / Hostel' },
+                      { id: 'flatmate', label: 'Flatmate' },
+                      { id: 'coliving', label: 'Co-living' },
+                      { id: 'rental', label: 'Rental Homes' }
+                    ].map((tab) => (
                         <TabsTrigger 
-                            key={tab} 
-                            value={tab} 
-                            className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md min-w-[100px] whitespace-nowrap font-bold font-heading text-[12px] uppercase tracking-wider transition-all duration-300"
+                            key={tab.id} 
+                            value={tab.id} 
+                            className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm min-w-[100px] whitespace-nowrap font-bold font-heading text-[12px] uppercase tracking-wider transition-all duration-300"
                         >
-                            {tab === 'buy' ? 'Buy' : tab === 'rent' ? 'Rent' : tab === 'flatmates' ? 'Flatmates' : tab === 'commercial' ? 'Office' : 'Plots'}
+                            {tab.label}
                         </TabsTrigger>
                     ))}
                 </TabsList>
             </Tabs>
             
-            <div className="flex flex-col gap-6">
-                {/* Main Filter Row */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Location Selectors */}
-                    <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="relative group/select">
-                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">State</label>
-                            <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); setLocality('all'); }}>
-                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                    <SelectValue placeholder={isLoadingLocs ? "Loading..." : "Select State"} />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
-                                    <SelectItem value="all" className="font-bold text-primary italic">All Regions</SelectItem>
-                                    {states.map((s) => (
-                                        <SelectItem key={s} value={s} className="font-semibold">{s}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="relative group/select">
-                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">City</label>
-                            <Select value={district} onValueChange={(val) => { setDistrict(val); setLocality('all'); }} disabled={state === 'all'}>
-                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                    <SelectValue placeholder="Choose City" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
-                                    <SelectItem value="all" className="font-bold text-primary italic">Entire State</SelectItem>
-                                    {(citiesByState[state] || []).map((c) => (
-                                        <SelectItem key={c} value={c} className="font-semibold">{c}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="relative group/select">
-                            <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Area / Street</label>
-                            <Select value={locality} onValueChange={setLocality} disabled={district === 'all'}>
-                                <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                    <SelectValue placeholder="Locality" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
-                                    <SelectItem value="all" className="font-bold text-primary italic">All Areas</SelectItem>
-                                    {(localitiesByCity[district] || []).map((l) => (
-                                        <SelectItem key={l} value={l} className="font-semibold">{l}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Button 
-                                onClick={handleNearMe}
-                                variant="ghost" 
-                                size="icon" 
-                                className="absolute right-10 top-1/2 -translate-y-1/2 h-8 w-8 text-primary hover:bg-primary/10 rounded-full"
-                                title="Locate me"
-                            >
-                                {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-                            </Button>
-                        </div>
+            <div className="flex flex-col gap-5">
+                {/* Location Selectors */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="relative group/select">
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">State</label>
+                        <Select value={state} onValueChange={(val) => { setState(val); setDistrict('all'); setLocality('all'); }}>
+                            <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                <SelectValue placeholder={isLoadingLocs ? "Loading..." : "Select State"} />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                <SelectItem value="all" className="font-bold text-primary italic">All Regions</SelectItem>
+                                {states.map((s) => (
+                                    <SelectItem key={s} value={s} className="font-semibold">{s}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    
+                    <div className="relative group/select">
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">City</label>
+                        <Select value={district} onValueChange={(val) => { setDistrict(val); setLocality('all'); }} disabled={state === 'all'}>
+                            <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                <SelectValue placeholder="Choose City" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                <SelectItem value="all" className="font-bold text-primary italic">Entire State</SelectItem>
+                                {(citiesByState[state] || []).map((c) => (
+                                    <SelectItem key={c} value={c} className="font-semibold">{c}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="relative group/select">
-                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Property Category</label>
-                        <Select value={propertyType} onValueChange={setPropertyType}>
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Area / Street</label>
+                        <Select value={locality} onValueChange={setLocality} disabled={district === 'all'}>
                             <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
-                                <SelectValue placeholder="All Categories" />
+                                <SelectValue placeholder="Locality" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100 max-h-[300px]">
-                              <SelectItem value="all" className="font-bold text-primary italic">Everything</SelectItem>
-                              {propertyTypesList.map(type => (
-                                <SelectItem key={type} value={type} className="font-semibold">{type}</SelectItem>
-                              ))}
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                                <SelectItem value="all" className="font-bold text-primary italic">All Areas</SelectItem>
+                                {(localitiesByCity[district] || []).map((l) => (
+                                    <SelectItem key={l} value={l} className="font-semibold">{l}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
+                        <Button 
+                            onClick={handleNearMe}
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-10 top-1/2 -translate-y-1/2 h-8 w-8 text-primary hover:bg-primary/10 rounded-full"
+                        >
+                            {isLocating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Gender Selector */}
+                    <div className="relative group/select">
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Preferred Gender</label>
+                        <Select value={gender} onValueChange={setGender}>
+                            <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                              <SelectItem value="all" className="font-semibold">Any / Doesn't Matter</SelectItem>
+                              <SelectItem value="Male" className="font-semibold">Male</SelectItem>
+                              <SelectItem value="Female" className="font-semibold">Female</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    </div>
+
+                    {/* Move-in Date */}
+                    <div className="relative group/select">
+                        <label className="absolute left-4 top-2 text-[9px] font-black uppercase text-slate-400 tracking-widest z-10">Move-in Date</label>
+                        <Select value={moveIn} onValueChange={setMoveIn}>
+                            <SelectTrigger className="w-full h-16 pt-5 border-slate-200/60 bg-white/50 rounded-2xl shadow-sm focus:ring-primary/20 hover:border-primary/30 transition-all font-bold text-slate-800">
+                                <SelectValue placeholder="Immediate" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl shadow-2xl border-slate-100">
+                              <SelectItem value="immediate" className="font-semibold">Immediate</SelectItem>
+                              <SelectItem value="15days" className="font-semibold">Within 15 Days</SelectItem>
+                              <SelectItem value="30days" className="font-semibold">Within 30 Days</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                     </div>
                 </div>
 
                 {/* Budget Slider Row */}
-                <div className="px-2 pt-2 pb-4">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="px-2 pt-2 pb-2">
+                    <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <IndianRupee className="w-4 h-4 text-primary" />
-                            </div>
-                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">Budget Range</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Budget Range</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="px-3 py-1 bg-slate-100 rounded-lg text-sm font-black text-slate-700 border border-slate-200/50">
+                            <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-700 border border-slate-200/50">
                                 {formatCurrency(budgetRange[0])}
                             </div>
-                            <div className="w-3 h-px bg-slate-300" />
-                            <div className="px-3 py-1 bg-slate-900 rounded-lg text-sm font-black text-white border border-slate-800">
+                            <div className="w-2 h-px bg-slate-300" />
+                            <div className="px-3 py-1 bg-slate-900 rounded-lg text-xs font-black text-white border border-slate-800">
                                 {formatCurrency(budgetRange[1])}+
                             </div>
                         </div>
                     </div>
                     <Slider 
-                        defaultValue={[0, searchTab === 'rent' ? 200000 : 100000000]} 
-                        max={searchTab === 'rent' ? 200000 : 100000000} 
-                        step={searchTab === 'rent' ? 500 : 100000}
+                        defaultValue={[0, searchTab === 'rental' ? 200000 : 50000]} 
+                        max={searchTab === 'rental' ? 200000 : 50000} 
+                        step={searchTab === 'rental' ? 1000 : 500}
                         onValueChange={(vals) => setBudgetRange([vals[0], vals[1] || vals[0]])}
-                        className="py-4"
+                        className="py-2"
                     />
                 </div>
                 
-                {/* Search Action + Instant Count */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                    <div className="flex-1 flex items-center gap-4 px-6 h-16 bg-slate-50 rounded-2xl border border-slate-100">
-                        {isQueryLoading ? (
-                            <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                                <span className="text-sm font-bold text-slate-600">
-                                    <span className="text-primary text-lg font-black">{filteredCount}</span> Properties matching your taste
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <Button 
-                        onClick={handleSearch} 
-                        className="w-full sm:w-56 h-16 bg-slate-900 hover:bg-primary text-white font-bold font-heading text-lg rounded-2xl shadow-xl shadow-slate-200 hover:shadow-primary/30 transform transition-all duration-300 group/search"
-                    >
-                        <Search className="mr-3 h-5 w-5 transform group-hover/search:scale-110 transition-transform" /> 
-                        Search Now
-                    </Button>
-                </div>
+                {/* Search Action */}
+                <Button 
+                    onClick={handleSearch} 
+                    className="w-full h-14 bg-primary hover:bg-slate-900 text-white font-bold font-heading text-base rounded-2xl shadow-lg shadow-primary/20 transform transition-all duration-300"
+                >
+                    <Search className="mr-2 h-5 w-5" /> 
+                    Search Now
+                </Button>
             </div>
         </div>
     </div>
   );
 };
 
+const TrustBadges = () => (
+  <div className="flex flex-wrap items-center gap-4 mt-6 ml-2">
+    <div className="flex items-center gap-2">
+      <ShieldCheck className="w-5 h-5 text-accent-green" />
+      <span className="text-sm font-bold text-slate-600">Zero Brokerage</span>
+    </div>
+    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+    <div className="flex items-center gap-2">
+      <CheckCircle2 className="w-5 h-5 text-primary" />
+      <span className="text-sm font-bold text-slate-600">100% Verified</span>
+    </div>
+    <div className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden sm:block" />
+    <div className="flex items-center gap-2 hidden sm:flex">
+      <Sparkles className="w-5 h-5 text-yellow-500" />
+      <span className="text-sm font-bold text-slate-600">Premium Stays</span>
+    </div>
+  </div>
+);
 
+const RightHeroVisual = () => (
+  <div className="relative w-full aspect-[4/5] lg:aspect-square max-w-[550px] mx-auto hidden lg:block">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8 }}
+      className="absolute inset-0 rounded-[40px] overflow-hidden shadow-2xl shadow-primary/10 border border-slate-100"
+    >
+       <div className="absolute inset-0 bg-slate-100 animate-pulse" /> {/* Placeholder while loading */}
+       <Image 
+         src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070&auto=format&fit=crop"
+         alt="Premium Coliving Space"
+         fill
+         className="object-cover relative z-10"
+         priority
+       />
+       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent z-20" />
+    </motion.div>
+
+    {/* Floating Cards */}
+    <motion.div 
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.5, duration: 0.6 }}
+      className="absolute bottom-12 -left-8 bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-xl shadow-slate-900/10 border border-white flex items-center gap-4 z-30"
+    >
+       <div className="w-12 h-12 bg-accent-green/10 rounded-xl flex items-center justify-center">
+         <ShieldCheck className="w-6 h-6 text-accent-green" />
+       </div>
+       <div>
+         <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Verified</p>
+         <p className="text-sm font-bold text-slate-900">10k+ Properties</p>
+       </div>
+    </motion.div>
+
+    <motion.div 
+      initial={{ opacity: 0, x: 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.7, duration: 0.6 }}
+      className="absolute top-1/3 -right-6 bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-xl shadow-slate-900/10 border border-white flex items-center gap-4 z-30"
+    >
+       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+         <Sparkles className="w-6 h-6 text-primary" />
+       </div>
+       <div>
+         <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Top Rated</p>
+         <p className="text-sm font-bold text-slate-900">Co-living Spaces</p>
+       </div>
+    </motion.div>
+  </div>
+);
 
 export function HeroSection() {
   return (
     <section className="relative flex flex-col justify-center min-h-[calc(100vh-68px)] pt-16 pb-16 md:pt-20 md:pb-24 overflow-hidden bg-[#F8FAFC]">
-        {/* Modern Dynamic Blobs */}
-        <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] bg-theme2/10 rounded-full filter blur-[120px] animate-pulse pointer-events-none"></div>
-        <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-theme3/10 rounded-full filter blur-[100px] animate-pulse delay-700 pointer-events-none"></div>
-
-        {/* High-end Pattern Overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none"></div>
+        {/* Dynamic Blobs */}
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full filter blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-purple-500/5 rounded-full filter blur-[120px] pointer-events-none" />
 
         <div className="container relative z-10 px-4">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white shadow-xl shadow-slate-200/50 border border-slate-100 text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-6 md:mb-10"
-            >
-                <div className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+                {/* LEFT COLUMN */}
+                <div className="flex flex-col relative z-20 w-full max-w-[600px] mx-auto lg:mx-0">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white shadow-sm border border-slate-100 text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-6 w-fit"
+                    >
+                        <div className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        </div>
+                        Zero Brokerage Platform
+                    </motion.div>
+
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="font-black font-heading text-[40px] md:text-[56px] lg:text-[64px] leading-[1.1] tracking-[-0.03em] text-slate-900 mb-8"
+                    >
+                      Find Your Perfect Stay in <span className="text-primary">Bangalore</span>
+                    </motion.h1>
+                    
+                    <motion.div 
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="w-full"
+                    >
+                        <SearchWidget />
+                        <TrustBadges />
+                    </motion.div>
                 </div>
-                Premium Real Estate Network
-            </motion.div>
 
-            <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="font-bold font-heading text-[42px] md:text-[68px] lg:text-[76px] leading-[1.1] tracking-[-0.03em] max-w-4xl text-slate-900 mb-6"
-            >
-              Moving to a new city?<br/>
-              <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Find your home, flatmate & community</span> in one place.
-            </motion.h1>
-            
-            <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed mb-10 md:mb-14 font-medium"
-            >
-              Verified owners, direct contact & zero brokerage. Your complete 48-hour home search guide.
-            </motion.p>
-
-            <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-            >
-                <SearchWidget />
-            </motion.div>
+                {/* RIGHT COLUMN */}
+                <div className="w-full">
+                    <RightHeroVisual />
+                </div>
+            </div>
         </div>
     </section>
   );

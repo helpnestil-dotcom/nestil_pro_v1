@@ -23,7 +23,7 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.21, 1.02, 0.73, 1] }}
-      className="w-full bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/40 mb-6 block transition-all active:scale-[0.98] font-body"
+      className="w-full bg-white rounded-[18px] overflow-hidden border border-slate-100 shadow-sm mb-6 block transition-all active:scale-[0.98] font-body"
     >
       {/* 1. Image Section */}
       <div className="relative aspect-[16/11] w-full">
@@ -40,7 +40,7 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
           <div className="px-3 py-1 bg-white text-slate-900 text-[9px] font-black rounded-full shadow-lg">
             PG / Co-living
           </div>
-          <div className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black rounded-full shadow-lg flex items-center gap-1">
+          <div className="px-3 py-1 bg-accent-green text-white text-[9px] font-black rounded-full shadow-md flex items-center gap-1">
             <CheckCircle2 className="w-2.5 h-2.5" />
             Verified
           </div>
@@ -100,7 +100,7 @@ export function MobilePropertyListingCard({ property, index = 0 }: MobilePropert
            <Button variant="secondary" className="flex-1 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-black text-[10px] shadow-none">
               Schedule Visit
            </Button>
-           <Button asChild className="flex-1 h-12 rounded-2xl bg-black hover:bg-slate-800 text-white font-black text-[10px] shadow-xl">
+           <Button asChild className="flex-1 h-12 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-[10px] shadow-md">
               <Link href={`/properties/${property.id}`}>
                  View Details
               </Link>

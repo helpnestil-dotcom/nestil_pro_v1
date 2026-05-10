@@ -109,10 +109,10 @@ export function MobileHeader() {
     >
       {/* Top Nav */}
       <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-1.5">
-          <Home className="w-6 h-6 text-[#2CB6A2]" />
-          <h1 className="text-2xl font-black font-heading text-[#2CB6A2] tracking-tighter">nestil</h1>
-        </div>
+        <Link href="/" className="flex items-center gap-2" onClick={() => window.scrollTo(0, 0)}>
+          <Home className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-black font-heading text-primary tracking-tighter">nestil</h1>
+        </Link>
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="relative h-10 w-10 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors" aria-label="View notifications">
             <Bell className="w-5 h-5 text-slate-700" />

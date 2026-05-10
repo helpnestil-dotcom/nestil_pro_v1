@@ -88,13 +88,7 @@ export default function HomeClient({ featuredProperties }: { featuredProperties:
         
         <AvailableNow />
 
-        <div className="px-5 mb-10">
-           <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">Verified Listings</h2>
-              <Link href="/properties" className="text-primary font-bold text-sm">See all</Link>
-           </div>
-           {featuredProperties}
-        </div>
+
 
         <PromoBanners />
 

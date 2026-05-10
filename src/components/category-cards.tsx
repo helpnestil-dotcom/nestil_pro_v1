@@ -11,8 +11,8 @@ export function CategoryCards() {
       description: 'Flats, Apartments, Houses for Rent',
       icon: Home,
       href: '/properties?category=residential',
-      bgColor: 'bg-[#F0F9F8]',
-      iconColor: 'text-[#2CB6A2]',
+      bgColor: 'bg-primary/10',
+      iconColor: 'text-primary',
     },
     {
       title: 'Find Flatmate',
@@ -20,7 +20,7 @@ export function CategoryCards() {
       icon: Users,
       href: '/properties?type=Flatmate%20%2F%20Co-living',
       bgColor: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
+      iconColor: 'text-accent-green',
     },
     {
       title: 'Find PG / Coliving',
@@ -28,7 +28,7 @@ export function CategoryCards() {
       icon: Building2,
       href: '/properties?category=pg',
       bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600',
+      iconColor: 'text-accent-orange',
     },
   ];
 
@@ -39,7 +39,7 @@ export function CategoryCards() {
           key={cat.title} 
           href={cat.href}
           className={cn(
-            "flex flex-col items-center text-center p-3 rounded-2xl transition-all active:scale-95 border border-transparent shadow-sm",
+            "flex flex-col items-center text-center p-3 rounded-[18px] transition-all active:scale-95 border border-transparent shadow-sm",
             cat.bgColor
           )}
         >
